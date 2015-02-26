@@ -47,7 +47,29 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
      */
     public function subscribeEvents()
     {
+        $this->subscribeEvent('Enlight_Controller_Front_StartDispatch', 'onStartDispatch');
+    }
 
+    /**
+     * Main entry point for the bonus system: Registers various subscribers to hook into shopware
+     */
+    public function onStartDispatch()
+    {
+        $subscribers = array(
+            new \Shopware\CustomSort\Subscriber\ControllerPath($this)
+        );
+
+        foreach ($subscribers as $subscriber) {
+            $this->Application()->Events()->addSubscriber($subscriber);
+        }
+    }
+
+    /**
+     * Method to always register the custom models and the namespace for the auto-loading
+     */
+    public function afterInit()
+    {
+        $this->Application()->Loader()->registerNamespace('Shopware\CustomSort', $this->Path());
     }
 
     /**
