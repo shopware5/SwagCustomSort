@@ -38,6 +38,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
     public function install()
     {
         $this->subscribeEvents();
+        $this->createDatabase();
 
         return array('success' => true, 'invalidateCache' => array('backend'));
     }
@@ -69,7 +70,8 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
      */
     public function afterInit()
     {
-        $this->Application()->Loader()->registerNamespace('Shopware\CustomSort', $this->Path());
+        $this->registerCustomModels();
+        $this->Application()->Loader()->registerNamespace('Shopware\SwagCustomSort', $this->Path());
     }
 
     /**
@@ -90,6 +92,25 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
                 'position' => 6,
             )
         );
+    }
+
+    /**
+     * Creates the plugin database tables over the doctrine schema tool.
+     */
+    public function createDatabase()
+    {
+        $em = $this->Application()->Models();
+        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
+
+        $classes = array(
+            $em->getClassMetadata('Shopware\CustomModels\CustomSort\ArticleSort'),
+        );
+
+        try {
+            $tool->createSchema($classes);
+        } catch(\Doctrine\ORM\Tools\ToolsException $e) {
+            //
+        }
     }
 
 }
