@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopware\CustomSort\Subscriber;
+namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
 
