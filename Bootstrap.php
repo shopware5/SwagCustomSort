@@ -39,6 +39,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
     {
         $this->subscribeEvents();
         $this->createDatabase();
+        $this->createMenu();
 
         return array('success' => true, 'invalidateCache' => array('backend'));
     }
@@ -79,12 +80,12 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
      */
     public function createMenu()
     {
-        $parent = $this->Menu()->findOneBy(array('label' => 'Items'));
+        $parent = $this->Menu()->findOneBy(array('label' => 'Artikel'));
 
         $this->createMenuItem(
             array(
                 'label' => 'Custom sort',
-                'controller' => 'Custom sort',
+                'controller' => 'CustomSort',
                 'action' => 'Index',
                 'active' => 1,
                 'class' => 'sprite-blue-document-text-image',

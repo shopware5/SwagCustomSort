@@ -22,6 +22,16 @@ class ControllerPath implements SubscriberInterface
     }
 
     /**
+     * Register module template directory
+     */
+    protected function registerView()
+    {
+        Shopware()->Template()->addTemplateDir(
+            $this->bootstrap->Path() . 'Views/'
+        );
+    }
+
+    /**
     * This function is responsible to resolve the backend / frontend controller path.
     *
     * @param  \Enlight_Event_EventArgs $args
@@ -29,6 +39,8 @@ class ControllerPath implements SubscriberInterface
     */
     public function onGetCustomSortControllerPath(\Enlight_Event_EventArgs $args)
     {
+        $this->registerView();
+
         switch ($args->getName()) {
             case 'Enlight_Controller_Dispatcher_ControllerPath_Backend_CustomSort':
                 return $this->bootstrap->Path() . 'Controllers/Backend/CustomSort.php';
