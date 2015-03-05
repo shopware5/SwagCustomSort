@@ -40,6 +40,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $this->subscribeEvents();
         $this->createDatabase();
         $this->createMenu();
+        $this->createForm($this->Form());
 
         return array('success' => true, 'invalidateCache' => array('backend'));
     }
@@ -58,7 +59,9 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
     public function onStartDispatch()
     {
         $subscribers = array(
-            new \Shopware\SwagCustomSort\Subscriber\ControllerPath($this)
+            new \Shopware\SwagCustomSort\Subscriber\Resource(Shopware()->Container()),
+            new \Shopware\SwagCustomSort\Subscriber\ControllerPath($this),
+            new \Shopware\SwagCustomSort\Subscriber\Frontend($this)
         );
 
         foreach ($subscribers as $subscriber) {
@@ -114,4 +117,23 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         }
     }
 
+    protected function createForm(Shopware\Models\Config\Form $form)
+    {
+        $form->setElement('text', 'swagCustomSortName',
+            array(
+                'label' => 'Name',
+                'value' => NULL,
+                'description' => 'The new sort, will be visible in the frontend under this name option.'
+            )
+        );
+
+        $this->addFormTranslations(
+            array('en_GB' => array(
+                'swagCustomSortName' => array(
+                    'label' => 'Name',
+                    'description' => 'The new sort, will be visible in the frontend under this name option.'
+                )
+            ))
+        );
+    }
 }
