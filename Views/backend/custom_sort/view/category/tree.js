@@ -16,8 +16,6 @@ Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
 
     collapsible: false,
 
-    region: 'west',
-
     /**
      * False to hide the root node.
      * @boolean

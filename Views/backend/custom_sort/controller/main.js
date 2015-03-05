@@ -16,6 +16,10 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      */
     mainWindow: null,
 
+    refs: [
+        { ref: 'articleView', selector: 'sort-articles-view' }
+    ],
+
     /**
      * Sets up the ui component
      * @return void
@@ -26,11 +30,30 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         me.subApplication.treeStore =  me.subApplication.getStore('Tree');
         me.subApplication.treeStore.load();
 
+        me.subApplication.articleStore =  me.subApplication.getStore('Article');
+
+        me.control({
+            'sort-category-tree': {
+                'itemclick': me.onItemClick
+            }
+        });
+
         me.mainWindow = me.getView('main.Window').create({
-            treeStore:me.subApplication.treeStore
+            treeStore: me.subApplication.treeStore,
+            articleStore: me.subApplication.articleStore
         }).show();
 
         me.callParent(arguments);
+    },
+
+    onItemClick: function(view, record) {
+        var me = this,
+            grid = me.getArticleView();
+
+        me.subApplication.articleStore.getProxy().extraParams = { categoryId: record.get("id") };
+        me.subApplication.articleStore.load();
+
+        grid.setDisabled(false);
     }
 
 });

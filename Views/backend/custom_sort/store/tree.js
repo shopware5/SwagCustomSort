@@ -4,7 +4,7 @@ Ext.define('Shopware.apps.CustomSort.store.Tree', {
      * Extend for the standard ExtJS 4
      * @string
      */
-    extend:'Ext.data.TreeStore',
+    extend: 'Shopware.store.CategoryTree',
 
     /**
      * Defines the id of the root node. To get the first level of shopware categories
@@ -13,11 +13,7 @@ Ext.define('Shopware.apps.CustomSort.store.Tree', {
      */
     defaultRootId: 1,
 
-    /**
-     * Defines which model used for the store records.
-     * @string
-     */
-    model: 'Shopware.apps.CustomSort.model.Tree',
+    alias : 'store.category',
 
     /**
      * Disable auto loading for this store
