@@ -59,7 +59,9 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
     public function onStartDispatch()
     {
         $subscribers = array(
-            new \Shopware\SwagCustomSort\Subscriber\ControllerPath($this)
+            new \Shopware\SwagCustomSort\Subscriber\Resource(Shopware()->Container()),
+            new \Shopware\SwagCustomSort\Subscriber\ControllerPath($this),
+            new \Shopware\SwagCustomSort\Subscriber\Frontend($this)
         );
 
         foreach ($subscribers as $subscriber) {
