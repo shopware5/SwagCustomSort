@@ -5,8 +5,18 @@ Ext.define('Shopware.apps.CustomSort.view.main.Window', {
     extend: 'Enlight.app.Window',
 
     alias: 'widget.sort-main-window',
-    
-    layout: 'fit',
+
+    layout: 'border',
+
+    autoShow: true,
+
+    resizable: true,
+
+    maximizable: true,
+
+    minimizable: true,
+
+    width: 1000,
 
     title: '{s name=window/title}Custom category sorting{/s}',
 
@@ -28,8 +38,14 @@ Ext.define('Shopware.apps.CustomSort.view.main.Window', {
 
         return [{
             xtype: 'sort-category-tree',
-            split: true,
+            region: 'west',
+            flex: 0.25,
             store: me.treeStore
+        }, {
+            xtype: 'sort-articles-view',
+            region: 'center',
+            store: me.articleStore,
+            treeStore: me.treeStore
         }];
     }
 

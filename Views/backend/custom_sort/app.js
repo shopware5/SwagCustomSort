@@ -35,9 +35,19 @@ Ext.define('Shopware.apps.CustomSort', {
         'Main'
     ],
 
+    models: [
+        'Article'
+    ],
+
+    stores: [
+        'Tree',
+        'Article'
+    ],
+
     views: [
         'main.Window',
-        'category.Tree'
+        'category.Tree',
+        'article.View'
     ],
 
     /**
