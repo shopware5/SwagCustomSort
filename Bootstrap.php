@@ -127,7 +127,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             'link',
             'int(11)',
             true,
-            0
+            null
         );
         $em->addAttribute(
             's_categories_attributes',

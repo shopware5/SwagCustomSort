@@ -9,7 +9,7 @@ use Shopware\Components\Model\ModelEntity;
 /**
  * @ORM\Entity
  * @ORM\Table(name="s_articles_sort")
- * @ORM\Entity(repositoryClass="Repository")
+ * @ORM\Entity(repositoryClass="CustomSortRepository")
  */
 class ArticleSort extends ModelEntity
 {

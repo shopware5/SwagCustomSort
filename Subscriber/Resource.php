@@ -32,7 +32,8 @@ class Resource implements SubscriberInterface
 	public function onInitListingComponent()
 	{
 		return new Listing(
-			Shopware()->Config()
+			Shopware()->Config(),
+			Shopware()->Models()
 		);
 	}
 }

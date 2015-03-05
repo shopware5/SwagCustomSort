@@ -3,6 +3,7 @@
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
+use Shopware\SwagCustomSort\Components\Listing;
 
 class Frontend implements SubscriberInterface
 {
@@ -27,11 +28,17 @@ class Frontend implements SubscriberInterface
     {
         //TODO: check license
 
-        $view = $args->getSubject()->View();
-
         $customSortComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
-        $showCustomSort = $customSortComponent->showCustomSortName();
+        if (!$customSortComponent instanceof Listing) {
+            return;
+        }
+
+        $view = $args->getSubject()->View();
+        $categoryId = $view->sCategoryInfo['id'];
+
+        $showCustomSort = $customSortComponent->showCustomSortName($categoryId);
         if ($showCustomSort) {
+            $view->showCustomSort = true;
             $this->extendsTemplate($view, 'frontend/listing/actions/action-sorting.tpl');
         }
     }
