@@ -39,6 +39,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
     {
         $this->subscribeEvents();
         $this->createDatabase();
+        $this->createAttributes();
         $this->createMenu();
         $this->createForm($this->Form());
 
@@ -115,6 +116,31 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         } catch(\Doctrine\ORM\Tools\ToolsException $e) {
             //
         }
+    }
+
+    public function createAttributes()
+    {
+        $em = $this->Application()->Models();
+        $em->addAttribute(
+            's_categories_attributes',
+            'swag',
+            'link',
+            'int(11)',
+            true,
+            0
+        );
+        $em->addAttribute(
+            's_categories_attributes',
+            'swag',
+            'show_by_default',
+            'tinyint(1)',
+            true,
+            0
+        );
+
+        $em->generateAttributeModels(array(
+            's_categories_attributes'
+        ));
     }
 
     protected function createForm(Shopware\Models\Config\Form $form)
