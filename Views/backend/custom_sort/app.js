@@ -36,10 +36,12 @@ Ext.define('Shopware.apps.CustomSort', {
     ],
 
     models: [
+        'Settings',
         'Article'
     ],
 
     stores: [
+        'Settings',
         'Tree',
         'Article'
     ],
@@ -47,7 +49,8 @@ Ext.define('Shopware.apps.CustomSort', {
     views: [
         'main.Window',
         'category.Tree',
-        'article.View'
+        'article.View',
+        'article.List'
     ],
 
     /**

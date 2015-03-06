@@ -1,7 +1,7 @@
 //{block name="backend/custom_sort/view/article/view"}
 Ext.define('Shopware.apps.CustomSort.view.article.View', {
 
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.form.Panel',
 
     /**
      * Register the alias for this class.
@@ -11,25 +11,16 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
 
     layout: 'fit',
 
-    disabled: 'true',
-
-    dragOverCls: 'drag-over',
-
-    maximize: true,
+    disabled: true,
 
     initComponent: function() {
         var me = this;
 
         me.tbar = me.createActionToolbar();
         me.items = [{
-            xtype: 'container',
-            style: 'background: #fff',
-            autoScroll: true,
-            items: [
-                me.createMediaView()
-            ]
+            xtype: 'sort-articles-list',
+            store: me.articleStore
         }];
-        me.dockedItems = [ me.getPagingBar() ];
 
         me.callParent(arguments);
     },
@@ -37,115 +28,62 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
     createActionToolbar: function() {
         var me = this;
 
-        return [{
-            xtype: 'checkbox',
-            cls: 'confirm-check-box',
+        me.defaultSort = Ext.create('Ext.form.field.Checkbox', {
             boxLabel: 'Show this sort order by default',
-            name: 'default',
+            name: 'defaultSort',
             inputValue: 1,
             uncheckedValue: 0,
-            labelWidth: 180
-        }, {
-            xtype: 'combobox',
-            fieldLabel: 'Sync from category',
-            editable: false,
-            store: me.treeStore,
-            displayField: 'name',
-            triggerAction: 'all',
-            valueField: 'id',
-            typeAhead: false,
-            forceSelection: true,
-            loadingText: 'Searching...',
-            pageSize: 10,
-            hideTrigger: false,
-            labelWidth: 150
-        }, {
-            xtype: 'combobox',
-            fieldLabel: 'Base sorting',
-            store: me.treeStore
-        }];
-    },
-
-    createGridForm: function() {
-        var me = this;
-
-        me.articlesForm = Ext.create('Ext.form.Panel', {
-            layout: 'vbox',
-            border: 0,
-            style: 'background: #fff',
-            items: [
-                me.createMediaView(),
-                me.getPagingBar()
-            ]
-        });
-
-        return me.articlesForm;
-    },
-
-    createMediaView: function() {
-        var me = this;
-
-        var multiSelect = true;
-        if(Ext.isBoolean(me.selectionMode)) {
-            multiSelect = me.selectionMode;
-        }
-
-        me.dataView = Ext.create('Ext.view.View', {
-            itemSelector: '.thumb-wrap',
-            emptyText: '<div class="empty-text"><span>No articles found</span></div>',
-            multiSelect: multiSelect,
-            store: me.store,
-            tpl: me.createMediaViewTemplate()
-        });
-
-        //TODO: Set event listeners for the selection model to lock/unlock the move buttons
-        me.dataView.getSelectionModel().on({
-            'select': {
-                fn: me.onSelectMedia,
-                scope: me
-            },
-            'deselect': {
-                fn: me.onLockMoveButton,
-                scope: me
+            listeners: {
+                change: function(oldValue, newValue) {
+                    if (me.store.data.items[0].data.defaultSort != newValue) {
+                        me.fireEvent('defaultSort');
+                    }
+                }
             }
         });
 
-        return me.dataView;
-    },
-
-    createMediaViewTemplate: function() {
-        return new Ext.XTemplate(
-            '{literal}<tpl for=".">',
-            '<tpl if="main===1">',
-            '<div class="article-thumb-wrap main" >',
-            '</tpl>',
-            '<tpl if="main!=1">',
-            '<div class="article-thumb-wrap" >',
-            '</tpl>',
-
-            // If the type is image, then show the image
-            '<div class="thumb">',
-            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{path}{/literal}','" /></div>',
-            '<tpl if="main===1">',
-            '<div class="preview"><span>Test</span></div>',
-            '</tpl>',
-            '<tpl if="hasConfig">',
-            '<div class="mapping-config">&nbsp;</div>',
-            '</tpl>',
-            '</div>',
-            '</div>',
-            '</tpl>',
-            '<div class="x-clear"></div>{/literal}'
-        );
-    },
-
-    getPagingBar: function() {
-        var me = this;
-        return Ext.create('Ext.toolbar.Paging', {
-            dock: 'bottom',
-            store: me.store,
-            displayInfo: true
+        me.sorting = Ext.create('Ext.form.field.ComboBox', {
+            editable: false,
+            fieldLabel: 'Base sorting',
+            labelWidth: 80,
+            queryMode: 'local',
+            displayField: 'name',
+            valueField: 'id',
+            store: Ext.create('Ext.data.Store', {
+                fields: [ 'id', 'name' ],
+                data: [
+                    { id: 1, name: 'ListingSortRelease' },
+                    { id: 2, name: 'ListingSortRating' },
+                    { id: 3, name: 'ListingSortPriceLowest' },
+                    { id: 4, name: 'ListingSortPriceHighest' },
+                    { id: 5, name: 'ListingSortName' },
+                ]
+                }),
+            listeners: {
+                select: function(field, records) {
+                    var sort = records[0].get('id');
+                    me.fireEvent('sortChange', sort);
+                }
+            }
         });
+
+        return [
+            me.defaultSort,
+            '->', {
+            xtype: 'combotree',
+            fieldLabel: 'Sync from category',
+            allowBlank: true,
+            editable: false,
+            store: me.treeStore,
+            forceSelection: true,
+            name: 'categoryLink',
+            labelWidth: 120,
+            listeners: {
+                select: function(field, record) {
+                    me.fireEvent('categoryLink', record);
+                }
+            }
+        }, me.sorting ];
     }
 
 });

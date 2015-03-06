@@ -44,8 +44,9 @@ Ext.define('Shopware.apps.CustomSort.view.main.Window', {
         }, {
             xtype: 'sort-articles-view',
             region: 'center',
-            store: me.articleStore,
-            treeStore: me.treeStore
+            store: me.categorySettings,
+            treeStore: me.treeStore,
+            articleStore: me.articleStore
         }];
     }
 
