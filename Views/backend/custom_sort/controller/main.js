@@ -37,7 +37,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         me.control({
             'sort-category-tree': {
-                itemclick: me.onItemClick
+                itemclick: me.onCategorySelect
             },
             'sort-articles-view': {
                 defaultSort: me.onSaveSettings,
@@ -49,7 +49,9 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 moveToEnd: me.onMoveToEnd,
                 moveToPrevPage: me.onMoveToPrevPage,
                 moveToNextPage: me.onMoveToNextPage,
-                articleMove: me.onArticleMove
+                articleMove: me.onArticleMove,
+                articleSelect: me.onArticleSelect,
+                articleDeselect: me.onArticleDeselect
             }
         });
 
@@ -62,7 +64,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         me.callParent(arguments);
     },
 
-    onItemClick: function(view, record) {
+    onCategorySelect: function(view, record) {
         var me = this,
             grid = me.getArticleView(),
             list = me.getArticleList();
@@ -103,6 +105,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 list.setLoading(false);
             }
         });
+
+        me.onArticleDeselect();
     },
 
     onSaveSettings: function() {
@@ -162,6 +166,40 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         articleStore.insert(index, draggedRecord);
 
         return true;
+    },
+
+    onArticleSelect: function(model, article) {
+        var me = this,
+            list = me.getArticleList(),
+            store = list.store;
+
+        index = store.indexOfTotal(article);
+        if (index > 0) {
+            list.moveToStart.setDisabled(false);
+        }
+
+        if ((index + 1) < store.totalCount) {
+            list.moveToEnd.setDisabled(false);
+        }
+
+        if (store.currentPage > 1) {
+            list.moveToPrevPage.setDisabled(false);
+        }
+
+        lastPage = store.totalCount / store.pageSize;
+        if (lastPage > store.currentPage){
+            list.moveToNextPage.setDisabled(false);
+        }
+    },
+
+    onArticleDeselect: function(a, b) {
+        var me = this,
+            list = me.getArticleList();
+
+        list.moveToStart.setDisabled(true);
+        list.moveToEnd.setDisabled(true);
+        list.moveToPrevPage.setDisabled(true);
+        list.moveToNextPage.setDisabled(true);
     }
 
 });
