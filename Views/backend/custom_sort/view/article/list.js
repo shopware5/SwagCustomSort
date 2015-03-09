@@ -12,6 +12,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
     initComponent:function () {
         var me = this;
 
+        me.tbar = me.createActionToolbar();
         me.items = [ me.createMediaView() ];
         me.dockedItems = [ me.getPagingBar() ];
 
@@ -69,6 +70,48 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             '</tpl>',
             '<div class="x-clear"></div>{/literal}'
         );
+    },
+
+    createActionToolbar: function() {
+        var me = this;
+
+        me.moveToStart = Ext.create('Ext.button.Button', {
+            text: 'Move selected item(s) to start',
+            action: 'moveToStart',
+            disabled: true,
+            handler: function() {
+                me.fireEvent('moveToStart');
+            }
+        });
+
+        me.moveToEnd = Ext.create('Ext.button.Button', {
+            text: 'Move selected item(s) to end',
+            action: 'moveToEnd',
+            disabled: true,
+            handler: function() {
+                me.fireEvent('moveToEnd');
+            }
+        });
+
+        me.moveToPrevPage = Ext.create('Ext.button.Button', {
+            text: 'Move selected item(s) to previous page',
+            action: 'moveToPrevPage',
+            disabled: true,
+            handler: function() {
+                me.fireEvent('moveToPrevPage');
+            }
+        });
+
+        me.moveToNextPage = Ext.create('Ext.button.Button', {
+            text: 'Move selected item(s) to next page',
+            action: 'moveToNextPage',
+            disabled: true,
+            handler: function() {
+                me.fireEvent('moveToNextPage');
+            }
+        });
+
+        return [ me.moveToStart, me.moveToEnd, me.moveToPrevPage, me.moveToNextPage ];
     },
 
     getPagingBar: function() {

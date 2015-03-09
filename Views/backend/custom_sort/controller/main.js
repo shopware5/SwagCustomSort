@@ -43,6 +43,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 defaultSort: me.onSaveSettings,
                 sortChange: me.onSortChange,
                 categoryLink: me.onSaveSettings
+            },
+            'sort-articles-list': {
+                moveToStart: me.onMoveToStart,
+                moveToEnd: me.onMoveToEnd,
+                moveToPrevPage: me.onMoveToPrevPage,
+                moveToNextPage: me.onMoveToNextPage
             }
         });
 
@@ -122,6 +128,22 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 Shopware.Notification.createGrowlMessage('Error','Some error appear');
             }
         });
+    },
+
+    onMoveToStart: function() {
+        //TODO: move after product select
+    },
+
+    onMoveToEnd: function() {
+        //TODO: move after product select
+    },
+
+    onMoveToPrevPage: function() {
+        //TODO: move after product select
+    },
+
+    onMoveToNextPage: function() {
+        //TODO: move after product select
     }
 
 });
