@@ -48,7 +48,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 moveToStart: me.onMoveToStart,
                 moveToEnd: me.onMoveToEnd,
                 moveToPrevPage: me.onMoveToPrevPage,
-                moveToNextPage: me.onMoveToNextPage
+                moveToNextPage: me.onMoveToNextPage,
+                articleMove: me.onArticleMove
             }
         });
 
@@ -144,6 +145,23 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
     onMoveToNextPage: function() {
         //TODO: move after product select
+    },
+
+    onArticleMove: function(articleStore, draggedRecord, targetRecord) {
+        var index;
+
+        if (!articleStore instanceof Ext.data.Store
+            || !draggedRecord instanceof Ext.data.Model
+            || !targetRecord instanceof Ext.data.Model) {
+            return false;
+        }
+
+        index = articleStore.indexOf(targetRecord);
+
+        articleStore.remove(draggedRecord);
+        articleStore.insert(index, draggedRecord);
+
+        return true;
     }
 
 });

@@ -9,6 +9,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
     autoScroll: true,
 
+    dragOverCls: 'drag-over',
+
     initComponent:function () {
         var me = this;
 
@@ -25,7 +27,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         me.dataView = Ext.create('Ext.view.View', {
             height: '100%',
             disabled: false,
-            itemSelector: '.article-thumb-wrap',
+            itemSelector: '.thumb',
             name: 'image-listing',
             padding: '10 10 20',
             emptyText: '<div class="empty-text"><span>No articles found</span></div>',
@@ -42,6 +44,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         me.dataView.getSelectionModel().on('deselect', function (dataViewModel, article) {
             me.fireEvent('articleDeselect', dataViewModel, article);
         });
+
+        me.initDragAndDrop();
 
         return me.dataView;
     },
@@ -121,6 +125,62 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             dock: 'bottom',
             store: me.store,
             displayInfo: true
+        });
+    },
+
+    initDragAndDrop: function() {
+        var me = this;
+
+        me.dataView.on('afterrender', function(v) {
+            me.dataView.dragZone = new Ext.dd.DragZone(v.getEl(), {
+                getDragData: function(e) {
+                    var sourceEl = e.getTarget(v.itemSelector, 10);
+                    if (sourceEl) {
+                        var d = sourceEl.cloneNode(true);
+                        d.id = Ext.id();
+
+                        var result = {
+                            ddel: d,
+                            sourceEl: sourceEl,
+                            repairXY: Ext.fly(sourceEl).getXY(),
+                            sourceStore: v.store,
+                            draggedRecord: v.getRecord(sourceEl)
+                        }
+
+                        return result;
+                    }
+                },
+                getRepairXY: function() {
+                    return this.dragData.repairXY;
+                }
+            });
+
+            me.dataView.dropZone = new Ext.dd.DropZone(me.dataView.getEl(), {
+                getTargetFromEvent: function(e) {
+                    return e.getTarget(me.dataView.itemSelector);
+                },
+
+                onNodeEnter : function(target, dd, e, data) {
+                    var record = me.dataView.getRecord(target);
+                    if (record !== data.draggedRecord) {
+                        Ext.fly(target).addCls(me.dragOverCls);
+                    }
+                },
+
+                onNodeOut : function(target, dd, e, data) {
+                    Ext.fly(target).removeCls(me.dragOverCls);
+                },
+
+                onNodeOver : function(target, dd, e, data) {
+                    return (data.draggedRecord instanceof Ext.data.Model);
+                },
+
+                onNodeDrop : function(target, dd, e, data) {
+                    var record = me.dataView.getRecord(target);
+                    me.fireEvent('articleMove', me.store, data.draggedRecord, record)
+                }
+            });
+
         });
     }
 
