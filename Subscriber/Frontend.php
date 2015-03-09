@@ -17,7 +17,8 @@ class Frontend implements SubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            'Enlight_Controller_Action_PostDispatchSecure_Frontend_Listing' => 'onPostDispatchSecureListing'
+            'Enlight_Controller_Action_PostDispatchSecure_Frontend_Listing' => 'onPostDispatchSecureListing',
+            'Enlight_Controller_Action_PreDispatch_Frontend_Listing' => 'onPreDispatchListing'
         );
     }
 
@@ -33,11 +34,14 @@ class Frontend implements SubscriberInterface
             return;
         }
 
-        $view = $args->getSubject()->View();
-        $categoryId = $view->sCategoryInfo['id'];
+        $subject = $args->getSubject();
+        $request = $subject->Request();
+        $view = $subject->View();
 
+        $categoryId = $request->getParam('sCategory');
+        $hideFilters = $view->sCategoryContent['hideFilter'];
         $showCustomSort = $customSortComponent->showCustomSortName($categoryId);
-        if ($showCustomSort) {
+        if ($showCustomSort && !$hideFilters) {
             $view->showCustomSort = true;
             $this->extendsTemplate($view, 'frontend/listing/actions/action-sorting.tpl');
         }
@@ -52,5 +56,25 @@ class Frontend implements SubscriberInterface
             $view->addTemplateDir($this->bootstrap->Path() . 'Views/emotion/');
             $view->extendsTemplate($templatePath);
         }
+    }
+
+    public function onPreDispatchListing(Enlight_Event_EventArgs $args)
+    {
+        //TODO: check license
+
+        $customSortComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
+        if (!$customSortComponent instanceof Listing) {
+            return;
+        }
+
+        $request = $args->getSubject()->Request();
+        $categoryId = $request->getParam('sCategory');
+        $useDefaultSort = $customSortComponent->showCustomSortAsDefault($categoryId);
+        $sortName = $customSortComponent->getFormattedSortName();
+        if ((!$useDefaultSort && empty($sortName)) || $request->getParam('sSort') !== null) {
+            return;
+        }
+
+        $request->setParam('sSort', \Shopware\SwagCustomSort\Sorter\SortFactory::DRAG_DROP_SORTING);
     }
 }

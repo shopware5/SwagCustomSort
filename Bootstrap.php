@@ -62,7 +62,8 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $subscribers = array(
             new \Shopware\SwagCustomSort\Subscriber\Resource(Shopware()->Container()),
             new \Shopware\SwagCustomSort\Subscriber\ControllerPath($this),
-            new \Shopware\SwagCustomSort\Subscriber\Frontend($this)
+            new \Shopware\SwagCustomSort\Subscriber\Frontend($this),
+            new \Shopware\SwagCustomSort\Subscriber\Sort($this)
         );
 
         foreach ($subscribers as $subscriber) {
@@ -148,8 +149,9 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $form->setElement('text', 'swagCustomSortName',
             array(
                 'label' => 'Name',
-                'value' => NULL,
-                'description' => 'The new sort, will be visible in the frontend under this name option.'
+                'value' => 'Custom Sorting',
+                'description' => 'The new sort, will be visible in the frontend under this name option.',
+                'required' => true
             )
         );
 
@@ -157,7 +159,8 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             array('en_GB' => array(
                 'swagCustomSortName' => array(
                     'label' => 'Name',
-                    'description' => 'The new sort, will be visible in the frontend under this name option.'
+                    'description' => 'The new sort, will be visible in the frontend under this name option.',
+                    'value' => 'Custom Sorting'
                 )
             ))
         );
