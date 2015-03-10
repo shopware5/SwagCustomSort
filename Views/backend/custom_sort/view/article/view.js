@@ -30,6 +30,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
 
         me.defaultSort = Ext.create('Ext.form.field.Checkbox', {
             boxLabel: 'Show this sort order by default',
+            cls: 'swag-custom-sort-bold-checkbox',
             name: 'defaultSort',
             inputValue: 1,
             uncheckedValue: 0,
@@ -45,20 +46,23 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
         me.sorting = Ext.create('Ext.form.field.ComboBox', {
             editable: false,
             fieldLabel: 'Base sorting',
-            labelWidth: 80,
+            labelWidth: 85,
             queryMode: 'local',
             displayField: 'name',
             valueField: 'id',
+            labelClsExtra: 'swag-custom-sort-radiobtn-topmargin',
             store: Ext.create('Ext.data.Store', {
                 fields: [ 'id', 'name' ],
                 data: [
                     { id: 1, name: 'ListingSortRelease' },
-                    { id: 2, name: 'ListingSortRating' },
+                    { id: 2, name: 'ListingSortPopularity' },
                     { id: 3, name: 'ListingSortPriceLowest' },
                     { id: 4, name: 'ListingSortPriceHighest' },
-                    { id: 5, name: 'ListingSortName' },
+                    { id: 5, name: 'ListingSortNameAsc' },
+                    { id: 6, name: 'ListingSortNameDesc' },
+                    { id: 7, name: 'ListingSortRanking' }
                 ]
-                }),
+            }),
             listeners: {
                 select: function(field, records) {
                     var sort = records[0].get('id');
@@ -72,6 +76,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             '->', {
             xtype: 'combotree',
             fieldLabel: 'Sync from category',
+            labelClsExtra: 'swag-custom-sort-radiobtn-topmargin',
             allowBlank: true,
             editable: false,
             store: me.treeStore,
