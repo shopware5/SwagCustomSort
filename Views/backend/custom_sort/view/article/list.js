@@ -68,7 +68,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
             // If the type is image, then show the image
             '<div class="thumb">',
-            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{path}{/literal}','" /></div>',
+            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{thumbnail}{/literal}','" />{name}</div>',
             '<tpl if="main===1">',
             '<div class="preview"><span>Test</span></div>',
             '</tpl>',

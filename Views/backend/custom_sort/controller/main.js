@@ -26,7 +26,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * @return void
      */
     init: function() {
-        var me = this;
+        var me = this
+            me.categoryId = null;
 
         me.subApplication.treeStore =  me.subApplication.getStore('Tree');
         me.subApplication.treeStore.load();
@@ -73,17 +74,25 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         grid.setDisabled(true);
         list.setDisabled(true);
 
-        me.subApplication.categorySettings.getProxy().extraParams = { categoryId: record.get("id") };
+        me.categoryId = record.get('id');
+
+        me.subApplication.categorySettings.getProxy().extraParams = { categoryId: me.categoryId };
         me.subApplication.categorySettings.load({
             callback: function(records, operation, success) {
                 if (success) {
                     var record = records[0];
                     grid.loadRecord(record);
+                    if (record.get('categoryLink') == 0) {
+                        grid.defaultSort.setDisabled(false);
+                        grid.sorting.setDisabled(false);
+                    }
                 }
             }
         });
 
-        me.subApplication.articleStore.getProxy().extraParams = { categoryId: record.get("id") };
+        me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId };
+        me.subApplication.articleStore.filters.clear();
+        me.subApplication.articleStore.currentPage = 1;
         me.subApplication.articleStore.load({
             callback: function() {
                 grid.setLoading(false);
@@ -99,7 +108,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         list.setLoading(true);
 
-        me.subApplication.articleStore.getProxy().extraParams = { sortBy: record }
+        me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId, sortBy: record }
         me.subApplication.articleStore.load({
             callback: function() {
                 list.setLoading(false);
@@ -192,7 +201,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }
     },
 
-    onArticleDeselect: function(a, b) {
+    onArticleDeselect: function() {
         var me = this,
             list = me.getArticleList();
 

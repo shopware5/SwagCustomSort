@@ -19,4 +19,22 @@ class CustomSortRepository extends ModelRepository
 
         return $result;
     }
+
+    public function getArticleImageQuery($categoryId)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->select(array('DISTINCT image.img as path', 'image.extension', 'article.name'))
+            ->from('s_articles_img', 'image')
+            ->leftJoin('image', 's_articles_categories_ro', 'category', 'category.articleID = image.articleID')
+            ->leftJoin('category', 's_articles', 'article', 'article.id = category.articleID')
+            ->leftJoin('article', 's_articles_details', 'details', 'details.articleID = article.id')
+            ->leftJoin('article', 's_articles_prices', 'price', 'price.articleID = article.id')
+            ->where('category.categoryID = :categoryId')
+            ->andWhere('image.main = 1')
+            ->orderBy('price.price', 'ASC')
+            ->setParameter('categoryId', $categoryId)
+        ;
+
+        return $builder;
+    }
 }
