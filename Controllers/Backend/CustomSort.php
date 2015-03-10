@@ -18,42 +18,54 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $offset = $this->Request()->getParam('start');
         $sort = $this->Request()->getParam('sortBy', 5);
 
-        $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
+        try {
+            $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
 
-        $total = $builder->execute()->rowCount();
+            switch ($sort) {
+                case 1:
+                    $builder
+                        ->orderBy('product.datum', 'DESC')
+                        ->addOrderBy('product.changetime', 'DESC');
+                    break;
+                case 2:
+                    $builder
+                        ->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
+                        ->orderBy('topSeller.sales', 'DESC')
+                        ->orderBy('topSeller.article_id', 'DESC');
+                    break;
+                case 3:
+                    $builder
+                        ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
+                        ->orderBy('cheapest_price', 'ASC');
+                    break;
+                case 4:
+                    $builder
+                        ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
+                        ->orderBy('cheapest_price', 'DESC');
+                    break;
+                case 5:
+                    $builder->orderBy('product.name', 'ASC');
+                    break;
+                case 6:
+                    $builder->orderBy('product.name', 'DESC');
+                    break;
+            }
 
-        if ($offset !== null && $limit !== null) {
-            $builder->setFirstResult($offset)
-                ->setMaxResults($limit);
+            $total = $builder->execute()->rowCount();
+
+            if ($offset !== null && $limit !== null) {
+                $builder->setFirstResult($offset)
+                    ->setMaxResults($limit);
+            }
+
+            $result = $builder->execute()->fetchAll();
+
+            $this->View()->assign(array('success' => true, 'data' => $result, 'total' => $total));
+        } catch (\Exception $ex) {
+            $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
         }
-        switch ($sort) {
-            case 1:
-                $builder->orderBy('details.releasedate');
-                break;
-            case 2:
-                $builder->orderBy('popularity');
-                break;
-            case 3:
-                $builder->orderBy('price');
-                break;
-            case 4:
-                $builder->orderBy('price');
-                break;
-            case 5:
-                $builder->orderBy('product_name');
-                break;
-            case 6:
-                $builder->orderBy('product_name');
-                break;
-            case 7:
-                $builder->orderBy('search_ranking');
-                break;
-        }
-
-        $result = $builder->execute()->fetchAll();
 
 
-        $this->View()->assign(array('success' => true, 'data' => $result, 'total' => $total));
     }
 
     public function getCategorySettingsAction()

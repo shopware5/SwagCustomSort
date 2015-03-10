@@ -23,17 +23,26 @@ class CustomSortRepository extends ModelRepository
     public function getArticleImageQuery($categoryId)
     {
         $builder = $this->getEntityManager()->getDBALQueryBuilder();
-        $builder->select(array('DISTINCT image.img as path', 'image.extension', 'article.name'))
-            ->from('s_articles_img', 'image')
-            ->leftJoin('image', 's_articles_categories_ro', 'category', 'category.articleID = image.articleID')
-            ->leftJoin('category', 's_articles', 'article', 'article.id = category.articleID')
-            ->leftJoin('article', 's_articles_details', 'details', 'details.articleID = article.id')
-            ->leftJoin('article', 's_articles_prices', 'price', 'price.articleID = article.id')
-            ->where('category.categoryID = :categoryId')
-            ->andWhere('image.main = 1')
-            ->orderBy('price.price', 'ASC')
+
+        $builder
+            ->select(array(
+                'product.name',
+                'images.img as path',
+                'images.extension',
+                'MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price'
+            ))
+            ->from('s_articles', 'product')
+            ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
+            ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+            ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
+            ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
+            ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
+            ->where('productCategory.categoryID = :categoryId')
+            ->andWhere('images.main = 1')
+            ->groupBy('product.id')
+            ->addOrderBy('product.id', 'ASC')
             ->setParameter('categoryId', $categoryId)
-        ;
+            ;
 
         return $builder;
     }
