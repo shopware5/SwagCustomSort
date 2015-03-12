@@ -29,18 +29,14 @@ class Frontend implements SubscriberInterface
     {
         //TODO: check license
 
-        $customSortComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
-        if (!$customSortComponent instanceof Listing) {
+        $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
+        if (!$categoryComponent instanceof Listing) {
             return;
         }
 
-        $subject = $args->getSubject();
-        $request = $subject->Request();
-        $view = $subject->View();
-
-        $categoryId = $request->getParam('sCategory');
+        $view = $args->getSubject()->View();
         $hideFilters = $view->sCategoryContent['hideFilter'];
-        $showCustomSort = $customSortComponent->showCustomSortName($categoryId);
+        $showCustomSort = $categoryComponent->showCustomSortName();
         if ($showCustomSort && !$hideFilters) {
             $view->showCustomSort = true;
             $this->extendsTemplate($view, 'frontend/listing/actions/action-sorting.tpl');
@@ -62,16 +58,16 @@ class Frontend implements SubscriberInterface
     {
         //TODO: check license
 
-        $customSortComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
-        if (!$customSortComponent instanceof Listing) {
+        $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
+        if (!$categoryComponent instanceof Listing) {
             return;
         }
 
         $request = $args->getSubject()->Request();
-        $categoryId = $request->getParam('sCategory');
-        $useDefaultSort = $customSortComponent->showCustomSortAsDefault($categoryId);
-        $sortName = $customSortComponent->getFormattedSortName();
-        if ((!$useDefaultSort && empty($sortName)) || $request->getParam('sSort') !== null) {
+        $useDefaultSort = $categoryComponent->showCustomSortAsDefault();
+        $sortName = $categoryComponent->getFormattedSortName();
+
+        if (!$useDefaultSort || empty($sortName) || $request->getParam('sSort') !== null) {
             return;
         }
 

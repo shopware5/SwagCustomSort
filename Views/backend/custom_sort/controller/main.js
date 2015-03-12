@@ -114,7 +114,6 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         //clear tree selection if it is not linked
         if (!linkedCategoryId) {
-            treePanel.collapseAll();
             comboBox.setRawValue();
         }
 
@@ -123,7 +122,6 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             var node = treeStore.getNodeById(linkedCategoryId);
             if (node) {
                 comboBox.setRawValue(node.get('name'));
-                treePanel.collapseAll();
                 treePanel.selectPath(node.getPath());
             }
         };
@@ -131,6 +129,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         //load whole category tree
         treeStore.on('load', function() {
             treePanel.expandAll();
+            treePanel.collapseAll();
 
             //select tree node on first load
             selectNode();

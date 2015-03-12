@@ -22,13 +22,22 @@ class DragDropHandler implements SortingHandlerInterface
 
     public function generateSorting(SortingInterface $sorting, QueryBuilder $query, ShopContextInterface $context)
     {
+        $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
+        $linkedCategoryId = $categoryComponent->getLinkedCategoryId();
+
         //apply 'plugin' order
         $query->leftJoin(
             'productCategory',
             's_articles_sort',
             'customSort',
-            'productCategory.categoryID = customSort.categoryId AND customSort.articleId = productCategory.articleID'
+            'customSort.articleId = productCategory.articleID'
         );
+
+        if ($linkedCategoryId) {
+            $query->andWhere('customSort.categoryId = :sortCategoryId OR customSort.categoryId IS NULL');
+            $query->setParameter('sortCategoryId', $linkedCategoryId);
+        }
+
         $query->addOrderBy('-customSort.position', $sorting->getDirection());
 
         //for records with no 'plugin' order data use the default shopware order
