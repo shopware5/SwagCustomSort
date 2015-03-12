@@ -11,6 +11,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
     dragOverCls: 'drag-over',
 
+    cls: Ext.baseCSSPrefix + 'article-sort',
+
     initComponent:function () {
         var me = this;
 
@@ -68,7 +70,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
             // If the type is image, then show the image
             '<div class="thumb">',
-            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{thumbnail}{/literal}','" />{name}</div>',
+            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{thumbnail}{/literal}','" /><span>{name}</span></div>',
             '<tpl if="main===1">',
             '<div class="preview"><span>Test</span></div>',
             '</tpl>',
