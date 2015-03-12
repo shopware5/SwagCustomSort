@@ -11,9 +11,18 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
     dragOverCls: 'drag-over',
 
+    cls: Ext.baseCSSPrefix + 'article-sort',
+
     initComponent:function () {
         var me = this;
 
+        me.viewConfig = {
+            plugins: {
+                ptype: 'gridviewdragdrop',
+                ddGroup: 'Article',
+                enableDrop: true
+            }
+        };
         me.tbar = me.createActionToolbar();
         me.items = [ me.createMediaView() ];
         me.dockedItems = [ me.getPagingBar() ];
@@ -36,7 +45,6 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             tpl: me.createMediaViewTemplate()
         });
 
-        //TODO: Set event listeners for the selection model to lock/unlock the move buttons
         me.dataView.getSelectionModel().on('select', function (dataViewModel, article) {
             me.fireEvent('articleSelect', dataViewModel, article);
         });
@@ -62,7 +70,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
             // If the type is image, then show the image
             '<div class="thumb">',
-            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{path}{/literal}','" /></div>',
+            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{thumbnail}{/literal}','" /><span>{name}</span></div>',
             '<tpl if="main===1">',
             '<div class="preview"><span>Test</span></div>',
             '</tpl>',
@@ -133,6 +141,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
         me.dataView.on('afterrender', function(v) {
             me.dataView.dragZone = new Ext.dd.DragZone(v.getEl(), {
+                ddGroup: 'Article',
                 getDragData: function(e) {
                     var sourceEl = e.getTarget(v.itemSelector, 10);
                     if (sourceEl) {
@@ -156,6 +165,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             });
 
             me.dataView.dropZone = new Ext.dd.DropZone(me.dataView.getEl(), {
+                ddGroup: 'Article',
                 getTargetFromEvent: function(e) {
                     return e.getTarget(me.dataView.itemSelector);
                 },

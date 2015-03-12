@@ -63,7 +63,8 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             new \Shopware\SwagCustomSort\Subscriber\Resource(Shopware()->Container()),
             new \Shopware\SwagCustomSort\Subscriber\ControllerPath($this),
             new \Shopware\SwagCustomSort\Subscriber\Frontend($this),
-            new \Shopware\SwagCustomSort\Subscriber\Sort($this)
+            new \Shopware\SwagCustomSort\Subscriber\Backend($this),
+			new \Shopware\SwagCustomSort\Subscriber\Sort($this)
         );
 
         foreach ($subscribers as $subscriber) {
