@@ -32,7 +32,6 @@ Ext.define('Shopware.apps.CustomSort.view.main.Window', {
         me.callParent(arguments);
     },
 
-
     createItems: function() {
         var me = this;
 

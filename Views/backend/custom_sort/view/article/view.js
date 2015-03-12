@@ -43,6 +43,33 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             }
         });
 
+        me.categoryTreeCombo = Ext.create('Shopware.form.field.ComboTree', {
+            valueField: 'id',
+            displayField: 'name',
+            treeField: 'categoryId',
+            selectedRecord : me.record,
+            store: Ext.create('Shopware.store.CategoryTree'),
+            forceSelection: true,
+            fieldLabel: 'Sync from category',
+            labelClsExtra: 'swag-custom-sort-radiobtn-topmargin',
+            labelWidth: 120,
+            emptyText: 'Please select a category',
+            allowBlank: true,
+            name: 'categoryLink',
+            rootVisible: false,
+            enableKeyEvents: true,
+            listeners: {
+                select: function(field, record) {
+                    me.fireEvent('categoryLink', record);
+                },
+                keydown: function () {
+                    if (this.getRawValue().length <= 1) {
+                        me.fireEvent('categoryLink');
+                    }
+                }
+            }
+        });
+
         me.sorting = Ext.create('Ext.form.field.ComboBox', {
             editable: false,
             fieldLabel: 'Base sorting',
@@ -73,22 +100,10 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
 
         return [
             me.defaultSort,
-            '->', {
-            xtype: 'combotree',
-            fieldLabel: 'Sync from category',
-            labelClsExtra: 'swag-custom-sort-radiobtn-topmargin',
-            allowBlank: true,
-            editable: false,
-            store: me.treeStore,
-            forceSelection: true,
-            name: 'categoryLink',
-            labelWidth: 120,
-            listeners: {
-                select: function(field, record) {
-                    me.fireEvent('categoryLink', record);
-                }
-            }
-        }, me.sorting ];
+            '->',
+            me.categoryTreeCombo,
+            me.sorting
+        ];
     }
 
 });

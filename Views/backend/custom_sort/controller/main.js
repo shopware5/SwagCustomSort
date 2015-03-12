@@ -81,10 +81,20 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             callback: function(records, operation, success) {
                 if (success) {
                     var record = records[0];
+                    var linkedCategoryId = record.get('categoryLink');
+
                     grid.loadRecord(record);
-                    if (record.get('categoryLink') == 0) {
+                    me.prepareTreeCombo(linkedCategoryId);
+
+                    grid.setDisabled(false);
+                    grid.categoryTreeCombo.setDisabled(false);
+                    if (linkedCategoryId > 0) {
+                        grid.defaultSort.setDisabled(true);
+                        grid.sorting.setDisabled(true);
+                    } else {
                         grid.defaultSort.setDisabled(false);
                         grid.sorting.setDisabled(false);
+                        list.setDisabled(false);
                     }
                 }
             }
@@ -93,13 +103,42 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId };
         me.subApplication.articleStore.filters.clear();
         me.subApplication.articleStore.currentPage = 1;
-        me.subApplication.articleStore.load({
-            callback: function() {
-                grid.setLoading(false);
-                grid.setDisabled(false);
-                list.setDisabled(false);
+        me.subApplication.articleStore.load();
+    },
+
+    prepareTreeCombo: function(linkedCategoryId) {
+        var me = this,
+            comboBox = me.getArticleView().categoryTreeCombo,
+            treePanel = comboBox.getPicker(),
+            treeStore = treePanel.getStore();
+
+        //clear tree selection if it is not linked
+        if (!linkedCategoryId) {
+            treePanel.collapseAll();
+            comboBox.setRawValue();
+        }
+
+        //helper function for selecting tree node
+        var selectNode = function() {
+            var node = treeStore.getNodeById(linkedCategoryId);
+            if (node) {
+                comboBox.setRawValue(node.get('name'));
+                treePanel.collapseAll();
+                treePanel.selectPath(node.getPath());
             }
+        };
+
+        //load whole category tree
+        treeStore.on('load', function() {
+            treePanel.expandAll();
+
+            //select tree node on first load
+            selectNode();
         });
+
+        //select tree node on change
+        selectNode();
+        return true;
     },
 
     onSortChange: function(record) {
@@ -130,6 +169,10 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             grid.defaultSort.setDisabled(true);
             grid.sorting.setDisabled(true);
             list.setDisabled(true);
+        } else {
+            grid.defaultSort.setDisabled(false);
+            grid.sorting.setDisabled(false);
+            list.setDisabled(false);
         }
 
         record.set(values);
