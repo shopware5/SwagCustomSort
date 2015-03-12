@@ -128,8 +128,37 @@ class Listing
         return true;
     }
 
+    /**
+     * Checks whether this category has own custom sort
+     *
+     * @param $categoryId
+     * @return bool
+     */
     public function hasOwnSort($categoryId)
     {
         return $this->getCustomSortRepository()->hasCustomSort($categoryId);
+    }
+
+    /**
+     * Checks whether this category has to use its custom sort by default, e.g. on category load use this custom sort
+     *
+     * @param $categoryId
+     * @return bool
+     */
+    public function showCustomSortAsDefault($categoryId)
+    {
+        /* @var \Shopware\Models\Attribute\Category $categoryAttributes */
+        $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
+        if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
+            return false;
+        }
+
+        $useDefaultSort = (bool) $categoryAttributes->getSwagShowByDefault();
+        $hasOwnSort = $this->hasOwnSort($categoryId);
+        if ($useDefaultSort && $hasOwnSort) {
+            return true;
+        }
+
+        return false;
     }
 }
