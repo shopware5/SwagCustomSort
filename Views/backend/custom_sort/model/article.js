@@ -34,11 +34,16 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
             create: '{url controller="CustomSort" action="saveArticleList"}'
         },
 
-        reader:{
+        reader: {
             type: 'json',
             root: 'data',
             totalProperty: 'total'
         }
+
+        //writer: {
+        //    type: 'json',
+        //    root: 'products'
+        //}
     }
 });
 //{/block}

@@ -7,6 +7,13 @@ Ext.define('Shopware.apps.CustomSort.store.Article', {
 
     model : 'Shopware.apps.CustomSort.model.Article',
 
-    pageSize: 10
+    pageSize: 10,
+
+    listeners: {
+        write: function(store) {
+            store.load();
+        }
+    }
+
 });
 //{/block}

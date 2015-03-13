@@ -1,13 +1,13 @@
 //{namespace name="backend/custom_sort/view/main"}
 //{block name="backend/custom_sort/controller/main"}
 Ext.define('Shopware.apps.CustomSort.controller.Main', {
-    
+
     /**
      * Extend from the standard ExtJS 4
      * @string
      */
     extend: 'Ext.app.Controller',
-    
+
     /**
      * Class property which holds the main application if it is created
      *
@@ -27,8 +27,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      */
     init: function() {
         var me = this;
-        me.categoryId = null;
 
+        me.categoryId = null;
         me.subApplication.treeStore =  me.subApplication.getStore('Tree');
         me.subApplication.treeStore.load();
 
@@ -189,15 +189,28 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     onMoveToStart: function(articleStore) {
-        var me = this;
+        var me = this,
+            articleListView = me.getArticleList().dataView,
+            selectedRecords = articleListView.getSelectionModel().getSelection(),
+            oldPosition = null;
 
-        if (!articleStore instanceof Ext.data.Store
-            || !me.selectedArticle instanceof Ext.data.Model) {
+        if (!articleStore instanceof Ext.data.Store) {
             return false;
         }
 
-        articleStore.remove(me.selectedArticle);
-        articleStore.insert(0, me.selectedArticle);
+        selectedRecords.forEach(function(record, position) {
+            if (!record instanceof Ext.data.Model) {
+                return false;
+            }
+
+            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize)
+            record.set('position', position);
+            record.set('oldPosition', oldPosition);
+        });
+
+        me.onSaveArticles(articleStore);
+
+        return true;
     },
 
     onMoveToEnd: function(articleStore) {
@@ -240,9 +253,6 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         var oldPosition = indexOfDragged + ((articleStore.currentPage - 1) * articleStore.pageSize);
 
         if (position != oldPosition) {
-            articleStore.remove(draggedRecord);
-            articleStore.insert(index, draggedRecord);
-
             draggedRecord.set('position', position);
             draggedRecord.set('oldPosition', oldPosition);
 
@@ -256,8 +266,6 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         var me = this,
             list = me.getArticleList(),
             index, lastPage;
-
-        me.selectedArticle = article;
 
         index = store.indexOf(article) + ((store.currentPage - 1) * store.pageSize);
         if (index > 0) {
@@ -289,7 +297,6 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     onSaveArticles: function(articleStore) {
-
         articleStore.update();
     }
 
