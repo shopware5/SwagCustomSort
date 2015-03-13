@@ -170,6 +170,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             //Store new position of moved article if new position is lower than old one
             if ($articleId == $oldArticle['id'] && $articleOldPosition < $articlePosition) {
                 $tempArticle[$oldArticle['id']] = $oldArticle;
+                $tempArticle[$oldArticle['id']]['position'] = $articlePosition;
+                $newArticleList[$articlePosition] = $tempArticle[$articleId];
                 unset($articleList[$articleId]);
                 continue;
             }

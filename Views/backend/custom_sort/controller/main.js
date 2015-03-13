@@ -203,7 +203,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 return false;
             }
 
-            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize)
+            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
             record.set('position', position);
             record.set('oldPosition', oldPosition);
         });
@@ -214,15 +214,31 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     onMoveToEnd: function(articleStore) {
-        var me = this;
+        var me = this,
+            articleListView = me.getArticleList().dataView,
+            selectedRecords = articleListView.getSelectionModel().getSelection(),
+            oldPosition = null,
+            position = null;
 
-        if (!articleStore instanceof Ext.data.Store
-            || !me.selectedArticle instanceof Ext.data.Model) {
+        if (!articleStore instanceof Ext.data.Store) {
             return false;
         }
 
-        articleStore.remove(me.selectedArticle);
-        articleStore.insert(200, me.selectedArticle);
+        var total = articleStore.getTotalCount() - 1;
+        selectedRecords.forEach(function(record, index) {
+            if (!record instanceof Ext.data.Model) {
+                return false;
+            }
+
+            oldPosition = record.get('position');
+            position = total - index;
+            record.set('position', position);
+            record.set('oldPosition', oldPosition);
+        });
+
+        me.onSaveArticles(articleStore);
+
+        return true;
     },
 
     onMoveToPrevPage: function() {
