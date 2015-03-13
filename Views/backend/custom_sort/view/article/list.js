@@ -102,7 +102,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             action: 'moveToPrevPage',
             disabled: true,
             handler: function() {
-                me.fireEvent('moveToPrevPage');
+                me.fireEvent('moveToPrevPage', me.store);
             }
         });
 
@@ -111,7 +111,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             action: 'moveToNextPage',
             disabled: true,
             handler: function() {
-                me.fireEvent('moveToNextPage');
+                me.fireEvent('moveToNextPage', me.store);
             }
         });
 

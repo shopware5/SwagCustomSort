@@ -189,22 +189,21 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     onMoveToStart: function(articleStore) {
-        var me = this,
-            articleListView = me.getArticleList().dataView,
-            selectedRecords = articleListView.getSelectionModel().getSelection(),
-            oldPosition = null;
-
         if (!articleStore instanceof Ext.data.Store) {
             return false;
         }
 
-        selectedRecords.forEach(function(record, position) {
+        var me = this,
+            selectedRecords = me.getArticleList().dataView.getSelectionModel().getSelection(),
+            oldPosition = null;
+
+        selectedRecords.forEach(function(record, index) {
             if (!record instanceof Ext.data.Model) {
                 return false;
             }
 
             oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
-            record.set('position', position);
+            record.set('position', index);
             record.set('oldPosition', oldPosition);
         });
 
@@ -214,25 +213,22 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     onMoveToEnd: function(articleStore) {
-        var me = this,
-            articleListView = me.getArticleList().dataView,
-            selectedRecords = articleListView.getSelectionModel().getSelection(),
-            oldPosition = null,
-            position = null;
-
         if (!articleStore instanceof Ext.data.Store) {
             return false;
         }
 
-        var total = articleStore.getTotalCount() - 1;
+        var me = this,
+            selectedRecords = me.getArticleList().dataView.getSelectionModel().getSelection(),
+            oldPosition = null,
+            total = articleStore.getTotalCount() - 1;
+
         selectedRecords.forEach(function(record, index) {
             if (!record instanceof Ext.data.Model) {
                 return false;
             }
 
-            oldPosition = record.get('position');
-            position = total - index;
-            record.set('position', position);
+            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+            record.set('position', total - index);
             record.set('oldPosition', oldPosition);
         });
 
@@ -241,12 +237,58 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         return true;
     },
 
-    onMoveToPrevPage: function() {
-        //TODO: move after product select
+    onMoveToPrevPage: function(articleStore) {
+        if (!articleStore instanceof Ext.data.Store) {
+            return false;
+        }
+
+        var me = this,
+            selectedRecords = me.getArticleList().dataView.getSelectionModel().getSelection(),
+            oldPosition = null,
+            position = null,
+            count = selectedRecords.length;
+
+        selectedRecords.forEach(function(record) {
+            if (!record instanceof Ext.data.Model) {
+                return false;
+            }
+
+            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+            record.set('oldPosition', oldPosition);
+            position = ((articleStore.currentPage - 1) * articleStore.pageSize) - count;
+            record.set('position', position);
+            count--;
+        });
+
+        me.onSaveArticles(articleStore);
+
+        return true;
     },
 
-    onMoveToNextPage: function() {
-        //TODO: move after product select
+    onMoveToNextPage: function(articleStore) {
+        if (!articleStore instanceof Ext.data.Store) {
+            return false;
+        }
+
+        var me = this,
+            selectedRecords = me.getArticleList().dataView.getSelectionModel().getSelection(),
+            oldPosition = null,
+            position = null;
+
+        selectedRecords.forEach(function(record, index) {
+            if (!record instanceof Ext.data.Model) {
+                return false;
+            }
+
+            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+            record.set('oldPosition', oldPosition);
+            position = (articleStore.currentPage * articleStore.pageSize) + index;
+            record.set('position', position);
+        });
+
+        me.onSaveArticles(articleStore);
+
+        return true;
     },
 
     onArticleMove: function(articleStore, draggedRecord, targetRecord) {
