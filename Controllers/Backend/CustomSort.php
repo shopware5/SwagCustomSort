@@ -161,7 +161,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $tempArticle = array();
         foreach($articleList as &$oldArticle) {
             //Set new position of moved article if new position is higher than old one
-            if ($index == $articlePosition && $articleOldPosition > $articlePosition) {
+            if ($index == $articlePosition && $articleOldPosition >= $articlePosition) {
                 $articleList[$articleId]['position'] = $index++;
                 $newArticleList[] = $articleList[$articleId];
                 unset($articleList[$articleId]);
@@ -169,7 +169,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
             //Store new position of moved article if new position is lower than old one
             if ($articleId == $oldArticle['id'] && $articleOldPosition < $articlePosition) {
-                var_dump(1111);
                 $tempArticle[$oldArticle['id']] = $oldArticle;
                 unset($articleList[$articleId]);
                 continue;
@@ -188,13 +187,15 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $index++;
         }
 
-
+        $i = 0;
         $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position) VALUES ";
         foreach($newArticleList as $newArticle) {
-            $sql .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['id'] . "', '" . $newArticle['position'] . "'),";
-            //TODO: stop insert if new position is higher than old
-            if ($newArticle['id'] == $articleId) {
-                break;
+            if ($newArticle['id'] > 0) {
+                $sql .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['id'] . "', '" . $newArticle['position'] . "'),";
+                if ($i >= $articleOldPosition && $i >= $articlePosition) {
+                    break;
+                }
+                $i++;
             }
         }
 

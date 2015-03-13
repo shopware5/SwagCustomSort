@@ -242,10 +242,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         articleStore.insert(index, draggedRecord);
 
         draggedRecord.set('position', position);
-        if (draggedRecord.get('oldPosition') == null) {
-            draggedRecord.set('oldPosition', position + 1);
-        }
-
+        draggedRecord.set('oldPosition', indexOfDragged);
 
         //TODO: save only when we move something
         me.onSaveArticles(articleStore, position);
