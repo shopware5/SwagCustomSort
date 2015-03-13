@@ -26,9 +26,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * @return void
      */
     init: function() {
-        var me = this
-        me.categoryId = null,
-            me.selectedArticle = null;
+        var me = this;
+        me.categoryId = null;
 
         me.subApplication.treeStore =  me.subApplication.getStore('Tree');
         me.subApplication.treeStore.load();
@@ -223,7 +222,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
     onArticleMove: function(articleStore, draggedRecord, targetRecord) {
         var me = this,
-            index;
+            index, position, indexOfDragged, oldPosition;
 
         if (!articleStore instanceof Ext.data.Store
             || !draggedRecord instanceof Ext.data.Model
@@ -237,21 +236,26 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             index--;
         }
 
-        position = index + ((articleStore.currentPage - 1) * articleStore.pageSize)
-        articleStore.remove(draggedRecord);
-        articleStore.insert(index, draggedRecord);
+        var position = index + ((articleStore.currentPage - 1) * articleStore.pageSize);
+        var oldPosition = indexOfDragged + ((articleStore.currentPage - 1) * articleStore.pageSize);
 
-        draggedRecord.set('position', position);
-        draggedRecord.set('oldPosition', indexOfDragged);
+        if (position != oldPosition) {
+            articleStore.remove(draggedRecord);
+            articleStore.insert(index, draggedRecord);
 
-        //TODO: save only when we move something
-        me.onSaveArticles(articleStore, position);
+            draggedRecord.set('position', position);
+            draggedRecord.set('oldPosition', oldPosition);
+
+            me.onSaveArticles(articleStore, position);
+        }
+
         return true;
     },
 
     onArticleSelect: function(store, article) {
         var me = this,
-            list = me.getArticleList();
+            list = me.getArticleList(),
+            index, lastPage;
 
         me.selectedArticle = article;
 

@@ -77,6 +77,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             queryMode: 'local',
             displayField: 'name',
             valueField: 'id',
+            value: 5,
             labelClsExtra: 'swag-custom-sort-radiobtn-topmargin',
             store: Ext.create('Ext.data.Store', {
                 fields: [ 'id', 'name' ],
