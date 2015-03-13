@@ -45,14 +45,6 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             tpl: me.createMediaViewTemplate()
         });
 
-        me.dataView.getSelectionModel().on('select', function (dataViewModel, article) {
-            me.fireEvent('articleSelect', dataViewModel, article);
-        });
-
-        me.dataView.getSelectionModel().on('deselect', function (dataViewModel, article) {
-            me.fireEvent('articleDeselect', dataViewModel, article);
-        });
-
         me.initDragAndDrop();
 
         return me.dataView;
@@ -92,7 +84,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             action: 'moveToStart',
             disabled: true,
             handler: function() {
-                me.fireEvent('moveToStart');
+                me.fireEvent('moveToStart', me.store);
             }
         });
 
@@ -101,7 +93,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             action: 'moveToEnd',
             disabled: true,
             handler: function() {
-                me.fireEvent('moveToEnd');
+                me.fireEvent('moveToEnd', me.store);
             }
         });
 
@@ -143,8 +135,10 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             me.dataView.dragZone = new Ext.dd.DragZone(v.getEl(), {
                 ddGroup: 'Article',
                 getDragData: function(e) {
+                    me.fireEvent('articleDeselect');
                     var sourceEl = e.getTarget(v.itemSelector, 10);
                     if (sourceEl) {
+                        me.fireEvent('articleSelect', me.store, v.getRecord(sourceEl));
                         var d = sourceEl.cloneNode(true);
                         d.id = Ext.id();
 

@@ -7,6 +7,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
         { name: 'id', type: 'int', useNull: true },
         { name: 'name', type: 'string' },
         { name: 'position', type: 'int' },
+        { name: 'oldPosition', type: 'int', useNull: true },
         { name: 'extension', type: 'string' },
         { name: 'path', type: 'string' },
         {
@@ -28,7 +29,9 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
         type:'ajax',
 
         api: {
-            read: '{url controller="CustomSort" action="getArticleList"}'
+            read: '{url controller="CustomSort" action="getArticleList"}',
+            update: '{url controller="CustomSort" action="saveArticleList"}',
+            create: '{url controller="CustomSort" action="saveArticleList"}'
         },
 
         reader:{

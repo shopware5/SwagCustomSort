@@ -27,7 +27,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      */
     init: function() {
         var me = this
-            me.categoryId = null;
+        me.categoryId = null,
+            me.selectedArticle = null;
 
         me.subApplication.treeStore =  me.subApplication.getStore('Tree');
         me.subApplication.treeStore.load();
@@ -114,6 +115,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         //clear tree selection if it is not linked
         if (!linkedCategoryId) {
+            treePanel.collapseAll();
             comboBox.setRawValue();
         }
 
@@ -122,6 +124,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             var node = treeStore.getNodeById(linkedCategoryId);
             if (node) {
                 comboBox.setRawValue(node.get('name'));
+                treePanel.collapseAll();
                 treePanel.selectPath(node.getPath());
             }
         };
@@ -186,12 +189,28 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         });
     },
 
-    onMoveToStart: function() {
-        //TODO: move after product select
+    onMoveToStart: function(articleStore) {
+        var me = this;
+
+        if (!articleStore instanceof Ext.data.Store
+            || !me.selectedArticle instanceof Ext.data.Model) {
+            return false;
+        }
+
+        articleStore.remove(me.selectedArticle);
+        articleStore.insert(0, me.selectedArticle);
     },
 
-    onMoveToEnd: function() {
-        //TODO: move after product select
+    onMoveToEnd: function(articleStore) {
+        var me = this;
+
+        if (!articleStore instanceof Ext.data.Store
+            || !me.selectedArticle instanceof Ext.data.Model) {
+            return false;
+        }
+
+        articleStore.remove(me.selectedArticle);
+        articleStore.insert(200, me.selectedArticle);
     },
 
     onMoveToPrevPage: function() {
@@ -203,7 +222,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     onArticleMove: function(articleStore, draggedRecord, targetRecord) {
-        var index;
+        var me = this,
+            index;
 
         if (!articleStore instanceof Ext.data.Store
             || !draggedRecord instanceof Ext.data.Model
@@ -212,19 +232,33 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }
 
         index = articleStore.indexOf(targetRecord);
+        indexOfDragged = articleStore.indexOf(draggedRecord);
+        if (index > indexOfDragged) {
+            index--;
+        }
 
+        position = index + ((articleStore.currentPage - 1) * articleStore.pageSize)
         articleStore.remove(draggedRecord);
         articleStore.insert(index, draggedRecord);
 
+        draggedRecord.set('position', position);
+        if (draggedRecord.get('oldPosition') == null) {
+            draggedRecord.set('oldPosition', position + 1);
+        }
+
+
+        //TODO: save only when we move something
+        me.onSaveArticles(articleStore, position);
         return true;
     },
 
-    onArticleSelect: function(model, article) {
+    onArticleSelect: function(store, article) {
         var me = this,
-            list = me.getArticleList(),
-            store = list.store;
+            list = me.getArticleList();
 
-        index = store.indexOfTotal(article);
+        me.selectedArticle = article;
+
+        index = store.indexOf(article) + ((store.currentPage - 1) * store.pageSize);
         if (index > 0) {
             list.moveToStart.setDisabled(false);
         }
@@ -251,6 +285,11 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         list.moveToEnd.setDisabled(true);
         list.moveToPrevPage.setDisabled(true);
         list.moveToNextPage.setDisabled(true);
+    },
+
+    onSaveArticles: function(articleStore) {
+
+        articleStore.update();
     }
 
 });

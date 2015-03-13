@@ -135,7 +135,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             's_categories_attributes',
             'swag',
             'show_by_default',
-            'tinyint(1)',
+            'int(1)',
             true,
             0
         );
