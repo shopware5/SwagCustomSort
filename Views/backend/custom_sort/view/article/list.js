@@ -62,7 +62,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
             // If the type is image, then show the image
             '<div class="thumb">',
-            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{thumbnail}{/literal}','" /><span>{name}</span></div>',
+            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{thumbnail}{/literal}','" /><span>{[Ext.util.Format.ellipsis(values.name, 50)]}</span></div>',
             '<tpl if="main===1">',
             '<div class="preview"><span>Test</span></div>',
             '</tpl>',
@@ -132,12 +132,21 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         var me = this;
 
         me.dataView.on('afterrender', function(v) {
+            var selModel = v.getSelectionModel();
             me.dataView.dragZone = new Ext.dd.DragZone(v.getEl(), {
                 ddGroup: 'Article',
                 getDragData: function(e) {
                     me.fireEvent('articleDeselect');
                     var sourceEl = e.getTarget(v.itemSelector, 10);
                     if (sourceEl) {
+                        var selected = selModel.getSelection(),
+                            record = v.getRecord(sourceEl);
+
+                        if(!selected.length) {
+                            selModel.select(record);
+                            selected = selModel.getSelection();
+                        }
+
                         me.fireEvent('articleSelect', me.store, v.getRecord(sourceEl));
                         var d = sourceEl.cloneNode(true);
                         d.id = Ext.id();
@@ -147,7 +156,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                             sourceEl: sourceEl,
                             repairXY: Ext.fly(sourceEl).getXY(),
                             sourceStore: v.store,
-                            draggedRecord: v.getRecord(sourceEl)
+                            draggedRecord: v.getRecord(sourceEl),
+                            articleModels: selected
                         }
 
                         return result;
@@ -175,13 +185,11 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     Ext.fly(target).removeCls(me.dragOverCls);
                 },
 
-                onNodeOver : function(target, dd, e, data) {
-                    return (data.draggedRecord instanceof Ext.data.Model);
-                },
-
                 onNodeDrop : function(target, dd, e, data) {
-                    var record = me.dataView.getRecord(target);
-                    me.fireEvent('articleMove', me.store, data.draggedRecord, record)
+                    var draggedRecord = me.dataView.getRecord(target);
+                    var models = data.articleModels;
+
+                    me.fireEvent('articleMove', me.store, models, data.draggedRecord, draggedRecord)
                 }
             });
 

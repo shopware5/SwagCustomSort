@@ -291,9 +291,9 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         return true;
     },
 
-    onArticleMove: function(articleStore, draggedRecord, targetRecord) {
+    onArticleMove: function(articleStore, articleModel, draggedRecord, targetRecord) {
         var me = this,
-            index, position, indexOfDragged, oldPosition;
+            startPosition = (articleStore.currentPage - 1) * articleStore.pageSize;
 
         if (!articleStore instanceof Ext.data.Store
             || !draggedRecord instanceof Ext.data.Model
@@ -301,23 +301,49 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             return false;
         }
 
-        index = articleStore.indexOf(targetRecord);
-        indexOfDragged = articleStore.indexOf(draggedRecord);
-        if (index > indexOfDragged) {
-            index--;
+        if (articleModel.length > 0) {
+            var oldPosition, position,
+                positionDecrease = 0,
+                count = articleModel.length;
+
+            Ext.each(articleModel, function(record, index) {
+                if (!record instanceof Ext.data.Model) {
+                    return false;
+                }
+
+                oldPosition = articleStore.indexOf(record) + startPosition;
+                record.set('oldPosition', oldPosition);
+
+                position = articleStore.indexOf(targetRecord) + startPosition + (index);
+
+                //Counter for multiple products when moved forward
+                if (oldPosition < position && count > 1) {
+                    positionDecrease++;
+                }
+
+                //Single product position increase when moved forward
+                if (count == 1 && oldPosition < position) {
+                    positionDecrease = 1;
+                }
+
+                record.set('position', position);
+            });
+
+
+            Ext.each(articleModel, function(record, index) {
+                var currentPosition = record.get('position');
+                var newPosition = currentPosition - positionDecrease;
+
+                //Ignore single product or product from start position
+                if (newPosition > (startPosition + 1) || count == 1) {
+                    currentPosition = newPosition;
+                }
+
+                record.set('position', currentPosition);
+            });
         }
 
-        var position = index + ((articleStore.currentPage - 1) * articleStore.pageSize);
-        var oldPosition = indexOfDragged + ((articleStore.currentPage - 1) * articleStore.pageSize);
-
-        if (position != oldPosition) {
-            draggedRecord.set('position', position);
-            draggedRecord.set('oldPosition', oldPosition);
-
-            me.onSaveArticles(articleStore, position);
-        }
-
-        return true;
+        me.onSaveArticles(articleStore);
     },
 
     onArticleSelect: function(store, article) {

@@ -205,8 +205,5 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         Shopware()->Db()->query($sql);
 
     }
-    //39!
 
-    //44, 37, 38, 39, 43, 40, 39, 272, 41, 42 - record
-    //44, 37, 38, 43, 40, 272, 39, 41, 42 - correct
 }
