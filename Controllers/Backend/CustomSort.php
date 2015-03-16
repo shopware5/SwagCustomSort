@@ -20,36 +20,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         try {
             $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
-
-            switch ($sort) {
-                case 1:
-                    $builder
-                        ->addOrderBy('product.datum', 'DESC')
-                        ->addOrderBy('product.changetime', 'DESC');
-                    break;
-                case 2:
-                    $builder
-                        ->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
-                        ->addOrderBy('topSeller.sales', 'DESC')
-                        ->addOrderBy('topSeller.article_id', 'DESC');
-                    break;
-                case 3:
-                    $builder
-                        ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
-                        ->addOrderBy('cheapest_price', 'ASC');
-                    break;
-                case 4:
-                    $builder
-                        ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
-                        ->addOrderBy('cheapest_price', 'DESC');
-                    break;
-                case 5:
-                    $builder->addOrderBy('product.name', 'ASC');
-                    break;
-                case 6:
-                    $builder->addOrderBy('product.name', 'DESC');
-                    break;
-            }
+            $this->sortUnsortedByDefault($builder, $sort);
 
             $total = $builder->execute()->rowCount();
 
@@ -64,8 +35,39 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         } catch (\Exception $ex) {
             $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
         }
+    }
 
-
+    private function sortUnsortedByDefault($builder, $sort)
+    {
+        switch ($sort) {
+            case 1:
+                $builder
+                    ->addOrderBy('product.datum', 'DESC')
+                    ->addOrderBy('product.changetime', 'DESC');
+                break;
+            case 2:
+                $builder
+                    ->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
+                    ->addOrderBy('topSeller.sales', 'DESC')
+                    ->addOrderBy('topSeller.article_id', 'DESC');
+                break;
+            case 3:
+                $builder
+                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
+                    ->addOrderBy('cheapest_price', 'ASC');
+                break;
+            case 4:
+                $builder
+                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
+                    ->addOrderBy('cheapest_price', 'DESC');
+                break;
+            case 5:
+                $builder->addOrderBy('product.name', 'ASC');
+                break;
+            case 6:
+                $builder->addOrderBy('product.name', 'DESC');
+                break;
+        }
     }
 
     public function getCategorySettingsAction()
@@ -112,98 +114,127 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     {
         $categoryId = (int) $this->Request()->getParam('categoryId');
         $sort = (int) $this->Request()->getParam('sortBy', 5);
-        $articleId = $this->Request()->getParam('id');
-        $articlePosition = $this->Request()->getParam('position');
-        $articleOldPosition = $this->Request()->getParam('oldPosition');
-
-        $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
-
-        switch ($sort) {
-            case 1:
-                $builder
-                    ->addOrderBy('product.datum', 'DESC')
-                    ->addOrderBy('product.changetime', 'DESC');
-                break;
-            case 2:
-                $builder
-                    ->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
-                    ->addOrderBy('topSeller.sales', 'DESC')
-                    ->addOrderBy('topSeller.article_id', 'DESC');
-                break;
-            case 3:
-                $builder
-                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
-                    ->addOrderBy('cheapest_price', 'ASC');
-                break;
-            case 4:
-                $builder
-                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
-                    ->addOrderBy('cheapest_price', 'DESC');
-                break;
-            case 5:
-                $builder->addOrderBy('product.name', 'ASC');
-                break;
-            case 6:
-                $builder->addOrderBy('product.name', 'DESC');
-                break;
+        $movedArticles = $this->Request()->getParam('products');
+        if ($movedArticles['id']) {
+            $movedArticles = array($movedArticles);
         }
 
-        $results = $builder->execute()->fetchAll();
+        $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
+        $this->sortUnsortedByDefault($builder, $sort);
 
+        $results = $builder->execute()->fetchAll();
 
         $articleList = array();
         foreach($results as $article) {
             $articleList[$article['id']] = $article;
         }
 
-        $index = 0;
-        $newArticleList = array();
-        $tempArticle = array();
-        foreach($articleList as &$oldArticle) {
-            //Set new position of moved article if new position is higher than old one
-            if ($index == $articlePosition && $articleOldPosition >= $articlePosition) {
-                $articleList[$articleId]['position'] = $index++;
-                $newArticleList[] = $articleList[$articleId];
-                unset($articleList[$articleId]);
-            }
+        $sqlValues = $this->getSQLUpdateValues($articleList, $movedArticles, $categoryId);
 
-            //Store new position of moved article if new position is lower than old one
-            if ($articleId == $oldArticle['id'] && $articleOldPosition < $articlePosition) {
-                $tempArticle[$oldArticle['id']] = $oldArticle;
-                $tempArticle[$oldArticle['id']]['position'] = $articlePosition;
-                $newArticleList[$articlePosition] = $tempArticle[$articleId];
-                unset($articleList[$articleId]);
+        $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position) VALUES " . rtrim($sqlValues, ',');
+        var_dump($sql);
+        Shopware()->Db()->query($sql);
+    }
+
+    private function getSQLUpdateValues($articleList, $products, $categoryId)
+    {
+        $products = $this->prepareKeys($products);
+        $offset = $this->getOffset($products, $categoryId);
+        $length = $this->getLength($products);
+        $count = count($products);
+
+        $length = ($count == 1) ? $length - $offset : ($length + $count) - $offset;
+
+        $productsForUpdate = array_slice($articleList, $offset, $length, true);
+
+        var_dump($offset, $length, $productsForUpdate);
+
+        $result = array();
+        foreach($products as $productData) {
+            $newPosition = $productData['position'];
+            $oldPosition = $productData['oldPosition'];
+
+            $result[$newPosition] = $productData;
+            $result[$newPosition]['position'] = $newPosition;
+            $result[$newPosition]['oldPosition'] = $oldPosition;
+        }
+
+        $index = $offset;
+        foreach($productsForUpdate as $id => &$product) {
+            if (array_key_exists($id, $products)) {
                 continue;
             }
 
-            //Assign stored article to new position
-            if ($tempArticle[$articleId] && $index == $articlePosition) {
-                $tempArticle[$articleId]['position'] = $index++;
-                $newArticleList[] = $tempArticle[$articleId];
+            while($result[$index]) {
+                $index++;
             }
 
-            //Set new position for articles
-            $oldArticle['position'] = $index;
-            $newArticleList[] = $oldArticle;
+            $result[$index] = $product;
+            $result[$index]['position'] = $index;
+            $result[$index]['oldPosition'] = $index;
 
             $index++;
         }
 
-        $i = 0;
-        $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position) VALUES ";
-        foreach($newArticleList as $newArticle) {
+        $sqlValues = $this->generateUpdateSQLValues($result, $categoryId);
+
+        return $sqlValues;
+    }
+
+    private function generateUpdateSQLValues($productsForUpdate, $categoryId)
+    {
+        $sqlValues = '';
+        foreach($productsForUpdate as $newArticle) {
             if ($newArticle['id'] > 0) {
-                $sql .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['id'] . "', '" . $newArticle['position'] . "'),";
-                if ($i >= $articleOldPosition && $i >= $articlePosition) {
-                    break;
-                }
-                $i++;
+                $sqlValues .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['id'] . "', '" . $newArticle['position'] . "'),";
             }
         }
 
-        $sql = rtrim($sql,',');
-        Shopware()->Db()->query($sql);
-
+        return $sqlValues;
     }
 
+    private function prepareKeys($products)
+    {
+        $result = array();
+        foreach($products as $product) {
+            $result[$product['id']] = $product;
+        }
+
+        return $result;
+    }
+
+    private function getOffset($products, $categoryId)
+    {
+        $hasCustomSort = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->hasCustomSort($categoryId);
+        if (!$hasCustomSort) {
+            return 0;
+        }
+
+        $offset = null;
+        foreach($products as $productData) {
+            $newPosition = $productData['position'];
+            $oldPosition = $productData['oldPosition'];
+
+            if ($offset > min($newPosition, $oldPosition) || $offset === null) {
+                $offset = min($newPosition, $oldPosition);
+            }
+        }
+
+        return $offset;
+    }
+
+    private function getLength($products)
+    {
+        $length = null;
+        foreach($products as $productData) {
+            $newPosition = $productData['position'];
+            $oldPosition = $productData['oldPosition'];
+
+            if ($length < max($newPosition, $oldPosition) || $length === null) {
+                $length = max($newPosition, $oldPosition);
+            }
+        }
+
+        return $length;
+    }
 }

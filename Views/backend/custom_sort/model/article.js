@@ -5,6 +5,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
 
     fields: [
         { name: 'id', type: 'int', useNull: true },
+        { name: 'positionId', type: 'int', useNull: true },
         { name: 'name', type: 'string' },
         { name: 'position', type: 'int' },
         { name: 'oldPosition', type: 'int', useNull: true },
@@ -38,12 +39,12 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
             type: 'json',
             root: 'data',
             totalProperty: 'total'
-        }
+        },
 
-        //writer: {
-        //    type: 'json',
-        //    root: 'products'
-        //}
+        writer: {
+            type: 'json',
+            root: 'products'
+        }
     }
 });
 //{/block}
