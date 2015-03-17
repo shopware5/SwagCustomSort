@@ -20,6 +20,20 @@ class CustomSortRepository extends ModelRepository
         return $result;
     }
 
+    public function getMaxPosition($categoryId)
+    {
+        $categoryId = (int) $categoryId;
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->select('MAX(position)')
+            ->from('s_articles_sort', 'sort')
+            ->where('categoryId = :categoryId')
+            ->setParameter('categoryId', $categoryId);
+
+        $max = $builder->execute()->fetchColumn();
+
+        return $max;
+    }
+
     public function getArticleImageQuery($categoryId)
     {
         $builder = $this->getEntityManager()->getDBALQueryBuilder();

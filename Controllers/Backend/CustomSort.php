@@ -230,11 +230,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
      */
     private function getOffset($products, $categoryId)
     {
-        $hasCustomSort = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->hasCustomSort($categoryId);
-        if (!$hasCustomSort) {
-            return 0;
-        }
-
         $offset = null;
         foreach($products as $productData) {
             $newPosition = $productData['position'];
@@ -244,6 +239,13 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
                 $offset = min($newPosition, $oldPosition);
             }
         }
+
+        $maxPosition = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getMaxPosition($categoryId);
+        if ($maxPosition === null) {
+            return 0;
+        }
+
+        $offset = min($offset, ++$maxPosition);
 
         return $offset;
     }
