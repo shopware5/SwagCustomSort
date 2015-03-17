@@ -112,43 +112,51 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
     public function saveArticleListAction()
     {
+        $movedProducts = $this->Request()->getParam('products');
+        if (empty($movedProducts)) {
+            return;
+        }
+        if ($movedProducts['id']) {
+            $movedProducts = array($movedProducts);
+        }
+
         $categoryId = (int) $this->Request()->getParam('categoryId');
         $sort = (int) $this->Request()->getParam('sortBy', 5);
-        $movedArticles = $this->Request()->getParam('products');
-        if ($movedArticles['id']) {
-            $movedArticles = array($movedArticles);
-        }
 
+        //get all products
         $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
         $this->sortUnsortedByDefault($builder, $sort);
+        $allProducts = $builder->execute()->fetchAll();
 
-        $results = $builder->execute()->fetchAll();
+        //get sorted products
+        $sortedProducts = $this->applyNewPosition($allProducts, $movedProducts, $categoryId);
 
-        $articleList = array();
-        foreach($results as $article) {
-            $articleList[$article['id']] = $article;
-        }
-
-        $sqlValues = $this->getSQLUpdateValues($articleList, $movedArticles, $categoryId);
+        //get sql values needed for update query
+        $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
 
         $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position) VALUES " . rtrim($sqlValues, ',');
-        var_dump($sql);
         Shopware()->Db()->query($sql);
     }
 
-    private function getSQLUpdateValues($articleList, $products, $categoryId)
+    /**
+     * Apply new positions of the products
+     *
+     * @param array $allProducts - all products contained in the current category
+     * @param array $products - the selected products, that were dragged
+     * @param int $categoryId - the id of the current category
+     * @return array $result
+     */
+    private function applyNewPosition($allProducts, $products, $categoryId)
     {
+        $allProducts = $this->prepareKeys($allProducts);
         $products = $this->prepareKeys($products);
+
+        //get all products that should be updated
         $offset = $this->getOffset($products, $categoryId);
-        $length = $this->getLength($products);
-        $count = count($products);
+        $length = $this->getLength($products, $offset);
+        $productsForUpdate = array_slice($allProducts, $offset, $length, true);
 
-        $length = ($count == 1) ? $length - $offset : ($length + $count) - $offset;
-
-        $productsForUpdate = array_slice($articleList, $offset, $length, true);
-
-        var_dump($offset, $length, $productsForUpdate);
-
+        //apply new positions for the products
         $result = array();
         foreach($products as $productData) {
             $newPosition = $productData['position'];
@@ -176,12 +184,17 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $index++;
         }
 
-        $sqlValues = $this->generateUpdateSQLValues($result, $categoryId);
-
-        return $sqlValues;
+        return $result;
     }
 
-    private function generateUpdateSQLValues($productsForUpdate, $categoryId)
+    /**
+     * Returns sql values for update query
+     *
+     * @param array $productsForUpdate
+     * @param int $categoryId
+     * @return string - values for update
+     */
+    private function getSQLValues($productsForUpdate, $categoryId)
     {
         $sqlValues = '';
         foreach($productsForUpdate as $newArticle) {
@@ -203,6 +216,14 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         return $result;
     }
 
+    /**
+     * Helper function, for getting a part of the array, which contains all products.
+     * Returns the offset from which the new array should start.
+     *
+     * @param array $products - selected products
+     * @param int $categoryId
+     * @return int - the smallest position
+     */
     private function getOffset($products, $categoryId)
     {
         $hasCustomSort = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->hasCustomSort($categoryId);
@@ -223,7 +244,15 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         return $offset;
     }
 
-    private function getLength($products)
+    /**
+     * Helper function, for getting a part of the array, which contains all products.
+     * Returns the length of the new array.
+     *
+     * @param array $products
+     * @param int $offset
+     * @return int - the length of the new array
+     */
+    private function getLength($products, $offset)
     {
         $length = null;
         foreach($products as $productData) {
@@ -234,6 +263,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
                 $length = max($newPosition, $oldPosition);
             }
         }
+
+        $length = ($length - $offset) + 1;
 
         return $length;
     }
