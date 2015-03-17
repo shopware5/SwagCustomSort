@@ -187,9 +187,9 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
                 onNodeDrop : function(target, dd, e, data) {
                     var draggedRecord = me.dataView.getRecord(target);
-                    var models = data.articleModels;
+                    var articleModels = data.articleModels;
 
-                    me.fireEvent('articleMove', me.store, models, data.draggedRecord, draggedRecord)
+                    me.fireEvent('articleMove', me.store, articleModels, draggedRecord)
                 }
             });
 

@@ -293,56 +293,53 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         return true;
     },
 
-    onArticleMove: function(articleStore, articleModel, draggedRecord, targetRecord) {
+    onArticleMove: function(articleStore, articleModel, targetRecord) {
         var me = this,
             startPosition = (articleStore.currentPage - 1) * articleStore.pageSize;
 
         if (!articleStore instanceof Ext.data.Store
-            || !draggedRecord instanceof Ext.data.Model
             || !targetRecord instanceof Ext.data.Model) {
             return false;
         }
 
-        if (articleModel.length > 0) {
-            var oldPosition, position,
-                positionDecrease = 0,
-                count = articleModel.length;
+        var count = articleModel.length;
+        if (count > 0) {
+
+            var positionIndex = articleStore.indexOf(targetRecord) + startPosition;
+
+            var forward = [], backward = [], temp = 0;
+            Ext.each(articleModel, function(record) {
+                var oldPosition = articleStore.indexOf(record) + startPosition;
+                if (oldPosition < positionIndex) {
+                    forward.push(record);
+                }
+
+                if (oldPosition > positionIndex) {
+                    backward.push(record);
+                }
+            });
 
             Ext.each(articleModel, function(record, index) {
                 if (!record instanceof Ext.data.Model) {
-                    return false;
+                    return;
                 }
+
+                var oldPosition, position;
 
                 oldPosition = articleStore.indexOf(record) + startPosition;
-                record.set('oldPosition', oldPosition);
-
-                position = articleStore.indexOf(targetRecord) + startPosition + (index);
-
-                //Counter for multiple products when moved forward
-                if (oldPosition < position && count > 1) {
-                    positionDecrease++;
+                if (oldPosition < positionIndex) {
+                    position = positionIndex - forward.length + index;
                 }
 
-                //Single product position increase when moved forward
-                if (count == 1 && oldPosition < position) {
-                    positionDecrease = 1;
+                if (oldPosition >= positionIndex) {
+                    position = positionIndex + temp;
+                    temp++;
                 }
 
                 record.set('position', position);
+                record.set('oldPosition', oldPosition);
             });
 
-
-            Ext.each(articleModel, function(record, index) {
-                var currentPosition = record.get('position');
-                var newPosition = currentPosition - positionDecrease;
-
-                //Ignore single product or product from start position
-                if (newPosition > (startPosition + 1) || count == 1) {
-                    currentPosition = newPosition;
-                }
-
-                record.set('position', currentPosition);
-            });
         }
 
         me.onSaveArticles(articleStore);
