@@ -96,6 +96,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                         grid.sorting.setDisabled(false);
                         list.setDisabled(false);
                     }
+
+                    grid.sorting.setValue(record.get('baseSort'));
                 }
             }
         });

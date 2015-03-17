@@ -6,7 +6,8 @@ Ext.define('Shopware.apps.CustomSort.model.Settings', {
     fields: [
         { name: 'id', type: 'int', useNull: true },
         { name: 'defaultSort', type: 'int' },
-        { name: 'categoryLink', type: 'int' }
+        { name: 'categoryLink', type: 'int' },
+        { name: 'baseSort', type: 'int' }
     ],
 
     proxy:{

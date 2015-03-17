@@ -16,7 +16,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $categoryId = (int) $this->Request()->getParam('categoryId');
         $limit = (int) $this->Request()->getParam('limit', null);
         $offset = (int) $this->Request()->getParam('start');
-        $sort = (int) $this->Request()->getParam('sortBy', 5);
+
+        $defaultSort = Shopware()->Config()->get('defaultListingSorting');
+        $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         try {
             $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
@@ -78,10 +80,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         $categoryAttributes = $this->getModelManager()->getRepository('\Shopware\Models\Attribute\Category')->findOneBy(array('categoryId' => $categoryId));
         if ($categoryAttributes) {
+            $defaultSort = Shopware()->Config()->get('defaultListingSorting');
             $data = array(
                 'id' => null,
                 'defaultSort' => $categoryAttributes->getSwagShowByDefault(),
-                'categoryLink' => $categoryAttributes->getSwagLink()
+                'categoryLink' => $categoryAttributes->getSwagLink(),
+                'baseSort' => $defaultSort
             );
         }
 
