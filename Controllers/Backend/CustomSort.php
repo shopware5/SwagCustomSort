@@ -2,13 +2,54 @@
 
 class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backend_ExtJs
 {
+    private $em = null;
+
+    private $sortRepo = null;
+
+    private $db = null;
+
+    private $config = null;
 
     /**
      * @return Shopware\Components\Model\ModelManager
      */
     public function getModelManager()
     {
-        return Shopware()->Models();
+        if ($this->em === null) {
+            $this->em = Shopware()->Models();
+        }
+
+        return $this->em;
+    }
+
+    public function getSortRepository()
+    {
+        if ($this->sortRepo === null) {
+            $this->sortRepo = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort');
+        }
+
+        return $this->sortRepo;
+    }
+
+    /**
+     * @return Enlight_Components_Db_Adapter_Pdo_Mysql
+     */
+    public function getDB()
+    {
+        if ($this->db === null) {
+            $this->db = Shopware()->Db();
+        }
+
+        return $this->db;
+    }
+
+    public function getConfig()
+    {
+        if ($this->config === null) {
+            $this->config = Shopware()->Config();
+        }
+
+        return $this->config;
     }
 
     public function getArticleListAction()
@@ -17,18 +58,18 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $limit = (int) $this->Request()->getParam('limit', null);
         $offset = (int) $this->Request()->getParam('start');
 
-        $defaultSort = Shopware()->Config()->get('defaultListingSorting');
+        $defaultSort = $this->getConfig()->get('defaultListingSorting');
         $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         try {
-            $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
+            $builder = $this->getSortRepository()->getArticleImageQuery($categoryId);
             $this->sortUnsortedByDefault($builder, $sort);
 
             $total = $builder->execute()->rowCount();
 
             if ($offset !== null && $limit !== null) {
                 $builder->setFirstResult($offset)
-                    ->setMaxResults($limit);
+                        ->setMaxResults($limit);
             }
 
             $result = $builder->execute()->fetchAll();
@@ -80,7 +121,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         $categoryAttributes = $this->getModelManager()->getRepository('\Shopware\Models\Attribute\Category')->findOneBy(array('categoryId' => $categoryId));
         if ($categoryAttributes) {
-            $defaultSort = Shopware()->Config()->get('defaultListingSorting');
+            $defaultSort = $this->getConfig()->get('defaultListingSorting');
             $data = array(
                 'id' => null,
                 'defaultSort' => $categoryAttributes->getSwagShowByDefault(),
@@ -125,10 +166,11 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         }
 
         $categoryId = (int) $this->Request()->getParam('categoryId');
-        $sort = (int) $this->Request()->getParam('sortBy', 5);
+        $defaultSort = $this->getConfig()->get('defaultListingSorting');
+        $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         //get all products
-        $builder = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getArticleImageQuery($categoryId);
+        $builder = $this->getSortRepository()->getArticleImageQuery($categoryId);
         $this->sortUnsortedByDefault($builder, $sort);
         $allProducts = $builder->execute()->fetchAll();
 
@@ -139,7 +181,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
 
         $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position) VALUES " . rtrim($sqlValues, ',');
-        Shopware()->Db()->query($sql);
+        $this->getDB()->query($sql);
     }
 
     /**
@@ -240,7 +282,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             }
         }
 
-        $maxPosition = $this->getModelManager()->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getMaxPosition($categoryId);
+        $maxPosition = $this->getSortRepository()->getMaxPosition($categoryId);
         if ($maxPosition === null) {
             return 0;
         }
