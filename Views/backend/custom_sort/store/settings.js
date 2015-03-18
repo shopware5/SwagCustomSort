@@ -5,8 +5,7 @@ Ext.define('Shopware.apps.CustomSort.store.Settings', {
 
     autoLoad: false,
 
-    model : 'Shopware.apps.CustomSort.model.Settings',
+    model : 'Shopware.apps.CustomSort.model.Settings'
 
-    pageSize: 10
 });
 //{/block}

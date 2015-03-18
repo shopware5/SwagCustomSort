@@ -119,13 +119,54 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
     },
 
     getPagingBar: function() {
-        var me = this;
+        var me = this,
+            productSnippet = '{s name=pagingCombo/products}products{/s}';
 
-        return Ext.create('Ext.toolbar.Paging', {
-            dock: 'bottom',
-            store: me.store,
-            displayInfo: true
+        var pageSize = Ext.create('Ext.form.field.ComboBox', {
+            labelWidth: 120,
+            cls: Ext.baseCSSPrefix + 'page-size',
+            queryMode: 'local',
+            width: 180,
+            editable: false,
+            value: me.store.pageSize,
+            listeners: {
+                scope: me,
+                select: me.onPageSizeChange
+            },
+            store: Ext.create('Ext.data.Store', {
+                fields: [ 'value', 'name' ],
+                data: [
+                    { value: '10', name: '10 ' + productSnippet },
+                    { value: '25', name: '25 ' + productSnippet },
+                    { value: '50', name: '50 ' + productSnippet },
+                    { value: '75', name: '75 ' + productSnippet }
+                ]
+            }),
+            displayField: 'name',
+            valueField: 'value'
         });
+        pageSize.setValue(me.store.pageSize + '');
+
+        var pagingBar = Ext.create('Ext.toolbar.Paging', {
+            dock: 'bottom',
+            displayInfo: true,
+            store: me.store
+        });
+
+        pagingBar.insert(pagingBar.items.length - 2, [
+            { xtype: 'tbspacer', width: 6 },
+            pageSize
+        ]);
+
+        return pagingBar;
+    },
+
+    onPageSizeChange: function (combo, records) {
+        var record = records[0],
+            me = this;
+
+        me.store.pageSize = record.get('value');
+        me.store.loadPage(1);
     },
 
     initDragAndDrop: function() {
