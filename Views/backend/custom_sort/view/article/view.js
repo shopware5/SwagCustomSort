@@ -88,8 +88,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
                 select: function(field, record) {
                     me.fireEvent('categoryLink', record);
                 },
-                keydown: function () {
-                    if (this.getRawValue().length <= 1) {
+                keyup: function () {
+                    if (this.getRawValue().length < 1 && this.getValue() != 0) {
                         me.fireEvent('categoryLink');
                     }
                 }
