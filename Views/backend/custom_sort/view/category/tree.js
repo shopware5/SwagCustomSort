@@ -47,7 +47,6 @@ Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
     createColumns : function() {
         var columns = [{
                 xtype: 'treecolumn',
-                text: 'test',
                 sortable: false,
                 flex:1,
                 dataIndex: 'text'

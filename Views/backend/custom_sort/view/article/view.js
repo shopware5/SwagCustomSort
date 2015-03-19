@@ -1,3 +1,4 @@
+//{namespace name="backend/custom_sort/main"}
 //{block name="backend/custom_sort/view/article/view"}
 Ext.define('Shopware.apps.CustomSort.view.article.View', {
 
@@ -53,7 +54,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
 
         //Create checkbox for displaying custom sort by default
         me.defaultSort = Ext.create('Ext.form.field.Checkbox', {
-            boxLabel: 'Show this sort order by default',
+            boxLabel: '{s name=view/default_sort}Show this sort order by default{/s}',
             cls: 'swag-custom-sort-bold-checkbox',
             name: 'defaultSort',
             inputValue: 1,
@@ -75,10 +76,10 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             selectedRecord : me.record,
             store: Ext.create('Shopware.store.CategoryTree'),
             forceSelection: true,
-            fieldLabel: 'Sync from category',
+            fieldLabel: '{s name=view/category_sync}Sync from category{/s}',
             labelClsExtra: 'swag-custom-sort-radiobtn-topmargin',
             labelWidth: 120,
-            emptyText: 'Please select a category',
+            emptyText: '{s name=view/category_sync/empty_text}Please select a category{/s}',
             allowBlank: true,
             name: 'categoryLink',
             rootVisible: false,
@@ -98,7 +99,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
         //Create combo with base sorting
         me.sorting = Ext.create('Ext.form.field.ComboBox', {
             editable: false,
-            fieldLabel: 'Base sorting',
+            fieldLabel: '{s name=view/sorting}Base sorting{/s}',
             labelWidth: 85,
             queryMode: 'local',
             displayField: 'name',

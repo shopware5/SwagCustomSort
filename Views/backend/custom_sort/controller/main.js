@@ -1,4 +1,4 @@
-//{namespace name="backend/custom_sort/view/main"}
+//{namespace name="backend/custom_sort/main"}
 //{block name="backend/custom_sort/controller/main"}
 Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
@@ -208,10 +208,10 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         record.save({
             success: function() {
-                Shopware.Notification.createGrowlMessage('Success', 'Successfully applied changes');
+                Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/message}Successfully applied changes{/s}');
             },
             failure: function() {
-                Shopware.Notification.createGrowlMessage('Error','Some error appear');
+                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}','{s name=main/error/message}Changes was not saved{/s}');
             }
         });
     },

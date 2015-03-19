@@ -1,3 +1,4 @@
+//{namespace name="backend/custom_sort/main"}
 //{block name="backend/custom_sort/view/article/list"}
 Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
@@ -76,7 +77,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             itemSelector: '.thumb',
             name: 'image-listing',
             padding: '10 10 20',
-            emptyText: '<div class="empty-text"><span>No articles found</span></div>',
+            emptyText: '<div class="empty-text"><span>{s name=list/no_articles}No articles found{/s}</span></div>',
             multiSelect: true,
             store: me.store,
             tpl: me.createArticleViewTemplate(),
@@ -231,7 +232,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
      */
     getPagingBar: function() {
         var me = this,
-            productSnippet = '{s name=pagingCombo/products}products{/s}';
+            productSnippet = '{s name=list/pagingCombo/products}products{/s}';
 
         var pageSize = Ext.create('Ext.form.field.ComboBox', {
             labelWidth: 120,
