@@ -31,7 +31,8 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
                     return 'media/image/thumbnail/' + name + '_140x140.' + record.get('extension');
                 }
             }
-        }
+        },
+        { name: 'pin', type: 'int' }
     ],
 
     /**
