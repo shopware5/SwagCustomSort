@@ -1,6 +1,10 @@
 //{block name="backend/custom_sort/view/article/view"}
 Ext.define('Shopware.apps.CustomSort.view.article.View', {
 
+    /**
+     * Define that the article view is an extension of the Ext.form.Panel
+     * @string
+     */
     extend: 'Ext.form.Panel',
 
     /**
@@ -9,10 +13,24 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
      */
     alias : 'widget.sort-articles-view',
 
+    /**
+     * The Ext.container.Container.layout for the fieldset's immediate child items.
+     * @object
+     */
     layout: 'fit',
 
     disabled: true,
 
+    /**
+     * The initComponent template method is an important initialization step for a Component.
+     * It is intended to be implemented by each subclass of Ext.Component to provide any needed constructor logic.
+     * The initComponent method of the class being created is called first,
+     * with each initComponent method up the hierarchy to Ext.Component being called thereafter.
+     * This makes it easy to implement and, if needed, override the constructor logic of the Component at any step in the hierarchy.
+     * The initComponent method must contain a call to callParent in order to ensure that the parent class' initComponent method is also called.
+     *
+     * @return void
+     */
     initComponent: function() {
         var me = this;
 
@@ -25,9 +43,15 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
         me.callParent(arguments);
     },
 
+    /**
+     * Creates the grid action toolbar
+     *
+     * @return [Ext.toolbar.Toolbar] grid toolbar
+     */
     createActionToolbar: function() {
         var me = this;
 
+        //Create checkbox for displaying custom sort by default
         me.defaultSort = Ext.create('Ext.form.field.Checkbox', {
             boxLabel: 'Show this sort order by default',
             cls: 'swag-custom-sort-bold-checkbox',
@@ -43,6 +67,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             }
         });
 
+        //Create combo tree in which you can link current category to another
         me.categoryTreeCombo = Ext.create('Shopware.form.field.ComboTree', {
             valueField: 'id',
             displayField: 'name',
@@ -70,6 +95,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             }
         });
 
+        //Create combo with base sorting
         me.sorting = Ext.create('Ext.form.field.ComboBox', {
             editable: false,
             fieldLabel: 'Base sorting',

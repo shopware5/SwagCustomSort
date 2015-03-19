@@ -1,19 +1,49 @@
 //{block name="backend/custom_sort/view/article/list"}
 Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
+    /**
+     * Define that the article list is an extension of the Ext.panel.Panel
+     * @string
+     */
     extend: 'Ext.panel.Panel',
 
+    /**
+     * Register the alias for this class.
+     * @string
+     */
     alias: 'widget.sort-articles-list',
 
-    border: 0,
+    /**
+     * Set no border for the window
+     * @boolean
+     */
+    border: false,
 
+    /**
+     * The view needs to be scrollable
+     * @string
+     */
     autoScroll: true,
 
     dragOverCls: 'drag-over',
 
+    /**
+     * Set css class for this component
+     * @string
+     */
     cls: Ext.baseCSSPrefix + 'article-sort',
 
-    initComponent:function () {
+    /**
+     * The initComponent template method is an important initialization step for a Component.
+     * It is intended to be implemented by each subclass of Ext.Component to provide any needed constructor logic.
+     * The initComponent method of the class being created is called first,
+     * with each initComponent method up the hierarchy to Ext.Component being called thereafter.
+     * This makes it easy to implement and, if needed, override the constructor logic of the Component at any step in the hierarchy.
+     * The initComponent method must contain a call to callParent in order to ensure that the parent class' initComponent method is also called.
+     *
+     * @return void
+     */
+    initComponent: function () {
         var me = this;
 
         me.viewConfig = {
@@ -24,14 +54,20 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             }
         };
 
-        me.items = [ me.createMediaView() ];
+        me.items = [ me.createArticleView() ];
         me.dockedItems = [ me.getPagingBar() ];
         me.registerMoveActions();
 
         me.callParent(arguments);
     },
 
-    createMediaView: function() {
+    /**
+     * Creates the article listing based on an Ext.view.View (know as DataView)
+     * and binds the "Article"-store to it
+     *
+     * @return [object] this.dataView - created Ext.view.View
+     */
+    createArticleView: function() {
         var me = this;
 
         me.dataView = Ext.create('Ext.view.View', {
@@ -43,7 +79,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             emptyText: '<div class="empty-text"><span>No articles found</span></div>',
             multiSelect: true,
             store: me.store,
-            tpl: me.createMediaViewTemplate(),
+            tpl: me.createArticleViewTemplate(),
             listeners: {
                 itemclick: function(view, record, item, idx, event, opts) {
                     if(event.target.parentElement.className === 'paging') {
@@ -58,7 +94,12 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         return me.dataView;
     },
 
-    createMediaViewTemplate: function() {
+    /**
+     * Creates the template for the article view panel
+     *
+     * @return [object] generated Ext.XTemplate
+     */
+    createArticleViewTemplate: function() {
         var me = this;
         return new Ext.XTemplate(
             '{literal}<tpl for=".">',
@@ -83,6 +124,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             '</tpl>',
             '<div class="x-clear"></div>{/literal}',
             {
+                //Add class if current product is first position in store list
                 startPage: function(article, index) {
                     var store = me.store,
                         view = me.dataView,
@@ -95,6 +137,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     }
                 },
 
+                //Add class if current product is on first page in store list
                 prevPage: function() {
                     var store = me.store;
 
@@ -103,6 +146,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     }
                 },
 
+                //Add class if current product is on last page in store list
                 nextPage: function() {
                     var store = me.store, lastPage;
 
@@ -112,6 +156,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     }
                 },
 
+                //Add class if current product is on last position in store list
                 endPage: function(article, index) {
                     var store = me.store,
                         view = me.dataView,
@@ -127,10 +172,14 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         );
     },
 
+    /**
+     * Create trigger catch when fast move button is click
+     */
     registerMoveActions: function() {
         var me = this;
 
         var el = Ext.getBody();
+        //Trigger event when "move to start" action is clicked
         el.on('click', function(event, target) {
             if (target.classList.contains('disabled')) {
                 return false;
@@ -141,6 +190,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             delegate: 'span.first'
         });
 
+        //Trigger event when "move to end" action is clicked
         el.on('click', function(event, target) {
             if (target.classList.contains('disabled')) {
                 return false;
@@ -151,6 +201,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             delegate: 'span.last'
         });
 
+        //Trigger event when "move to prev page" action is clicked
         el.on('click', function(event, target) {
             if (target.classList.contains('disabled')) {
                 return false;
@@ -161,6 +212,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             delegate: 'span.prev'
         });
 
+        //Trigger event when "move to next page" action is clicked
         el.on('click', function(event, target) {
             if (target.classList.contains('disabled')) {
                 return false;
@@ -172,6 +224,11 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         });
     },
 
+    /**
+     * Creates pagingbar
+     *
+     * @return Ext.toolbar.Paging
+     */
     getPagingBar: function() {
         var me = this,
             productSnippet = '{s name=pagingCombo/products}products{/s}';
@@ -215,6 +272,15 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         return pagingBar;
     },
 
+    /**
+     * Event listener method which fires when the user selects
+     * a entry in the "number of products"-combo box.
+     *
+     * @event select
+     * @param [object] combo - Ext.form.field.ComboBox
+     * @param [array] records - Array of selected entries
+     * @return void
+     */
     onPageSizeChange: function (combo, records) {
         var record = records[0],
             me = this;
@@ -223,6 +289,9 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         me.store.loadPage(1);
     },
 
+    /**
+     * Creates the drag and drop zone for the Ext.view.View to allow
+     */
     initDragAndDrop: function() {
         var me = this;
 
@@ -241,7 +310,6 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                             selected = selModel.getSelection();
                         }
 
-                        me.fireEvent('articleSelect', me.store, v.getRecord(sourceEl));
                         var d = sourceEl.cloneNode(true);
                         d.id = Ext.id();
 

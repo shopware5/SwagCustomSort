@@ -2,12 +2,27 @@
 
 class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backend_ExtJs
 {
+
+    /**
+     * @var Shopware\Components\Model\ModelManager $em
+     */
     private $em = null;
 
+    /**
+     * @var Shopware\CustomModels\CustomSort\ArticleSort
+     */
     private $sortRepo = null;
 
+    /**
+     * @var \Enlight_Components_Db_Adapter_Pdo_Mysql $db
+     */
     private $db = null;
 
+    /**
+     * References the shopware config object
+     *
+     * @var Shopware_Components_Config
+     */
     private $config = null;
 
     /**
@@ -22,6 +37,11 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         return $this->em;
     }
 
+    /**
+     * Returns sort repository
+     *
+     * @return Shopware\CustomModels\CustomSort\ArticleSort
+     */
     public function getSortRepository()
     {
         if ($this->sortRepo === null) {
@@ -32,6 +52,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     }
 
     /**
+     * Returns pdo mysql db adapter instance
+     *
      * @return Enlight_Components_Db_Adapter_Pdo_Mysql
      */
     public function getDB()
@@ -43,6 +65,11 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         return $this->db;
     }
 
+    /**
+     * Returns config instance
+     *
+     * @return Shopware_Components_Config
+     */
     public function getConfig()
     {
         if ($this->config === null) {
@@ -52,6 +79,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         return $this->config;
     }
 
+    /**
+     * Get article list and images for current category
+     */
     public function getArticleListAction()
     {
         $categoryId = (int) $this->Request()->getParam('categoryId');
@@ -80,6 +110,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         }
     }
 
+    /**
+     * Sort products for current category by passed sort type
+     *
+     * @param \Shopware\Components\Model\QueryBuilder $builder
+     * @param integer $sort
+     */
     private function sortUnsortedByDefault($builder, $sort)
     {
         switch ($sort) {
@@ -113,9 +149,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         }
     }
 
+    /**
+     * Get settings for current category
+     */
     public function getCategorySettingsAction()
     {
-        $categoryId = (int)$this->Request()->getParam('categoryId');
+        $categoryId = (int) $this->Request()->getParam('categoryId');
 
         $data = array();
 
@@ -133,6 +172,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $this->View()->assign(array('success' => true, 'data' => $data));
     }
 
+    /**
+     * Save category settings for current category
+     */
     public function saveCategorySettingsAction()
     {
         $categoryId = (int) $this->Request()->getParam('categoryId');
@@ -155,6 +197,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         }
     }
 
+    /**
+     * Save product list after product reorder
+     */
     public function saveArticleListAction()
     {
         $movedProducts = $this->Request()->getParam('products');
