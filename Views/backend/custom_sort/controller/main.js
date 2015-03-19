@@ -50,9 +50,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 moveToEnd: me.onMoveToEnd,
                 moveToPrevPage: me.onMoveToPrevPage,
                 moveToNextPage: me.onMoveToNextPage,
-                articleMove: me.onArticleMove,
-                articleSelect: me.onArticleSelect,
-                articleDeselect: me.onArticleDeselect
+                articleMove: me.onArticleMove
             }
         });
 
@@ -156,8 +154,6 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 list.setLoading(false);
             }
         });
-
-        me.onArticleDeselect();
     },
 
     onSaveSettings: function() {
@@ -343,40 +339,6 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }
 
         me.onSaveArticles(articleStore);
-    },
-
-    onArticleSelect: function(store, article) {
-        var me = this,
-            list = me.getArticleList(),
-            index, lastPage;
-
-        index = store.indexOf(article) + ((store.currentPage - 1) * store.pageSize);
-        if (index > 0) {
-            list.moveToStart.setDisabled(false);
-        }
-
-        if ((index + 1) < store.totalCount) {
-            list.moveToEnd.setDisabled(false);
-        }
-
-        if (store.currentPage > 1) {
-            list.moveToPrevPage.setDisabled(false);
-        }
-
-        lastPage = store.totalCount / store.pageSize;
-        if (lastPage > store.currentPage){
-            list.moveToNextPage.setDisabled(false);
-        }
-    },
-
-    onArticleDeselect: function() {
-        var me = this,
-            list = me.getArticleList();
-
-        list.moveToStart.setDisabled(true);
-        list.moveToEnd.setDisabled(true);
-        list.moveToPrevPage.setDisabled(true);
-        list.moveToNextPage.setDisabled(true);
     },
 
     onSaveArticles: function(articleStore) {

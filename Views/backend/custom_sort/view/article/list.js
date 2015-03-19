@@ -23,9 +23,10 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                 enableDrop: true
             }
         };
-        me.tbar = me.createActionToolbar();
+
         me.items = [ me.createMediaView() ];
         me.dockedItems = [ me.getPagingBar() ];
+        me.registerMoveActions();
 
         me.callParent(arguments);
     },
@@ -42,7 +43,14 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             emptyText: '<div class="empty-text"><span>No articles found</span></div>',
             multiSelect: true,
             store: me.store,
-            tpl: me.createMediaViewTemplate()
+            tpl: me.createMediaViewTemplate(),
+            listeners: {
+                itemclick: function(view, record, item, idx, event, opts) {
+                    if(event.target.parentElement.className === 'paging') {
+                        return false;
+                    }
+                }
+            }
         });
 
         me.initDragAndDrop();
@@ -51,71 +59,117 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
     },
 
     createMediaViewTemplate: function() {
+        var me = this;
         return new Ext.XTemplate(
             '{literal}<tpl for=".">',
-            '<tpl if="main===1">',
-            '<div class="article-thumb-wrap main" >',
-            '</tpl>',
-            '<tpl if="main!=1">',
-            '<div class="article-thumb-wrap" >',
-            '</tpl>',
-
             // If the type is image, then show the image
             '<div class="thumb">',
-            '<div class="inner-thumb"><img src="','{link file=""}','{literal}{thumbnail}{/literal}','" /><span>{[Ext.util.Format.ellipsis(values.name, 50)]}</span></div>',
-            '<tpl if="main===1">',
-            '<div class="preview"><span>Test</span></div>',
-            '</tpl>',
-            '<tpl if="hasConfig">',
-            '<div class="mapping-config">&nbsp;</div>',
-            '</tpl>',
+                '<tpl if="values.pin==1">',
+                    '<span class="sprite-sticky-notes-pin article-pin"></span>',
+                '</tpl>',
+                '<div class="inner-thumb">',
+                    '<img src="','{link file=""}','{literal}{thumbnail}{/literal}','" />' ,
+                    '<div class="detail">',
+                        '<span>{[Ext.util.Format.ellipsis(values.name, 50)]}</span>',
+                        '<span class="paging">',
+                            '<span class="first{[this.startPage(values, xindex)]}"></span>',
+                            '<span class="prev{[this.prevPage()]}"></span>',
+                            '<span class="next{[this.nextPage()]}"></span>',
+                            '<span class="last{[this.endPage(values, xindex)]}"></span>',
+                        '</span>',
+                    '</div>',
+                '</div>',
             '</div>',
-            '</div>',
             '</tpl>',
-            '<div class="x-clear"></div>{/literal}'
+            '<div class="x-clear"></div>{/literal}',
+            {
+                startPage: function(article, index) {
+                    var store = me.store,
+                        view = me.dataView,
+                        position,
+                        record = view.getStore().getAt((index - 1));
+
+                    position = store.indexOf(record) + ((store.currentPage - 1) * store.pageSize);
+                    if (position == 0) {
+                       return ' disabled';
+                    }
+                },
+
+                prevPage: function() {
+                    var store = me.store;
+
+                    if (store.currentPage <= 1) {
+                        return ' disabled';
+                    }
+                },
+
+                nextPage: function() {
+                    var store = me.store, lastPage;
+
+                    lastPage = store.totalCount / store.pageSize;
+                    if (lastPage <= store.currentPage){
+                        return ' disabled';
+                    }
+                },
+
+                endPage: function(article, index) {
+                    var store = me.store,
+                        view = me.dataView,
+                        position,
+                        record = view.getStore().getAt((index - 1));
+
+                    position = store.indexOf(record) + ((store.currentPage - 1) * store.pageSize);
+                    if ((position + 1) >= store.totalCount) {
+                        return ' disabled';
+                    }
+                }
+            }
         );
     },
 
-    createActionToolbar: function() {
+    registerMoveActions: function() {
         var me = this;
 
-        me.moveToStart = Ext.create('Ext.button.Button', {
-            text: 'Move selected item(s) to start',
-            action: 'moveToStart',
-            disabled: true,
-            handler: function() {
-                me.fireEvent('moveToStart', me.store);
+        var el = Ext.getBody();
+        el.on('click', function(event, target) {
+            if (target.classList.contains('disabled')) {
+                return false;
             }
+            event.stopEvent();
+            me.fireEvent('moveToStart', me.store);
+        }, null, {
+            delegate: 'span.first'
         });
 
-        me.moveToEnd = Ext.create('Ext.button.Button', {
-            text: 'Move selected item(s) to end',
-            action: 'moveToEnd',
-            disabled: true,
-            handler: function() {
-                me.fireEvent('moveToEnd', me.store);
+        el.on('click', function(event, target) {
+            if (target.classList.contains('disabled')) {
+                return false;
             }
+            event.stopEvent();
+            me.fireEvent('moveToEnd', me.store);
+        }, null, {
+            delegate: 'span.last'
         });
 
-        me.moveToPrevPage = Ext.create('Ext.button.Button', {
-            text: 'Move selected item(s) to previous page',
-            action: 'moveToPrevPage',
-            disabled: true,
-            handler: function() {
-                me.fireEvent('moveToPrevPage', me.store);
+        el.on('click', function(event, target) {
+            if (target.classList.contains('disabled')) {
+                return false;
             }
+            event.stopEvent();
+            me.fireEvent('moveToPrevPage', me.store);
+        }, null, {
+            delegate: 'span.prev'
         });
 
-        me.moveToNextPage = Ext.create('Ext.button.Button', {
-            text: 'Move selected item(s) to next page',
-            action: 'moveToNextPage',
-            disabled: true,
-            handler: function() {
-                me.fireEvent('moveToNextPage', me.store);
+        el.on('click', function(event, target) {
+            if (target.classList.contains('disabled')) {
+                return false;
             }
+            event.stopEvent();
+            me.fireEvent('moveToNextPage', me.store);
+        }, null, {
+            delegate: 'span.next'
         });
-
-        return [ me.moveToStart, me.moveToEnd, me.moveToPrevPage, me.moveToNextPage ];
     },
 
     getPagingBar: function() {
@@ -177,7 +231,6 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             me.dataView.dragZone = new Ext.dd.DragZone(v.getEl(), {
                 ddGroup: 'Article',
                 getDragData: function(e) {
-                    me.fireEvent('articleDeselect');
                     var sourceEl = e.getTarget(v.itemSelector, 10);
                     if (sourceEl) {
                         var selected = selModel.getSelection(),
@@ -199,7 +252,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                             sourceStore: v.store,
                             draggedRecord: v.getRecord(sourceEl),
                             articleModels: selected
-                        }
+                        };
 
                         return result;
                     }

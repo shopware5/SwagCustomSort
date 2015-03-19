@@ -9,7 +9,7 @@
     float: left;
     position: relative;
     width: 175px;
-    height: 175px;
+    height: 195px;
     border: 1px solid #C7C7C7;
     margin: 10px;
     padding: 5px;
@@ -18,11 +18,65 @@
     -moz-box-shadow: 0 0 5px rgba(0,0,0,0.35);
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
 }
+.x-article-sort .thumb .detail {
+    position: absolute;
+    bottom: 0;
+    width: 95%;
+}
+.x-article-sort .thumb .article-pin {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    background-position: 0 -1044px !important
+}
+.thumb .detail .paging {
+    display: none;
+    margin: 0 auto;
+}
+.thumb .detail .paging span {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    background-image: url('/themes/Backend/ExtJs/backend/_resources/resources/themes/images/shopware-ui/sprite-arrows.png');
+    background-repeat: no-repeat;
+}
+.detail .paging span.first {
+    background-position: 0 -198px;
+}
+.detail .paging span.first.disabled {
+    cursor: auto;
+    background-position: 0 -132px;
+}
+.detail .paging span.prev {
+    background-position: 0px -66px;
+}
+.detail .paging span.prev.disabled {
+    cursor: auto;
+    background-position: 0 0;
+}
+.detail .paging span.next {
+    background-position: 0px -462px;
+}
+.detail .paging span.next.disabled {
+    cursor: auto;
+    background-position: 0 -396px;
+}
+.detail .paging span.last {
+    background-position: 0px -330px;
+}
+.detail .paging span.last.disabled {
+    cursor: auto;
+    background-position: 0 -264px;
+}
+.thumb.x-item-selected .detail .paging {
+    display: block;
+}
 .x-article-sort .thumb span {
     display: block;
-    position: absolute;
     width: 95%;
-    bottom: 0;
     text-align: center;
 }
 .x-article-sort .thumb.x-item-selected {
@@ -33,7 +87,7 @@
 }
 .x-article-sort .thumb.drag-over:before {
     position: absolute;
-    height: 190px;
+    height: 205px;
     left: -15px;
     width: 8px;
     top: -8px;
