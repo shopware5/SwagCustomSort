@@ -32,6 +32,10 @@ Ext.define('Shopware.apps.CustomSort.view.main.Window', {
         me.callParent(arguments);
     },
 
+    /**
+     * Creates the elements for this component.
+     * @return array
+     */
     createItems: function() {
         var me = this;
 

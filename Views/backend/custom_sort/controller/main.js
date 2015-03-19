@@ -1,4 +1,4 @@
-//{namespace name="backend/custom_sort/view/main"}
+//{namespace name="backend/custom_sort/main"}
 //{block name="backend/custom_sort/controller/main"}
 Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
@@ -16,13 +16,20 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      */
     mainWindow: null,
 
+    /**
+     * References to specific elements in the module
+     * @array
+     */
     refs: [
         { ref: 'articleView', selector: 'sort-articles-view' },
         { ref: 'articleList', selector: 'sort-articles-list' }
     ],
 
     /**
-     * Sets up the ui component
+     * Creates the necessary event listener for this
+     * specific controller and opens a new Ext.window.Window
+     * to display the subapplication
+     *
      * @return void
      */
     init: function() {
@@ -50,9 +57,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 moveToEnd: me.onMoveToEnd,
                 moveToPrevPage: me.onMoveToPrevPage,
                 moveToNextPage: me.onMoveToNextPage,
-                articleMove: me.onArticleMove,
-                articleSelect: me.onArticleSelect,
-                articleDeselect: me.onArticleDeselect
+                articleMove: me.onArticleMove
             }
         });
 
@@ -65,6 +70,13 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         me.callParent(arguments);
     },
 
+    /**
+     * Event listener function of the category tree panel.
+     * Fired when the user select category from category tree.
+     *
+     * @param [object] view - Ext.view.View
+     * @param [Ext.data.Model] The selected record
+     */
     onCategorySelect: function(view, record) {
         var me = this,
             grid = me.getArticleView(),
@@ -110,6 +122,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         me.subApplication.articleStore.load();
     },
 
+    /**
+     * Prepare combo tree if selected category is linked to another category.
+     *
+     * @param [integer] linkedCategoryId
+     * @returns [boolean]
+     */
     prepareTreeCombo: function(linkedCategoryId) {
         var me = this,
             comboBox = me.getArticleView().categoryTreeCombo,
@@ -146,6 +164,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         return true;
     },
 
+    /**
+     * Event listener function of the sort combobox.
+     * Fired when the user change sorting of articles in article view panel.
+     *
+     * @param [Ext.data.Model] The selected record
+     */
     onSortChange: function(record) {
         var me = this,
             list = me.getArticleList();
@@ -158,10 +182,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 list.setLoading(false);
             }
         });
-
-        me.onArticleDeselect();
     },
 
+    /**
+     * Event listener function of the article view panel.
+     * Fired when the user change default display or linked category
+     */
     onSaveSettings: function() {
         var me = this,
             grid = me.getArticleView(),
@@ -184,14 +210,18 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         record.save({
             success: function() {
-                Shopware.Notification.createGrowlMessage('Success', 'Successfully applied changes');
+                Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/message}Successfully applied changes{/s}');
             },
             failure: function() {
-                Shopware.Notification.createGrowlMessage('Error','Some error appear');
+                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}','{s name=main/error/message}Changes was not saved{/s}');
             }
         });
     },
 
+    /**
+     *
+     * @param [Ext.data.Store] The article store
+     */
     onMoveToStart: function(articleStore) {
         if (!articleStore instanceof Ext.data.Store) {
             return false;
@@ -215,7 +245,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         return true;
     },
-
+    /**
+     * Event listener function of the article list.
+     * Fired when the user click on "move to end" fast move icon.
+     *
+     * @param [Ext.data.Store] The article store
+     */
     onMoveToEnd: function(articleStore) {
         if (!articleStore instanceof Ext.data.Store) {
             return false;
@@ -241,6 +276,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         return true;
     },
 
+    /**
+     * Event listener function of the article list.
+     * Fired when the user click on "move to prev page" fast move icon.
+     *
+     * @param [Ext.data.Store] The article store
+     */
     onMoveToPrevPage: function(articleStore) {
         if (!articleStore instanceof Ext.data.Store) {
             return false;
@@ -269,6 +310,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         return true;
     },
 
+    /**
+     * Event listener function of the article list.
+     * Fired when the user click on "move to next page" fast move icon.
+     *
+     * @param [Ext.data.Store] The article store
+     */
     onMoveToNextPage: function(articleStore) {
         if (!articleStore instanceof Ext.data.Store) {
             return false;
@@ -295,6 +342,14 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         return true;
     },
 
+    /**
+     * Event listener function of the article view list.
+     * Fired when the user move selected articles.
+     *
+     * @param [Ext.data.Store] The article store
+     * @param [Array] Array with selected article in article view list
+     * @param [Shopware.apps.Article.model.Article] The target record, on which the dragged record dropped
+     */
     onArticleMove: function(articleStore, articleModel, targetRecord) {
         var me = this,
             startPosition = (articleStore.currentPage - 1) * articleStore.pageSize;
@@ -347,40 +402,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         me.onSaveArticles(articleStore);
     },
 
-    onArticleSelect: function(store, article) {
-        var me = this,
-            list = me.getArticleList(),
-            index, lastPage;
-
-        index = store.indexOf(article) + ((store.currentPage - 1) * store.pageSize);
-        if (index > 0) {
-            list.moveToStart.setDisabled(false);
-        }
-
-        if ((index + 1) < store.totalCount) {
-            list.moveToEnd.setDisabled(false);
-        }
-
-        if (store.currentPage > 1) {
-            list.moveToPrevPage.setDisabled(false);
-        }
-
-        lastPage = store.totalCount / store.pageSize;
-        if (lastPage > store.currentPage){
-            list.moveToNextPage.setDisabled(false);
-        }
-    },
-
-    onArticleDeselect: function() {
-        var me = this,
-            list = me.getArticleList();
-
-        list.moveToStart.setDisabled(true);
-        list.moveToEnd.setDisabled(true);
-        list.moveToPrevPage.setDisabled(true);
-        list.moveToNextPage.setDisabled(true);
-    },
-
+    /**
+     * Event listener function of the article view list.
+     * Fired when the user move article in view list or use fast move buttons.
+     *
+     * @param [Ext.data.Store] The article store
+     */
     onSaveArticles: function(articleStore) {
         articleStore.update();
     }

@@ -1,9 +1,17 @@
 //{block name="backend/custom_sort/model/article"}
 Ext.define('Shopware.apps.CustomSort.model.Article', {
-
+    /**
+     * Extend for the standard ExtJS 4
+     * @string
+     */
     extend: 'Ext.data.Model',
 
+    /**
+     * The fields used for this model
+     * @array
+     */
     fields: [
+        //{block name="backend/custom_sort/model/article/fields"}{/block}
         { name: 'id', type: 'int', useNull: true },
         { name: 'positionId', type: 'int', useNull: true },
         { name: 'name', type: 'string' },
@@ -26,21 +34,42 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
         }
     ],
 
+    /**
+     * Configure the data communication
+     * @object
+     */
     proxy:{
-        type:'ajax',
+        /**
+         * Set proxy type to ajax
+         * @string
+         */
+        type: 'ajax',
 
+        /**
+         * Configure the url mapping for the different
+         * store operations based on
+         * @object
+         */
         api: {
             read: '{url controller="CustomSort" action="getArticleList"}',
             update: '{url controller="CustomSort" action="saveArticleList"}',
             create: '{url controller="CustomSort" action="saveArticleList"}'
         },
 
+        /**
+         * Configure the data reader
+         * @object
+         */
         reader: {
             type: 'json',
             root: 'data',
             totalProperty: 'total'
         },
 
+        /**
+         * Configure the data writer
+         * @object
+         */
         writer: {
             type: 'json',
             root: 'products'
