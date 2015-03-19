@@ -44,6 +44,13 @@ class ArticleSort extends ModelEntity
      */
     private $position;
 
+    /**
+     * @var string $position
+     *
+     * @ORM\Column(name="pin", type="boolean", nullable=false)
+     */
+    private $pin = false;
+
     public function getId()
     {
         return $this->id;
@@ -97,4 +104,13 @@ class ArticleSort extends ModelEntity
         $this->position = $position;
     }
 
+    public function getPin()
+    {
+        return $this->pin;
+    }
+
+    public function setPin($pin)
+    {
+        $this->pin = $pin;
+    }
 }

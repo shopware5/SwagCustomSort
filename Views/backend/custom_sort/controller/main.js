@@ -84,6 +84,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                     var linkedCategoryId = record.get('categoryLink');
 
                     grid.loadRecord(record);
+
+                    //TODO: check if this category is linked and then call 'prepareTreeCombo'
                     me.prepareTreeCombo(linkedCategoryId);
 
                     grid.setDisabled(false);

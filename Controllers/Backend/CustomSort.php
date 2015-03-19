@@ -2,6 +2,10 @@
 
 class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backend_ExtJs
 {
+    const PIN = 1;
+
+    const UNPIN = 0;
+
     private $em = null;
 
     private $sortRepo = null;
@@ -180,7 +184,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         //get sql values needed for update query
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
 
-        $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position) VALUES " . rtrim($sqlValues, ',');
+        $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES " . rtrim($sqlValues, ',');
         $this->getDB()->query($sql);
     }
 
@@ -211,6 +215,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $result[$newPosition] = $productData;
             $result[$newPosition]['position'] = $newPosition;
             $result[$newPosition]['oldPosition'] = $oldPosition;
+            $result[$newPosition]['pin'] = self::PIN;
         }
 
         $index = $offset;
@@ -245,7 +250,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sqlValues = '';
         foreach($productsForUpdate as $newArticle) {
             if ($newArticle['id'] > 0) {
-                $sqlValues .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['id'] . "', '" . $newArticle['position'] . "'),";
+                $sqlValues .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['id'] . "', '" . $newArticle['position'] . "', '" . $newArticle['pin'] . "'),";
             }
         }
 

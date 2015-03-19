@@ -48,6 +48,7 @@ class CustomSortRepository extends ModelRepository
                 'MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price',
                 'sort.position as position',
                 'sort.position as oldPosition',
+                'sort.pin as pin',
             ))
             ->from('s_articles', 'product')
             ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
