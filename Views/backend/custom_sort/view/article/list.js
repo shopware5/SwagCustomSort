@@ -83,7 +83,10 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             tpl: me.createArticleViewTemplate(),
             listeners: {
                 itemclick: function(view, record, item, idx, event, opts) {
-                    if(event.target.parentElement.className === 'paging') {
+                    if (event.target.classList.contains('pin')) {
+                        me.fireEvent('unpin', me.store, record);
+                    }
+                    if (event.target.parentElement.className === 'paging') {
                         return false;
                     }
                 }
@@ -107,7 +110,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             // If the type is image, then show the image
             '<div class="thumb">',
                 '<tpl if="values.pin==1">',
-                    '<span class="sprite-sticky-notes-pin article-pin"></span>',
+                    '<span class="sprite-sticky-notes-pin pin"></span>',
                 '</tpl>',
                 '<div class="inner-thumb">',
                     '<img src="','{link file=""}','{literal}{thumbnail}{/literal}','" />' ,

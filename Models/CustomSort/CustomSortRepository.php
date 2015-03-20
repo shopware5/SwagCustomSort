@@ -66,4 +66,64 @@ class CustomSortRepository extends ModelRepository
 
         return $builder;
     }
+
+    /**
+     * Sets pin value to 0
+     *
+     * @param $id - the id of the s_articles_sort record
+     */
+    public function unpinById($id)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->update('s_articles_sort')
+                ->set('pin', 0)
+                ->where('id = :id')
+                ->setParameter('id', $id);
+
+        $builder->execute();
+    }
+
+    /**
+     * Deletes all records, which are unpinned, until the pinned record with max position
+     *
+     * @param $categoryId
+     */
+    public function deleteUnpinnedRecords($categoryId)
+    {
+        $maxPinPosition = $this->getMaxPinPosition($categoryId);
+        if ($maxPinPosition === null) {
+            $maxPinPosition = 0;
+        }
+
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->delete('s_articles_sort')
+                ->where('categoryId = :categoryId')
+                ->andWhere('position >= :maxPinPosition')
+                ->andWhere('pin = 0')
+                ->setParameter('categoryId', $categoryId)
+                ->setParameter(':maxPinPosition', $maxPinPosition);
+
+        $builder->execute();
+    }
+
+    /**
+     * Returns the position of the pinned record with max position
+     *
+     * @param $categoryId
+     * @return mixed
+     */
+    public function getMaxPinPosition($categoryId)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->select(array('MAX(position) AS maxPinPosition'))
+                ->from('s_articles_sort')
+                ->where('categoryId = :categoryId')
+                ->andWhere('pin = 1')
+                ->orderBy('position', 'DESC')
+                ->setParameter('categoryId', $categoryId);
+
+        $maxPinPosition = $builder->execute()->fetchColumn();
+
+        return $maxPinPosition;
+    }
 }

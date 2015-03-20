@@ -57,7 +57,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 moveToEnd: me.onMoveToEnd,
                 moveToPrevPage: me.onMoveToPrevPage,
                 moveToNextPage: me.onMoveToNextPage,
-                articleMove: me.onArticleMove
+                articleMove: me.onArticleMove,
+                unpin: me.unpin
             }
         });
 
@@ -239,6 +240,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
             record.set('position', index);
             record.set('oldPosition', oldPosition);
+            record.set('pin', 1);
         });
 
         me.onSaveArticles(articleStore);
@@ -269,6 +271,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
             record.set('position', total - index);
             record.set('oldPosition', oldPosition);
+            record.set('pin', 1);
         });
 
         me.onSaveArticles(articleStore);
@@ -302,6 +305,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             record.set('oldPosition', oldPosition);
             position = ((articleStore.currentPage - 1) * articleStore.pageSize) - count;
             record.set('position', position);
+            record.set('pin', 1);
             count--;
         });
 
@@ -335,6 +339,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             record.set('oldPosition', oldPosition);
             position = (articleStore.currentPage * articleStore.pageSize) + index;
             record.set('position', position);
+            record.set('pin', 1);
         });
 
         me.onSaveArticles(articleStore);
@@ -395,6 +400,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
                 record.set('position', position);
                 record.set('oldPosition', oldPosition);
+                record.set('pin', 1);
             });
 
         }
@@ -410,6 +416,18 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      */
     onSaveArticles: function(articleStore) {
         articleStore.update();
+    },
+
+    unpin: function(articleStore, record) {
+        if (!articleStore instanceof Ext.data.Store || !record instanceof Ext.data.Model) {
+            return false;
+        }
+
+        record.set('pin', 0);
+        articleStore.remove(record);
+        articleStore.sync();
+
+        return true;
     }
 
 });

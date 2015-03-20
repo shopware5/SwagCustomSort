@@ -2,9 +2,6 @@
 
 class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backend_ExtJs
 {
-    const PIN = 1;
-
-    const UNPIN = 0;
     /**
      * @var Shopware\Components\Model\ModelManager $em
      */
@@ -229,6 +226,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES " . rtrim($sqlValues, ',');
         $this->getDB()->query($sql);
+
+        $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
     }
 
     /**
@@ -258,7 +257,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $result[$newPosition] = $productData;
             $result[$newPosition]['position'] = $newPosition;
             $result[$newPosition]['oldPosition'] = $oldPosition;
-            $result[$newPosition]['pin'] = self::PIN;
         }
 
         $index = $offset;
@@ -363,5 +361,24 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $length = ($length - $offset) + 1;
 
         return $length;
+    }
+
+    /**
+     * Unpin product
+     */
+    public function unpinArticleAction()
+    {
+        $product = $this->Request()->getParam('products');
+        if (!$product['positionId']) {
+            $this->View()->assign(array('success' => false, 'message' => 'Fail'));
+            return;
+        }
+
+        $categoryId = $this->Request()->getParam('categoryId');
+        $sortId = (int) $product['positionId'];
+
+        $this->getSortRepository()->unpinById($sortId);
+
+        $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
     }
 }

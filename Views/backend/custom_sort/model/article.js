@@ -54,7 +54,8 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
         api: {
             read: '{url controller="CustomSort" action="getArticleList"}',
             update: '{url controller="CustomSort" action="saveArticleList"}',
-            create: '{url controller="CustomSort" action="saveArticleList"}'
+            create: '{url controller="CustomSort" action="saveArticleList"}',
+            destroy: '{url controller="CustomSort" action="unpinArticle"}'
         },
 
         /**
