@@ -57,7 +57,6 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
 
         me.items = [ me.createArticleView() ];
         me.dockedItems = [ me.getPagingBar() ];
-        me.registerMoveActions();
 
         me.callParent(arguments);
     },
@@ -72,7 +71,6 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         var me = this;
 
         me.dataView = Ext.create('Ext.view.View', {
-            height: '100%',
             disabled: false,
             itemSelector: '.thumb',
             name: 'image-listing',
@@ -182,7 +180,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
     registerMoveActions: function() {
         var me = this;
 
-        var el = Ext.getBody();
+        var el = me.el;
         //Trigger event when "move to start" action is clicked
         el.on('click', function(event, target) {
             if (target.classList.contains('disabled')) {
@@ -359,6 +357,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                 }
             });
 
+            me.registerMoveActions();
         });
     }
 

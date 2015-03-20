@@ -88,8 +88,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
                 select: function(field, record) {
                     me.fireEvent('categoryLink', record);
                 },
-                keydown: function () {
-                    if (this.getRawValue().length <= 1) {
+                keyup: function () {
+                    if (this.getRawValue().length < 1 && this.getValue() != 0) {
                         me.fireEvent('categoryLink');
                     }
                 }
@@ -108,13 +108,13 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             store: Ext.create('Ext.data.Store', {
                 fields: [ 'id', 'name' ],
                 data: [
-                    { id: 1, name: 'ListingSortRelease' },
-                    { id: 2, name: 'ListingSortPopularity' },
-                    { id: 3, name: 'ListingSortPriceLowest' },
-                    { id: 4, name: 'ListingSortPriceHighest' },
-                    { id: 5, name: 'ListingSortNameAsc' },
-                    { id: 6, name: 'ListingSortNameDesc' },
-                    { id: 7, name: 'ListingSortRanking' }
+                    { id: 1, name: '{s name=view/sort/release}Release date{/s}' },
+                    { id: 2, name: '{s name=view/sort/popularity}Popularity{/s}' },
+                    { id: 3, name: '{s name=view/sort/price_lowest}Minimum price{/s}' },
+                    { id: 4, name: '{s name=view/sort/price_highest}Maximum price{/s}' },
+                    { id: 5, name: '{s name=view/sort/name_asc}Product name A-Z{/s}' },
+                    { id: 6, name: '{s name=view/sort/name_desc}Product name Z-A{/s}' },
+                    { id: 7, name: '{s name=view/sort/ranking}Rating{/s}' }
                 ]
             }),
             listeners: {
