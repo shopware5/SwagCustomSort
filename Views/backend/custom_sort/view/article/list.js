@@ -71,7 +71,6 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         var me = this;
 
         me.dataView = Ext.create('Ext.view.View', {
-            height: '100%',
             disabled: false,
             itemSelector: '.thumb',
             name: 'image-listing',

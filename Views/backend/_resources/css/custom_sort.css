@@ -96,3 +96,22 @@
     background-repeat: no-repeat, no-repeat, repeat-y;
     background-position: left bottom, left top, 3px top;
 }
+.x-article-sort .empty-text {
+    box-shadow: #F5F7F8 0 1px 0px 0 inset,#F5F7F8 0 -1px 0px 0 inset,#F5F7F8 -1px 0 0px 0 inset,#F5F7F8 1px 0 0px 0 inset;
+    top: 50%;
+    left: 50%;
+    width: 150px;
+    margin: 0 0 0 -75px;
+    position: absolute;
+    border: 1px solid #C9CFD4;
+    padding: 6px;
+}
+.x-article-sort .empty-text span {
+    display: block;
+    background: #F0F2F4;
+    color: #668498;
+    text-shadow: 0 1px 0 #FFF;
+    font: 11px/18px Arial, Verdana, sans-serif;
+    text-align: center;
+    padding: 4px 0;
+}
