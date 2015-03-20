@@ -214,7 +214,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/message}Successfully applied changes{/s}');
             },
             failure: function() {
-                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}','{s name=main/error/message}Changes was not saved{/s}');
+                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}', '{s name=main/error/message}Changes were not saved{/s}');
             }
         });
     },
@@ -423,9 +423,18 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             return false;
         }
 
+        var store = articleStore;
         record.set('pin', 0);
         articleStore.remove(record);
-        articleStore.sync();
+        articleStore.sync({
+            success: function() {
+                Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/message}Successfully applied changes{/s}');
+            },
+            failure: function() {
+                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}','{s name=main/error/message}Changes were not saved{/s}');
+                store.load();
+            }
+        });
 
         return true;
     }

@@ -369,16 +369,21 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     public function unpinArticleAction()
     {
         $product = $this->Request()->getParam('products');
-        if (!$product['positionId']) {
-            $this->View()->assign(array('success' => false, 'message' => 'Fail'));
-            return;
-        }
-
-        $categoryId = $this->Request()->getParam('categoryId');
         $sortId = (int) $product['positionId'];
+        try {
+            if (!$sortId) {
+                throw new Exception("Unpin product '{$product['name']}' with id '{$product['id']}', failed!");
+            }
 
-        $this->getSortRepository()->unpinById($sortId);
+            $categoryId = (int) $this->Request()->getParam('categoryId');
 
-        $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
+            $this->getSortRepository()->unpinById($sortId);
+
+            $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
+
+            $this->View()->assign(array('success' => true));
+        } catch(\Exception $ex) {
+            $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
+        }
     }
 }
