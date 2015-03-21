@@ -97,17 +97,15 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                     var linkedCategoryId = record.get('categoryLink');
 
                     grid.loadRecord(record);
+                    grid.setDisabled(false);
 
-                    //TODO: check if this category is linked and then call 'prepareTreeCombo'
                     me.prepareTreeCombo(linkedCategoryId);
 
-                    grid.setDisabled(false);
                     grid.categoryTreeCombo.setDisabled(false);
                     if (linkedCategoryId > 0) {
-                        grid.defaultSort.setDisabled(true);
                         grid.sorting.setDisabled(true);
                     } else {
-                        grid.defaultSort.setDisabled(false);
+                        grid.categoryTreeCombo.setRawValue();
                         grid.sorting.setDisabled(false);
                         list.setDisabled(false);
                     }
