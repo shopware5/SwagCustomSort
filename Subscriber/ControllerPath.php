@@ -17,7 +17,8 @@ class ControllerPath implements SubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            'Enlight_Controller_Dispatcher_ControllerPath_Backend_CustomSort' => 'onGetCustomSortControllerPath'
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_CustomSort' => 'onGetCustomSortControllerPath',
+            'Enlight_Controller_Dispatcher_ControllerPath_Widgets_CustomSort' => 'onGetCustomSortControllerPath'
         );
     }
 
@@ -44,6 +45,8 @@ class ControllerPath implements SubscriberInterface
         switch ($args->getName()) {
             case 'Enlight_Controller_Dispatcher_ControllerPath_Backend_CustomSort':
                 return $this->bootstrap->Path() . 'Controllers/Backend/CustomSort.php';
+            case 'Enlight_Controller_Dispatcher_ControllerPath_Widgets_CustomSort':
+                return $this->bootstrap->Path() . 'Controllers/Widgets/CustomSort.php';
         }
     }
 

@@ -20,12 +20,9 @@ class Listing
 
     private $customSortRepo = null;
 
-    private $categoryId = null;
-
-    public function __construct(Shopware_Components_Config $config, \Shopware\Components\Model\ModelManager $em, int $categoryId) {
+    public function __construct(Shopware_Components_Config $config, \Shopware\Components\Model\ModelManager $em) {
         $this->config = $config;
         $this->em = $em;
-        $this->categoryId = $categoryId;
     }
 
     public function getConfig()
@@ -65,19 +62,14 @@ class Listing
         return $this->customSortRepo;
     }
 
-    public function getCategoryId()
-    {
-        return $this->categoryId;
-    }
-
-    public function showCustomSortName()
+    public function showCustomSortName($categoryId)
     {
         $sortName = $this->getFormattedSortName();
         if (empty($sortName)) {
             return false;
         }
 
-        $hasCustomSort = $this->hasCustomSort();
+        $hasCustomSort = $this->hasCustomSort($categoryId);
         if ($hasCustomSort) {
             return true;
         }
@@ -99,14 +91,14 @@ class Listing
         return $name;
     }
 
-    public function hasCustomSort()
+    public function hasCustomSort($categoryId)
     {
-        $isLinked = $this->isLinked();
+        $isLinked = $this->isLinked($categoryId);
         if ($isLinked) {
             return true;
         }
 
-        $hasOwnSort = $this->hasOwnSort();
+        $hasOwnSort = $this->hasOwnSort($categoryId);
         if ($hasOwnSort) {
             return true;
         }
@@ -114,10 +106,8 @@ class Listing
         return false;
     }
 
-    public function isLinked()
+    public function isLinked($categoryId)
     {
-        $categoryId = $this->getCategoryId();
-
         /* @var \Shopware\Models\Attribute\Category $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
         if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
@@ -143,9 +133,8 @@ class Listing
      *
      * @return bool
      */
-    public function hasOwnSort()
+    public function hasOwnSort($categoryId)
     {
-        $categoryId = $this->getCategoryId();
         return $this->getCustomSortRepository()->hasCustomSort($categoryId);
     }
 
@@ -154,10 +143,8 @@ class Listing
      *
      * @return bool
      */
-    public function showCustomSortAsDefault()
+    public function showCustomSortAsDefault($categoryId)
     {
-        $categoryId = $this->getCategoryId();
-
         /* @var \Shopware\Models\Attribute\Category $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
         if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
@@ -178,10 +165,8 @@ class Listing
      *
      * @return int
      */
-    public function getLinkedCategoryId()
+    public function getLinkedCategoryId($categoryId)
     {
-        $categoryId = $this->getCategoryId();
-
         /* @var \Shopware\Models\Attribute\Category $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
         if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
