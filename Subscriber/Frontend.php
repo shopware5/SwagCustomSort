@@ -36,7 +36,8 @@ class Frontend implements SubscriberInterface
 
         $view = $args->getSubject()->View();
         $hideFilters = $view->sCategoryContent['hideFilter'];
-        $showCustomSort = $categoryComponent->showCustomSortName();
+        $categoryId = $view->sCategoryContent['id'];
+        $showCustomSort = $categoryComponent->showCustomSortName($categoryId);
         if ($showCustomSort && !$hideFilters) {
             $view->showCustomSort = true;
             $this->extendsTemplate($view, 'frontend/listing/actions/action-sorting.tpl');
@@ -64,7 +65,8 @@ class Frontend implements SubscriberInterface
         }
 
         $request = $args->getSubject()->Request();
-        $useDefaultSort = $categoryComponent->showCustomSortAsDefault();
+        $categoryId = (int) $request->getParam('sCategory');
+        $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
         $sortName = $categoryComponent->getFormattedSortName();
 
         if (!$useDefaultSort || empty($sortName) || $request->getParam('sSort') !== null) {

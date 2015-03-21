@@ -33,8 +33,7 @@ class Resource implements SubscriberInterface
 	{
 		return new Listing(
 			Shopware()->Config(),
-			$this->container->get('Models'),
-			(int) Shopware()->Front()->Request()->getParam('sCategory')
+			$this->container->get('Models')
 		);
 	}
 }

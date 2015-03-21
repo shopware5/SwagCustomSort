@@ -23,11 +23,14 @@ class Shopware_Controllers_Widgets_CustomSort extends Enlight_Controller_Action
 
     public function defaultSortAction()
     {
-        $hideFilters = $this->Request()->getParam('hideFilter');
+        $sCategoryContent = $this->Request()->getParam('sCategoryContent');
+        $sSort = $this->Request()->getParam('sSort');
+
+        $hideFilters = $sCategoryContent['hideFilter'];
+        $categoryId = (int) $sCategoryContent['id'];
 
         $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
-
-        $showCustomSort = $categoryComponent->showCustomSortName();
+        $showCustomSort = $categoryComponent->showCustomSortName($categoryId);
         if ($showCustomSort && !$hideFilters) {
             $showCustomSortOption = true;
         } else {
@@ -35,6 +38,7 @@ class Shopware_Controllers_Widgets_CustomSort extends Enlight_Controller_Action
         }
 
         $this->View()->showCustomSort = $showCustomSortOption;
+        $this->View()->sSort = $sSort;
     }
 
 }
