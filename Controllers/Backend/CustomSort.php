@@ -228,6 +228,10 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $this->getDB()->query($sql);
 
         $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
+
+        $this->invalidateCategoryCache($categoryId);
+
+        $this->View()->assign(array('success' => true));
     }
 
     /**
@@ -385,5 +389,18 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         } catch(\Exception $ex) {
             $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
         }
+    }
+
+    private function invalidateCategoryCache($categoryId)
+    {
+//        $categoriesIds = $this->getSortRepository()->getCategoriesByLinkedCategoryId($categoryId);
+//        $categoriesIds[] = array('categoryID' => $categoryId);
+//
+//        //Invalidate the category cache for the linked articles
+//        foreach ($categoriesIds as $id) {
+//            Shopware()->Events()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => "c{$id['categoryID']}"));
+//        }
+
+//        Shopware()->Events()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => 'c' . $categoryId));
     }
 }

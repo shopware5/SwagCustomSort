@@ -126,4 +126,17 @@ class CustomSortRepository extends ModelRepository
 
         return $maxPinPosition;
     }
+
+    public function getCategoriesByLinkedCategoryId($categoryId)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->select(array('categoryID'))
+            ->from('s_categories_attributes')
+            ->where('swag_link = :categoryId')
+            ->setParameter('categoryId', $categoryId);
+
+        $ids = $builder->execute()->fetchAll();
+
+        return $ids;
+    }
 }
