@@ -401,6 +401,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 //            Shopware()->Events()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => "c{$id['categoryID']}"));
 //        }
 
-        Shopware()->Events()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => 'c' . $categoryId));
+//        Shopware()->Events()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => 'c' . $categoryId));
     }
 }
