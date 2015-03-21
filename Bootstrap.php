@@ -152,7 +152,8 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
                 'label' => 'Name',
                 'value' => 'Custom Sorting',
                 'description' => 'The new sort, will be visible in the frontend under this name option.',
-                'required' => true
+                'required' => true,
+                'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
 
