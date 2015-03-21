@@ -30,7 +30,7 @@ class DragDropHandler implements SortingHandlerInterface
             'productCategory',
             's_articles_sort',
             'customSort',
-            'customSort.articleId = productCategory.articleID'
+            'customSort.articleId = productCategory.articleID AND (customSort.categoryId = productCategory.categoryID OR customSort.categoryId IS NULL)'
         );
 
         if ($linkedCategoryId) {

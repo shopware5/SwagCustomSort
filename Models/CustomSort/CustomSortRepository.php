@@ -56,7 +56,7 @@ class CustomSortRepository extends ModelRepository
             ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
             ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
             ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
-            ->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId')
+            ->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)')
             ->where('productCategory.categoryID = :categoryId')
             ->andWhere('images.main = 1')
             ->groupBy('product.id')
