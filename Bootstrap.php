@@ -63,7 +63,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             new \Shopware\SwagCustomSort\Subscriber\Resource(Shopware()->Container()),
             new \Shopware\SwagCustomSort\Subscriber\ControllerPath($this),
             new \Shopware\SwagCustomSort\Subscriber\Frontend($this),
-            new \Shopware\SwagCustomSort\Subscriber\Backend($this),
+            new \Shopware\SwagCustomSort\Subscriber\Backend($this, Shopware()->Models()),
 			new \Shopware\SwagCustomSort\Subscriber\Sort($this)
         );
 
@@ -138,6 +138,14 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             'int(1)',
             true,
             0
+        );
+        $em->addAttribute(
+            's_categories_attributes',
+            'swag',
+            'deleted_position',
+            'int(11)',
+            true,
+            null
         );
 
         $em->generateAttributeModels(array(

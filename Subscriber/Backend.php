@@ -8,9 +8,23 @@ class Backend implements SubscriberInterface
 {
     protected $bootstrap;
 
-    public function __construct(\Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap $bootstrap)
+    protected $em;
+
+    protected $customSortRepo = null;
+
+    public function __construct(\Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap $bootstrap, \Shopware\Components\Model\ModelManager $em)
     {
         $this->bootstrap = $bootstrap;
+        $this->em = $em;
+    }
+
+    public function getSortRepository()
+    {
+        if ($this->customSortRepo === null) {
+            $this->customSortRepo = $this->em->getRepository('Shopware\CustomModels\CustomSort\ArticleSort');
+        }
+
+        return $this->customSortRepo;
     }
 
     public static function getSubscribedEvents()
@@ -40,6 +54,18 @@ class Backend implements SubscriberInterface
         $articleModel = $arguments->get('entity');
         $articleDetailId = $articleModel->getId();
 
+        $position = $this->getSortRepository()->getPositionByArticleId($articleDetailId);
+        if ($position !== null) {
+            $categories = $articleModel->getCategories();
+            foreach ($categories as $category) {
+                $catAttributes = $category->getAttribute();
+                $deletedPosition = $catAttributes->getSwagDeletedPosition();
+                if ($deletedPosition === null || $deletedPosition > $position) {
+                    $catAttributes->setSwagDeletedPosition((int) $position);
+                }
+            }
+        }
+
         $builder = Shopware()->Models()->getDBALQueryBuilder();
         $builder->delete('s_articles_sort')
             ->where('articleId = :articleId')
@@ -60,5 +86,4 @@ class Backend implements SubscriberInterface
 
         $builder->execute();
     }
-
 }

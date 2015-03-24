@@ -218,6 +218,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $this->sortUnsortedByDefault($builder, $sort);
         $allProducts = $builder->execute()->fetchAll();
 
+        //check for deleted products
+        $deletedPosition = $this->getSortRepository()->getPositionOfDeletedProduct($categoryId);
+        if ($deletedPosition !== null) {
+            $allProducts = $this->fixDeletedPosition((int) $deletedPosition, $allProducts);
+        }
+
         //get sorted products
         $sortedProducts = $this->applyNewPosition($allProducts, $movedProducts, $categoryId);
 
@@ -226,6 +232,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES " . rtrim($sqlValues, ',');
         $this->getDB()->query($sql);
+
+        $this->getSortRepository()->resetDeletedPosition($categoryId);
 
         $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
 
@@ -249,7 +257,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         //get all products that should be updated
         $offset = $this->getOffset($products, $categoryId);
-        $length = $this->getLength($products, $offset);
+        $length = $this->getLength($products, $offset, $categoryId);
         $productsForUpdate = array_slice($allProducts, $offset, $length, true);
 
         //apply new positions for the products
@@ -337,7 +345,13 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             return 0;
         }
 
-        $offset = min($offset, ++$maxPosition);
+        //checks for deleted products
+        $deletedPosition = $this->getSortRepository()->getPositionOfDeletedProduct($categoryId);
+        if ($deletedPosition !== null) {
+            $offset = min($offset, ++$maxPosition, $deletedPosition);
+        } else {
+            $offset = min($offset, ++$maxPosition);
+        }
 
         return $offset;
     }
@@ -348,9 +362,10 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
      *
      * @param array $products
      * @param int $offset
+     * @param int $categoryId
      * @return int - the length of the new array
      */
-    private function getLength($products, $offset)
+    private function getLength($products, $offset, $categoryId)
     {
         $length = null;
         foreach($products as $productData) {
@@ -360,6 +375,13 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             if ($length < max($newPosition, $oldPosition) || $length === null) {
                 $length = max($newPosition, $oldPosition);
             }
+        }
+
+        //checks for deleted products
+        $deletedPosition = $this->getSortRepository()->getPositionOfDeletedProduct($categoryId);
+        if ($deletedPosition !== null) {
+            $maxPosition = $this->getSortRepository()->getMaxPosition($categoryId);
+            $length = max($length, $maxPosition);
         }
 
         $length = ($length - $offset) + 1;
@@ -389,6 +411,24 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         } catch(\Exception $ex) {
             $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
         }
+    }
+
+    private function fixDeletedPosition($deletedPosition, $allProducts)
+    {
+        $index = $deletedPosition;
+        foreach ($allProducts as &$product) {
+            if ($product['position'] < $deletedPosition) {
+                continue;
+            }
+
+            if ($product['position'] === null) {
+                break;
+            }
+
+            $product['position'] = $index++;
+        }
+
+        return $allProducts;
     }
 
     private function invalidateCategoryCache($categoryId)

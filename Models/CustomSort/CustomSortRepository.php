@@ -139,4 +139,40 @@ class CustomSortRepository extends ModelRepository
 
         return $ids;
     }
+
+    public function getPositionByArticleId($articleId)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->select(array('position'))
+            ->from('s_articles_sort')
+            ->where('articleId = :articleId')
+            ->setParameter('articleId', $articleId);
+        $position = $builder->execute()->fetchColumn();
+
+        return $position;
+    }
+
+    public function getPositionOfDeletedProduct($categoryId)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->select(array('swag_deleted_position'))
+            ->from('s_categories_attributes')
+            ->where('categoryID = :categoryId')
+            ->setParameter('categoryId', $categoryId);
+
+        $deletedPosition = $builder->execute()->fetchColumn();
+
+        return $deletedPosition;
+    }
+
+    public function resetDeletedPosition($categoryId)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->update('s_categories_attributes')
+            ->set('swag_deleted_position', 'null')
+            ->where('categoryID = :categoryId')
+            ->setParameter('categoryId', $categoryId);
+
+//        $builder->execute();
+    }
 }
