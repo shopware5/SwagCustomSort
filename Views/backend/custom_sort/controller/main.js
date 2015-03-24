@@ -105,6 +105,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                         grid.sorting.setDisabled(true);
                     } else {
                         grid.categoryTreeCombo.setRawValue();
+                        grid.categoryTreeCombo.getPicker().collapseAll();
                         grid.sorting.setDisabled(false);
                         list.setDisabled(false);
                     }
@@ -195,11 +196,9 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             values = form.getValues();
 
         if (values.categoryLink > 0) {
-            grid.defaultSort.setDisabled(true);
             grid.sorting.setDisabled(true);
             list.setDisabled(true);
         } else {
-            grid.defaultSort.setDisabled(false);
             grid.sorting.setDisabled(false);
             list.setDisabled(false);
         }
