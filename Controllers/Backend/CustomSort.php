@@ -119,23 +119,25 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     {
         switch ($sort) {
             case 1:
-                $builder
-                    ->addOrderBy('product.datum', 'DESC')
+                $builder->addOrderBy('product.datum', 'DESC')
                     ->addOrderBy('product.changetime', 'DESC');
                 break;
             case 2:
-                $builder
-                    ->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
+                $builder->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
                     ->addOrderBy('topSeller.sales', 'DESC')
                     ->addOrderBy('topSeller.article_id', 'DESC');
                 break;
             case 3:
-                $builder
+                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
+                    ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
                     ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
                     ->addOrderBy('cheapest_price', 'ASC');
                 break;
             case 4:
-                $builder
+                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
+                    ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
                     ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
                     ->addOrderBy('cheapest_price', 'DESC');
                 break;

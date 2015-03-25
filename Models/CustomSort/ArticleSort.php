@@ -8,7 +8,7 @@ use Shopware\Components\Model\ModelEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="s_articles_sort")
+ * @ORM\Table(name="s_articles_sort", indexes={@ORM\Index(name="articleId", columns={"articleId"})})
  * @ORM\Entity(repositoryClass="CustomSortRepository")
  */
 class ArticleSort extends ModelEntity
@@ -24,28 +24,28 @@ class ArticleSort extends ModelEntity
     private $id;
 
     /**
-     * @var string $categoryId
+     * @var integer $categoryId
      *
      * @ORM\Column(name="categoryId", type="integer")
      */
     private $categoryId;
 
     /**
-     * @var string $articleId
+     * @var integer $articleId
      *
      * @ORM\Column(name="articleId", type="integer")
      */
     private $articleId;
 
     /**
-     * @var string $position
+     * @var integer $position
      *
      * @ORM\Column(name="position", type="integer")
      */
     private $position;
 
     /**
-     * @var string $position
+     * @var boolean $position
      *
      * @ORM\Column(name="pin", type="boolean", nullable=false)
      */
@@ -57,7 +57,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @return string
+     * @return integer
      */
     public function getArticleId()
     {
@@ -65,7 +65,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @param string $articleId
+     * @param integer $articleId
      */
     public function setArticleId($articleId)
     {
@@ -73,7 +73,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @return string
+     * @return integer
      */
     public function getCategoryId()
     {
@@ -81,7 +81,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @param string $categoryId
+     * @param integer $categoryId
      */
     public function setCategoryId($categoryId)
     {
@@ -89,7 +89,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @return string
+     * @return integer
      */
     public function getPosition()
     {
@@ -97,7 +97,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @param string $position
+     * @param integer $position
      */
     public function setPosition($position)
     {
