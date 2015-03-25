@@ -53,12 +53,13 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 categoryLink: me.onSaveSettings
             },
             'sort-articles-list': {
+                pageChange: me.onPageChange,
                 moveToStart: me.onMoveToStart,
                 moveToEnd: me.onMoveToEnd,
                 moveToPrevPage: me.onMoveToPrevPage,
                 moveToNextPage: me.onMoveToNextPage,
                 articleMove: me.onArticleMove,
-                unpin: me.unpin
+                unpin: me.onUnpin
             }
         });
 
@@ -69,6 +70,17 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }).show();
 
         me.callParent(arguments);
+    },
+
+    /**
+     * Event listener function of the article list panel.
+     * Fired when the user uses paging navigation.
+     */
+    onPageChange: function() {
+        var me = this,
+            list = me.getArticleList();
+
+        list.setLoading(true);
     },
 
     /**
@@ -86,6 +98,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         //Hide grid buttons on category select
         grid.setDisabled(true);
         list.setDisabled(true);
+        list.setLoading(true);
 
         me.categoryId = record.get('id');
 
@@ -119,6 +132,10 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         me.subApplication.articleStore.filters.clear();
         me.subApplication.articleStore.currentPage = 1;
         me.subApplication.articleStore.load();
+
+        me.subApplication.articleStore.on('load', function(){
+            list.setLoading(false);
+        });
     },
 
     /**
@@ -225,8 +242,11 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }
 
         var me = this,
-            selectedRecords = me.getArticleList().dataView.getSelectionModel().getSelection(),
+            list = me.getArticleList(),
+            selectedRecords = list.dataView.getSelectionModel().getSelection(),
             oldPosition = null;
+
+        list.setLoading(true);
 
         selectedRecords.forEach(function(record, index) {
             if (!record instanceof Ext.data.Model) {
@@ -255,9 +275,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }
 
         var me = this,
-            selectedRecords = me.getArticleList().dataView.getSelectionModel().getSelection(),
+            list = me.getArticleList(),
+            selectedRecords = list.dataView.getSelectionModel().getSelection(),
             oldPosition = null,
             total = articleStore.getTotalCount() - 1;
+
+        list.setLoading(true);
 
         selectedRecords.forEach(function(record, index) {
             if (!record instanceof Ext.data.Model) {
@@ -287,10 +310,13 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }
 
         var me = this,
-            selectedRecords = me.getArticleList().dataView.getSelectionModel().getSelection(),
+            list = me.getArticleList(),
+            selectedRecords = list.dataView.getSelectionModel().getSelection(),
             oldPosition = null,
             position = null,
             count = selectedRecords.length;
+
+        list.setLoading(true);
 
         selectedRecords.forEach(function(record) {
             if (!record instanceof Ext.data.Model) {
@@ -322,9 +348,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }
 
         var me = this,
-            selectedRecords = me.getArticleList().dataView.getSelectionModel().getSelection(),
+            list = me.getArticleList(),
+            selectedRecords = list.dataView.getSelectionModel().getSelection(),
             oldPosition = null,
             position = null;
+
+        list.setLoading(true);
 
         selectedRecords.forEach(function(record, index) {
             if (!record instanceof Ext.data.Model) {
@@ -353,6 +382,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      */
     onArticleMove: function(articleStore, articleModel, targetRecord) {
         var me = this,
+            list = me.getArticleList(),
             startPosition = (articleStore.currentPage - 1) * articleStore.pageSize;
 
         if (!articleStore instanceof Ext.data.Store
@@ -360,6 +390,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             return false;
         }
 
+        list.setLoading(true);
         var count = articleModel.length;
         if (count > 0) {
 
@@ -414,10 +445,15 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         articleStore.update();
     },
 
-    unpin: function(articleStore, record) {
+    onUnpin: function(articleStore, record) {
+        var me = this,
+            list = me.getArticleList();
+
         if (!articleStore instanceof Ext.data.Store || !record instanceof Ext.data.Model) {
             return false;
         }
+
+        list.setLoading(true);
 
         var store = articleStore;
         record.set('pin', 0);

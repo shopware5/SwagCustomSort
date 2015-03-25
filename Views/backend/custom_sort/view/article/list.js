@@ -74,10 +74,10 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             disabled: false,
             itemSelector: '.thumb',
             name: 'image-listing',
-            padding: '10 10 20',
             emptyText: '<div class="empty-text"><span>{s name=list/no_articles}No articles found{/s}</span></div>',
             multiSelect: true,
             store: me.store,
+            loadMask: false,
             tpl: me.createArticleViewTemplate(),
             listeners: {
                 itemclick: function(view, record, item, idx, event, opts) {
@@ -266,10 +266,16 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             store: me.store
         });
 
+        //Fire event when user uses paging toolbar
+        pagingBar.on('beforechange', function() {
+            me.fireEvent('pageChange');
+        });
+
         pagingBar.insert(pagingBar.items.length - 2, [
             { xtype: 'tbspacer', width: 6 },
             pageSize
         ]);
+
 
         return pagingBar;
     },
@@ -287,6 +293,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         var record = records[0],
             me = this;
 
+        me.fireEvent('pageChange');
         me.store.pageSize = record.get('value');
         me.store.loadPage(1);
     },
