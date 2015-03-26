@@ -32,7 +32,6 @@
     background-position: 0 -1044px !important
 }
 .thumb .detail .paging {
-    display: none;
     margin: 0 auto;
 }
 .thumb .detail .paging span {
@@ -40,7 +39,7 @@
     width: 16px;
     height: 16px;
     cursor: pointer;
-    background-image: url('/themes/Backend/ExtJs/backend/_resources/resources/themes/images/shopware-ui/sprite-arrows.png');
+    background-image: url('../images/sprite-arrows.png');
     background-repeat: no-repeat;
 }
 .detail .paging span.first {
@@ -70,9 +69,6 @@
 .detail .paging span.last.disabled {
     cursor: auto;
     background-position: 0 -264px;
-}
-.thumb.x-item-selected .detail .paging {
-    display: block;
 }
 .x-article-sort .thumb span {
     display: block;
