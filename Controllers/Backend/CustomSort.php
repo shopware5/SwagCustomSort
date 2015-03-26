@@ -24,6 +24,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
      */
     private $config = null;
 
+
+    /**
+     * @var Enlight_Event_EventManager
+     */
+    private $events = null;
+
     /**
      * @return Shopware\Components\Model\ModelManager
      */
@@ -79,6 +85,18 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     }
 
     /**
+     * @return Enlight_Event_EventManager
+     */
+    public function getEvents()
+    {
+        if ($this->events === null) {
+            $this->events = Shopware()->Events();
+        }
+
+        return $this->events;
+    }
+
+    /**
      * Get article list and images for current category
      */
     public function getArticleListAction()
@@ -91,9 +109,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         try {
-            $builder = $this->getSortRepository()->getArticleImageQuery($categoryId);
-            $this->sortUnsortedByDefault($builder, $sort);
-
+            $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sort);
             $total = $builder->execute()->rowCount();
 
             if ($offset !== null && $limit !== null) {
@@ -106,47 +122,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $this->View()->assign(array('success' => true, 'data' => $result, 'total' => $total));
         } catch (\Exception $ex) {
             $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
-        }
-    }
-
-    /**
-     * Sort products for current category by passed sort type
-     *
-     * @param \Shopware\Components\Model\QueryBuilder $builder
-     * @param integer $sort
-     */
-    private function sortUnsortedByDefault($builder, $sort)
-    {
-        switch ($sort) {
-            case 1:
-                $builder->addOrderBy('product.datum', 'DESC')
-                    ->addOrderBy('product.changetime', 'DESC');
-                break;
-            case 2:
-                $builder->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
-                    ->addOrderBy('topSeller.sales', 'DESC')
-                    ->addOrderBy('topSeller.article_id', 'DESC');
-                break;
-            case 3:
-                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
-                    ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
-                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
-                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
-                    ->addOrderBy('cheapest_price', 'ASC');
-                break;
-            case 4:
-                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
-                    ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
-                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
-                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
-                    ->addOrderBy('cheapest_price', 'DESC');
-                break;
-            case 5:
-                $builder->addOrderBy('product.name', 'ASC');
-                break;
-            case 6:
-                $builder->addOrderBy('product.name', 'DESC');
-                break;
         }
     }
 
@@ -216,8 +191,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         //get all products
-        $builder = $this->getSortRepository()->getArticleImageQuery($categoryId);
-        $this->sortUnsortedByDefault($builder, $sort);
+        $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sort);
         $allProducts = $builder->execute()->fetchAll();
 
         //check for deleted products
@@ -232,13 +206,17 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         //get sql values needed for update query
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
 
+        //update positions
         $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES " . rtrim($sqlValues, ',');
         $this->getDB()->query($sql);
 
+        //reset deleted product flag
         $this->getSortRepository()->resetDeletedPosition($categoryId);
 
+        //after update check for unnecessary records (delete all records to the last pin product)
         $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
 
+        //set current category's cache as invalid
         $this->invalidateCategoryCache($categoryId);
 
         $this->View()->assign(array('success' => true));
@@ -435,14 +413,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
     private function invalidateCategoryCache($categoryId)
     {
-//        $categoriesIds = $this->getSortRepository()->getCategoriesByLinkedCategoryId($categoryId);
-//        $categoriesIds[] = array('categoryID' => $categoryId);
-//
-//        //Invalidate the category cache for the linked articles
-//        foreach ($categoriesIds as $id) {
-//            Shopware()->Events()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => "c{$id['categoryID']}"));
-//        }
+        $categoriesIds = $this->getSortRepository()->getCategoriesByLinkedCategoryId($categoryId);
+        $categoriesIds[] = array('categoryID' => $categoryId);
 
-//        Shopware()->Events()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => 'c' . $categoryId));
+        //Invalidate the cache for the current category and linked categories
+        foreach ($categoriesIds as $id) {
+            $this->getEvents()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => "c{$id['categoryID']}"));
+        }
     }
 }

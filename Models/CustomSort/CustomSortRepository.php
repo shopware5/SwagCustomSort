@@ -34,7 +34,7 @@ class CustomSortRepository extends ModelRepository
         return $max;
     }
 
-    public function getArticleImageQuery($categoryId)
+    public function getArticleImageQuery($categoryId, $orderBy)
     {
         $builder = $this->getEntityManager()->getDBALQueryBuilder();
 
@@ -59,7 +59,50 @@ class CustomSortRepository extends ModelRepository
             ->orderBy('-sort.position', 'DESC')
             ->setParameter('categoryId', $categoryId);
 
+        $this->sortUnsortedByDefault($builder, $orderBy);
+
         return $builder;
+    }
+
+    /**
+     * Sort products for current category by passed sort type
+     *
+     * @param \Shopware\Components\Model\QueryBuilder $builder
+     * @param integer $orderBy
+     */
+    private function sortUnsortedByDefault($builder, $orderBy)
+    {
+        switch ($orderBy) {
+            case 1:
+                $builder->addOrderBy('product.datum', 'DESC')
+                    ->addOrderBy('product.changetime', 'DESC');
+                break;
+            case 2:
+                $builder->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
+                    ->addOrderBy('topSeller.sales', 'DESC')
+                    ->addOrderBy('topSeller.article_id', 'DESC');
+                break;
+            case 3:
+                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
+                    ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
+                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
+                    ->addOrderBy('cheapest_price', 'ASC');
+                break;
+            case 4:
+                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
+                    ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
+                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
+                    ->addOrderBy('cheapest_price', 'DESC');
+                break;
+            case 5:
+                $builder->addOrderBy('product.name', 'ASC');
+                break;
+            case 6:
+                $builder->addOrderBy('product.name', 'DESC');
+                break;
+        }
     }
 
     /**
@@ -168,6 +211,6 @@ class CustomSortRepository extends ModelRepository
             ->where('categoryID = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
-//        $builder->execute();
+        $builder->execute();
     }
 }
