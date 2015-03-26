@@ -27,16 +27,23 @@ class DragDropHandler implements SortingHandlerInterface
         $linkedCategoryId = $categoryComponent->getLinkedCategoryId($categoryId);
 
         //apply 'plugin' order
-        $query->leftJoin(
-            'productCategory',
-            's_articles_sort',
-            'customSort',
-            'customSort.articleId = productCategory.articleID AND (customSort.categoryId = productCategory.categoryID OR customSort.categoryId IS NULL)'
-        );
-
         if ($linkedCategoryId) {
+            $query->leftJoin(
+                'productCategory',
+                's_articles_sort',
+                'customSort',
+                'customSort.articleId = productCategory.articleID'
+            );
+
             $query->andWhere('customSort.categoryId = :sortCategoryId OR customSort.categoryId IS NULL');
             $query->setParameter('sortCategoryId', $linkedCategoryId);
+        } else {
+            $query->leftJoin(
+                'productCategory',
+                's_articles_sort',
+                'customSort',
+                'customSort.articleId = productCategory.articleID AND (customSort.categoryId = productCategory.categoryID OR customSort.categoryId IS NULL)'
+            );
         }
 
         $query->addOrderBy('-customSort.position', $sorting->getDirection());
