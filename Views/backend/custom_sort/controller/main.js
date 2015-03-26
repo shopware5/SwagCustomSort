@@ -113,8 +113,9 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                     grid.setDisabled(false);
                     grid.categoryTreeCombo.setDisabled(false);
 
+                    me.prepareTreeCombo(linkedCategoryId);
+
                     if (linkedCategoryId > 0) {
-                        me.prepareTreeCombo(linkedCategoryId);
                         grid.sorting.setDisabled(true);
                     } else {
                         grid.categoryTreeCombo.setRawValue();
