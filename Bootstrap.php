@@ -37,6 +37,10 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
      */
     public function install()
     {
+        if (!$this->assertVersionGreaterThen('5.0.0')) {
+            throw new \Exception('This plugin requires Shopware 5.0.0 or a later version');
+        }
+
         $this->subscribeEvents();
         $this->createDatabase();
         $this->createAttributes();
