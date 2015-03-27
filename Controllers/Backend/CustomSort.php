@@ -216,8 +216,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         //after update check for unnecessary records (delete all records to the last pin product)
         $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
 
-        //set current category's cache as invalid
-        $this->invalidateCategoryCache($categoryId);
+        //set current product's cache as invalid
+        $this->invalidateProductCache($movedProducts);
 
         $this->View()->assign(array('success' => true));
     }
@@ -411,14 +411,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         return $allProducts;
     }
 
-    private function invalidateCategoryCache($categoryId)
+    private function invalidateProductCache($movedProducts)
     {
-        $categoriesIds = $this->getSortRepository()->getCategoriesByLinkedCategoryId($categoryId);
-        $categoriesIds[] = array('categoryID' => $categoryId);
-
-        //Invalidate the cache for the current category and linked categories
-        foreach ($categoriesIds as $id) {
-            $this->getEvents()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => "c{$id['categoryID']}"));
+        //Invalidate the cache for the current product
+        foreach ($movedProducts as $product) {
+            $this->getEvents()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => "a{$product['id']}"));
+            break;
         }
     }
 }
