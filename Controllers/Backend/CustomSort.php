@@ -187,11 +187,19 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         }
 
         $categoryId = (int) $this->Request()->getParam('categoryId');
+        $movedProducts = $this->prepareKeys($movedProducts);
+        $offset = $this->getOffset($movedProducts, $categoryId);
+        $length = $this->getLength($movedProducts, $offset, $categoryId);
         $defaultSort = $this->getConfig()->get('defaultListingSorting');
         $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         //get all products
         $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sort);
+        if ($offset !== null && $length !== null) {
+            $builder->setFirstResult($offset)
+                ->setMaxResults($length);
+        }
+
         $allProducts = $builder->execute()->fetchAll();
 
         //check for deleted products
@@ -201,7 +209,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         }
 
         //get sorted products
-        $sortedProducts = $this->applyNewPosition($allProducts, $movedProducts, $categoryId);
+        $sortedProducts = $this->applyNewPosition($allProducts, $movedProducts, $offset);
 
         //get sql values needed for update query
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
@@ -230,15 +238,10 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
      * @param int $categoryId - the id of the current category
      * @return array $result
      */
-    private function applyNewPosition($allProducts, $products, $categoryId)
+    private function applyNewPosition($allProducts, $products, $index)
     {
         $allProducts = $this->prepareKeys($allProducts);
         $products = $this->prepareKeys($products);
-
-        //get all products that should be updated
-        $offset = $this->getOffset($products, $categoryId);
-        $length = $this->getLength($products, $offset, $categoryId);
-        $productsForUpdate = array_slice($allProducts, $offset, $length, true);
 
         //apply new positions for the products
         $result = array();
@@ -251,8 +254,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $result[$newPosition]['oldPosition'] = $oldPosition;
         }
 
-        $index = $offset;
-        foreach($productsForUpdate as $id => &$product) {
+        foreach($allProducts as $id => &$product) {
             if (array_key_exists($id, $products)) {
                 continue;
             }
