@@ -14,7 +14,7 @@ Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
      */
     alias : 'widget.sort-category-tree',
 
-    collapsible: false,
+    collapsible: true,
 
     /**
      * False to hide the root node.
@@ -27,6 +27,8 @@ Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
      * @integer
      */
     width: 250,
+
+    title: '{s name=view/tree/title}Categories{/s}',
 
     /**
      * Initialize the controller and defines the necessary default configuration
