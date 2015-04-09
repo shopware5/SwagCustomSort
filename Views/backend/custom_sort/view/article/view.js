@@ -114,7 +114,9 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
                     { id: 4, name: '{s name=view/sort/price_highest}Maximum price{/s}' },
                     { id: 5, name: '{s name=view/sort/name_asc}Product name A-Z{/s}' },
                     { id: 6, name: '{s name=view/sort/name_desc}Product name Z-A{/s}' },
-                    { id: 7, name: '{s name=view/sort/ranking}Rating{/s}' }
+                    { id: 7, name: '{s name=view/sort/ranking}Rating{/s}' },
+                    { id: 9, name: '{s name=view/sort/instock_asc}Stock ascending{/s}' },
+                    { id: 10, name: '{s name=view/sort/instock_desc}Stock descending{/s}' }
                 ]
             }),
             listeners: {

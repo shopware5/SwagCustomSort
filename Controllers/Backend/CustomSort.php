@@ -235,7 +235,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
      *
      * @param array $allProducts - all products contained in the current category
      * @param array $products - the selected products, that were dragged
-     * @param int $categoryId - the id of the current category
+     * @param int $index - the id of offset products
      * @return array $result
      */
     private function applyNewPosition($allProducts, $products, $index)

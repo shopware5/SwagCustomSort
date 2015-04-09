@@ -102,6 +102,13 @@ class CustomSortRepository extends ModelRepository
             case 6:
                 $builder->addOrderBy('product.name', 'DESC');
                 break;
+            case 9:
+                $builder->addOrderBy('variant.instock', 'ASC');
+                break;
+            case 10:
+                $builder->addOrderBy('variant.instock', 'DESC');
+                break;
+
         }
     }
 
