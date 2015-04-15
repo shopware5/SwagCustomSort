@@ -31,6 +31,15 @@
     height: 16px;
     background-position: 0 -1044px !important
 }
+.x-article-sort .thumb .remove {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+.x-article-sort .thumb .pin,
+.x-article-sort .thumb .remove {
+    cursor: pointer;
+}
 .thumb .detail .paging {
     margin: 0 auto;
 }

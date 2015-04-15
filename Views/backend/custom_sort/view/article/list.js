@@ -81,6 +81,9 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             tpl: me.createArticleViewTemplate(),
             listeners: {
                 itemclick: function(view, record, item, idx, event, opts) {
+                    if (event.target.classList.contains('remove')) {
+                        me.fireEvent('remove', me.store, record);
+                    }
                     if (event.target.classList.contains('pin')) {
                         me.fireEvent('unpin', me.store, record);
                     }
@@ -110,6 +113,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                 '<tpl if="values.pin==1">',
                     '<span class="sprite-sticky-notes-pin pin"></span>',
                 '</tpl>',
+                '<span class="sprite-cross remove"></span>',
                 '<div class="inner-thumb">',
                     '<img src="','{link file=""}','{literal}{thumbnail}{/literal}','" />' ,
                     '<div class="detail">',
