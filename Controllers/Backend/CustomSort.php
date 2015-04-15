@@ -469,14 +469,16 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     {
         $categoryId = $categoryModel->getId();
         $this->setCategoryIdCollection($categoryId);
-        $categories = $categoryModel->getChildren();
+
+        $sql = "SELECT id FROM s_categories WHERE path LIKE ?";
+        $categories = Shopware()->Db()->fetchAll($sql, array('%|' . $categoryId . '|%'));
 
         if (!$categories) {
             return;
         }
 
-        foreach ($categories as $category) {
-            $this->collectCategoryIds($category);
+        foreach ($categories as $categoryId) {
+            $this->setCategoryIdCollection($categoryId);
         }
 
         return;
