@@ -59,7 +59,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 moveToPrevPage: me.onMoveToPrevPage,
                 moveToNextPage: me.onMoveToNextPage,
                 articleMove: me.onArticleMove,
-                unpin: me.onUnpin
+                unpin: me.onUnpin,
+                remove: me.onRemove
             }
         });
 
@@ -446,6 +447,14 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         articleStore.update();
     },
 
+    /**
+     * Event listener function of the article view list.
+     * Fired when the user click on unpin icon on article.
+     *
+     * @param [Ext.data.Store] The article store
+     * @param [Ext.data.Model] The selected record
+     * @param [boolean]
+     */
     onUnpin: function(articleStore, record) {
         var me = this,
             list = me.getArticleList();
@@ -466,6 +475,45 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             failure: function() {
                 Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}','{s name=main/error/message}Changes were not saved{/s}');
                 store.load();
+            }
+        });
+
+        return true;
+    },
+
+    /**
+     * Event listener function of the article view list.
+     * Fired when the user click on remove icon on article.
+     *
+     * @param [Ext.data.Store] The article store
+     * @param [Ext.data.Model] The selected record
+     * @param [boolean]
+     */
+    onRemove: function(articleStore, record) {
+        var me = this,
+            list = me.getArticleList();
+
+        if (!articleStore instanceof Ext.data.Store || !record instanceof Ext.data.Model) {
+            return false;
+        }
+
+        list.setLoading(true);
+
+        var store = articleStore;
+
+        Ext.Ajax.request({
+            url: '{url controller="CustomSort" action="removeProduct"}',
+            method: 'POST',
+            params: {
+                articleId: record.get('id'),
+                categoryId: me.categoryId
+            },
+            success: function() {
+                Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/remove/message}Product successfully removed{/s}');
+                store.load();
+            },
+            failure: function() {
+                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}','{s name=main/error/remove/message}Product was not removed{/s}');
             }
         });
 

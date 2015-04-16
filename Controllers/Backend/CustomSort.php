@@ -43,6 +43,11 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     }
 
     /**
+     * @var array
+     */
+    protected $categoryIdCollection;
+
+    /**
      * Returns sort repository
      *
      * @return Shopware\CustomModels\CustomSort\ArticleSort
@@ -421,4 +426,83 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             break;
         }
     }
+
+    /**
+     * Remove product from current and child categories.
+     */
+    public function removeProductAction()
+    {
+        $articleId = (int) $this->Request()->get('articleId');
+        $categoryId = (int) $this->Request()->get('categoryId');
+
+        $category = Shopware()->Models()->getReference('Shopware\Models\Category\Category', $categoryId);
+        if ($category) {
+            $this->collectCategoryIds($category);
+            $categories = $this->getCategoryIdCollection();
+
+            /** @var \Shopware\Models\Article\Article $article */
+            $article = Shopware()->Models()->getReference('Shopware\Models\Article\Article', (int) $articleId);
+            $article->removeCategory($category);
+
+            if ($categories) {
+                foreach ($categories as $childCategoryId) {
+                    $childCategoryModel = Shopware()->Models()->getReference('Shopware\Models\Category\Category', $childCategoryId);
+                    if ($childCategoryModel) {
+                        $article->removeCategory($childCategoryModel);
+                    }
+                }
+            }
+
+            Shopware()->Models()->flush();
+        }
+
+        $this->View()->assign(array('success' => true));
+    }
+
+    /**
+     * Check current category for child categories and
+     * add ids to collection.
+     *
+     * @param $categoryModel
+     */
+    private function collectCategoryIds($categoryModel)
+    {
+        $categoryId = $categoryModel->getId();
+        $this->setCategoryIdCollection($categoryId);
+
+        $sql = "SELECT id FROM s_categories WHERE path LIKE ?";
+        $categories = Shopware()->Db()->fetchAll($sql, array('%|' . $categoryId . '|%'));
+
+        if (!$categories) {
+            return;
+        }
+
+        foreach ($categories as $categoryId) {
+            $this->setCategoryIdCollection($categoryId);
+        }
+
+        return;
+    }
+
+    /**
+     * Get category ids collection.
+     *
+     * @return array
+     */
+    public function getCategoryIdCollection()
+    {
+        return $this->categoryIdCollection;
+    }
+
+    /**
+     * Insert category id to category ids collection.
+     *
+     * @return array
+     */
+    public function setCategoryIdCollection($categoryIdCollection)
+    {
+        $this->categoryIdCollection[] = $categoryIdCollection;
+    }
+
+
 }
