@@ -325,9 +325,19 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 return false;
             }
 
-            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+            if (articleStore.allProductsPageSize && articleStore.indexOf(record) < articleStore.allProductsPageSize) {
+                return true;
+            }
+
+            if (articleStore.allProductsPageSize) { //all products mode
+                oldPosition = articleStore.indexOf(record);
+                position = oldPosition - articleStore.allProductsPageSize;
+            } else {
+                oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+                position = ((articleStore.currentPage - 1) * articleStore.pageSize) - count;
+            }
+
             record.set('oldPosition', oldPosition);
-            position = ((articleStore.currentPage - 1) * articleStore.pageSize) - count;
             record.set('position', position);
             record.set('pin', 1);
             count--;
@@ -362,9 +372,19 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 return false;
             }
 
-            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+            if (articleStore.allProductsPageSize && articleStore.indexOf(record) >= (articleStore.totalCount - articleStore.allProductsPageSize)) {
+                return true;
+            }
+
+            if (articleStore.allProductsPageSize) { //all products mode
+                oldPosition = articleStore.indexOf(record);
+                position = oldPosition + articleStore.allProductsPageSize;
+            } else {
+                oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+                position = (articleStore.currentPage * articleStore.pageSize) + index;
+            }
+
             record.set('oldPosition', oldPosition);
-            position = (articleStore.currentPage * articleStore.pageSize) + index;
             record.set('position', position);
             record.set('pin', 1);
         });

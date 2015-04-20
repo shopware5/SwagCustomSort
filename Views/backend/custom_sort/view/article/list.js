@@ -120,8 +120,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                         '<span>{[Ext.util.Format.ellipsis(values.name, 50)]}</span>',
                         '<span class="paging">',
                             '<span class="first{[this.startPage(values, xindex)]}"></span>',
-                            '<span class="prev{[this.prevPage()]}"></span>',
-                            '<span class="next{[this.nextPage()]}"></span>',
+                            '<span class="prev{[this.prevPage(xindex)]}"></span>',
+                            '<span class="next{[this.nextPage(xindex)]}"></span>',
                             '<span class="last{[this.endPage(values, xindex)]}"></span>',
                         '</span>',
                     '</div>',
@@ -144,20 +144,27 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                 },
 
                 //Add class if current product is on first page in store list
-                prevPage: function() {
-                    var store = me.store;
+                prevPage: function(index) {
+                    var store = me.store,
+                        pageSize = store.allProductsPageSize;
 
-                    if (store.currentPage <= 1) {
+                    if (store.currentPage <= 1 && pageSize && index > pageSize) {
+                        return '';
+                    } else if (store.currentPage <= 1) {
                         return ' disabled';
                     }
                 },
 
                 //Add class if current product is on last page in store list
-                nextPage: function() {
-                    var store = me.store, lastPage;
+                nextPage: function(index) {
+                    var store = me.store,
+                        lastPage,
+                        pageSize = store.allProductsPageSize;
 
                     lastPage = store.totalCount / store.pageSize;
-                    if (lastPage <= store.currentPage){
+                    if (pageSize && index <= (store.totalCount - pageSize)) {
+                        return '';
+                    } else if (lastPage <= store.currentPage) {
                         return ' disabled';
                     }
                 },
@@ -256,7 +263,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     { value: '10', name: '10 ' + productSnippet },
                     { value: '25', name: '25 ' + productSnippet },
                     { value: '50', name: '50 ' + productSnippet },
-                    { value: '75', name: '75 ' + productSnippet }
+                    { value: '75', name: '75 ' + productSnippet },
+                    { value: 'all', name: 'all ' + productSnippet }
                 ]
             }),
             displayField: 'name',
@@ -298,7 +306,13 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             me = this;
 
         me.fireEvent('pageChange');
-        me.store.pageSize = record.get('value');
+        if (record.get('value') === 'all') {
+            me.store.pageSize = me.store.totalCount;
+            me.store.allProductsPageSize = 20;
+        } else {
+            me.store.pageSize = record.get('value');
+            me.store.allProductsPageSize = 0;
+        }
         me.store.loadPage(1);
     },
 
