@@ -244,7 +244,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
      */
     getPagingBar: function() {
         var me = this,
-            productSnippet = '{s name=list/pagingCombo/products}products{/s}';
+            productSnippet = '{s name=list/pagingCombo/products}products{/s}',
+            allProducts = '{s name=list/pagingCombo/allProducts}All products{/s}';
 
         var pageSize = Ext.create('Ext.form.field.ComboBox', {
             labelWidth: 120,
@@ -264,7 +265,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     { value: '25', name: '25 ' + productSnippet },
                     { value: '50', name: '50 ' + productSnippet },
                     { value: '75', name: '75 ' + productSnippet },
-                    { value: 'all', name: 'all ' + productSnippet }
+                    { value: 'all', name: allProducts }
                 ]
             }),
             displayField: 'name',
