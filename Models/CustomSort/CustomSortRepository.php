@@ -6,6 +6,13 @@ use Shopware\Components\Model\ModelRepository;
 
 class CustomSortRepository extends ModelRepository
 {
+
+    /**
+     * Check if selected category has custom sorted products
+     *
+     * @param $categoryId
+     * @return bool
+     */
     public function hasCustomSort($categoryId)
     {
         $categoryId = (int) $categoryId;
@@ -20,6 +27,12 @@ class CustomSortRepository extends ModelRepository
         return $result;
     }
 
+    /**
+     * Return last sort position for selected category
+     *
+     * @param $categoryId
+     * @return mixed
+     */
     public function getMaxPosition($categoryId)
     {
         $categoryId = (int) $categoryId;
@@ -34,6 +47,13 @@ class CustomSortRepository extends ModelRepository
         return $max;
     }
 
+    /**
+     * Return product list for selected category
+     *
+     * @param $categoryId
+     * @param $orderBy
+     * @return mixed
+     */
     public function getArticleImageQuery($categoryId, $orderBy)
     {
         $builder = $this->getEntityManager()->getDBALQueryBuilder();
@@ -49,7 +69,6 @@ class CustomSortRepository extends ModelRepository
                 'sort.pin as pin',
             ))
             ->from('s_articles', 'product')
-            ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
             ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
             ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
             ->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)')
@@ -60,6 +79,27 @@ class CustomSortRepository extends ModelRepository
             ->setParameter('categoryId', $categoryId);
 
         $this->sortUnsortedByDefault($builder, $orderBy);
+
+        return $builder;
+    }
+
+    /**
+     * Return total count of products in selected category
+     *
+     * @param $categoryId
+     * @return mixed
+     */
+    public function getArticleImageCountQuery($categoryId)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+
+        $builder->select('COUNT(DISTINCT product.id) as Total')
+            ->from('s_articles', 'product')
+            ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
+            ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
+            ->where('productCategory.categoryID = :categoryId')
+            ->andWhere('images.main = 1')
+            ->setParameter('categoryId', $categoryId);
 
         return $builder;
     }
@@ -84,16 +124,14 @@ class CustomSortRepository extends ModelRepository
                 break;
             case 3:
                 $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
-                    ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+                    ->leftJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
                     ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
-                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
                     ->addOrderBy('cheapest_price', 'ASC');
                 break;
             case 4:
                 $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
-                    ->innerJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+                    ->leftJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
                     ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
-                    ->leftJoin('product', 's_articles_prices', 'customerPrice', 'customerPrice.articleID = product.id')
                     ->addOrderBy('cheapest_price', 'DESC');
                 break;
             case 5:
@@ -103,10 +141,14 @@ class CustomSortRepository extends ModelRepository
                 $builder->addOrderBy('product.name', 'DESC');
                 break;
             case 9:
-                $builder->addOrderBy('variant.instock', 'ASC');
+                $builder
+                    ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
+                    ->addOrderBy('variant.instock', 'ASC');
                 break;
             case 10:
-                $builder->addOrderBy('variant.instock', 'DESC');
+                $builder
+                    ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
+                    ->addOrderBy('variant.instock', 'DESC');
                 break;
 
         }
@@ -172,19 +214,12 @@ class CustomSortRepository extends ModelRepository
         return $maxPinPosition;
     }
 
-    public function getCategoriesByLinkedCategoryId($categoryId)
-    {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
-        $builder->select(array('categoryID'))
-            ->from('s_categories_attributes')
-            ->where('swag_link = :categoryId')
-            ->setParameter('categoryId', $categoryId);
-
-        $ids = $builder->execute()->fetchAll();
-
-        return $ids;
-    }
-
+    /**
+     * Returns product position for selected product
+     *
+     * @param $articleId
+     * @return mixed
+     */
     public function getPositionByArticleId($articleId)
     {
         $builder = $this->getEntityManager()->getDBALQueryBuilder();
@@ -197,6 +232,12 @@ class CustomSortRepository extends ModelRepository
         return $position;
     }
 
+    /**
+     * Returns last deleted position of product for selected category
+     *
+     * @param $categoryId
+     * @return mixed
+     */
     public function getPositionOfDeletedProduct($categoryId)
     {
         $builder = $this->getEntityManager()->getDBALQueryBuilder();
@@ -210,6 +251,11 @@ class CustomSortRepository extends ModelRepository
         return $deletedPosition;
     }
 
+    /**
+     * Delete custom sort flag for selected category
+     *
+     * @param $categoryId
+     */
     public function resetDeletedPosition($categoryId)
     {
         $builder = $this->getEntityManager()->getDBALQueryBuilder();
