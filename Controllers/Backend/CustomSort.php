@@ -115,16 +115,17 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         try {
             $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sort);
-            $total = $builder->execute()->rowCount();
+            $countBuilder = $this->getSortRepository()->getArticleImageCountQuery($categoryId);
 
             if ($offset !== null && $limit !== null) {
                 $builder->setFirstResult($offset)
                         ->setMaxResults($limit);
             }
 
-            $result = $builder->execute()->fetchAll();
+            $getProducts = $builder->execute()->fetchAll();
+            $total = $countBuilder->execute()->fetch();
 
-            $this->View()->assign(array('success' => true, 'data' => $result, 'total' => $total));
+            $this->View()->assign(array('success' => true, 'data' => $getProducts, 'total' => $total['Total']));
         } catch (\Exception $ex) {
             $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
         }
