@@ -109,6 +109,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 if (success) {
                     var record = records[0];
                     var linkedCategoryId = record.get('categoryLink');
+                    var baseSort = record.get('baseSort');
 
                     grid.loadRecord(record);
                     grid.setDisabled(false);
@@ -125,15 +126,18 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                         list.setDisabled(false);
                     }
 
-                    grid.sorting.setValue(record.get('baseSort'));
+                    me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId, sortBy: baseSort };
+                    me.subApplication.articleStore.filters.clear();
+                    me.subApplication.articleStore.currentPage = 1;
+                    me.subApplication.articleStore.load();
+
+                    grid.sorting.setValue(baseSort);
                 }
             }
         });
 
-        me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId };
-        me.subApplication.articleStore.filters.clear();
-        me.subApplication.articleStore.currentPage = 1;
-        me.subApplication.articleStore.load();
+
+
 
         me.subApplication.articleStore.on('load', function(){
             list.setLoading(false);

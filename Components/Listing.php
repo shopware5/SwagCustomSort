@@ -131,6 +131,7 @@ class Listing
     /**
      * Checks whether this category has own custom sort
      *
+     * @param $categoryId
      * @return bool
      */
     public function hasOwnSort($categoryId)
@@ -163,6 +164,7 @@ class Listing
     /**
      * Returns the id of the linked category.
      *
+     * @param $categoryId
      * @return int
      */
     public function getLinkedCategoryId($categoryId)
@@ -185,5 +187,26 @@ class Listing
         }
 
         return $linkedCategoryId;
+    }
+
+    /**
+     * Returns the base sort id for selected category
+     *
+     * @param $categoryId
+     * @return bool
+     */
+    public function getCategoryBaseSort($categoryId)
+    {
+        $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
+        if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
+            return false;
+        }
+
+        $baseSortId = $categoryAttributes->getSwagBaseSort();
+        if ($baseSortId === null) {
+            return false;
+        }
+
+        return $baseSortId;
     }
 }

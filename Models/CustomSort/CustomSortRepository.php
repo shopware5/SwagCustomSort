@@ -266,4 +266,31 @@ class CustomSortRepository extends ModelRepository
 
         $builder->execute();
     }
+
+    /**
+     * Update category attributes for selected category
+     *
+     * @param $categoryId
+     * @param $baseSort
+     * @param null $categoryLink
+     * @param null $defaultSort
+     */
+    public function updateCategoryAttributes($categoryId, $baseSort, $categoryLink = null, $defaultSort = null)
+    {
+        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder->update('s_categories_attributes')
+            ->set('swag_base_sort', $baseSort)
+            ->where('categoryID = :categoryId')
+            ->setParameter('categoryId', $categoryId);
+
+        if ($categoryLink !== null) {
+            $builder->set('swag_link', $categoryLink);
+        }
+
+        if ($defaultSort !== null) {
+            $builder->set('swag_show_by_default', $defaultSort);
+        }
+
+        $builder->execute();
+    }
 }

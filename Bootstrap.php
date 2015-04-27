@@ -152,6 +152,15 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             null
         );
 
+        $em->addAttribute(
+            's_categories_attributes',
+            'swag',
+            'base_sort',
+            'int(11)',
+            true,
+            null
+        );
+
         $em->generateAttributeModels(array(
             's_categories_attributes'
         ));

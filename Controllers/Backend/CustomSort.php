@@ -137,12 +137,22 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     public function getCategorySettingsAction()
     {
         $categoryId = (int) $this->Request()->getParam('categoryId');
+        $defaultSort = $this->getConfig()->get('defaultListingSorting');
 
-        $data = array();
+        $data = array(
+            'id' => null,
+            'defaultSort' => 0,
+            'categoryLink' => 0,
+            'baseSort' => $defaultSort
+        );
 
         $categoryAttributes = $this->getModelManager()->getRepository('\Shopware\Models\Attribute\Category')->findOneBy(array('categoryId' => $categoryId));
         if ($categoryAttributes) {
-            $defaultSort = $this->getConfig()->get('defaultListingSorting');
+            $hasCustomSort = $this->getSortRepository()->hasCustomSort($categoryId);
+            if ($hasCustomSort) {
+                $defaultSort = $categoryAttributes->getSwagBaseSort();
+            }
+
             $data = array(
                 'id' => null,
                 'defaultSort' => $categoryAttributes->getSwagShowByDefault(),
@@ -162,16 +172,10 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $categoryId = (int) $this->Request()->getParam('categoryId');
         $categoryLink = (int) $this->Request()->getParam('categoryLink');
         $defaultSort = (int) $this->Request()->getParam('defaultSort');
+        $baseSort = (int) $this->Request()->getParam('baseSort');
 
         try {
-            $builder = $this->getModelManager()->createQueryBuilder();
-            $builder->update('\Shopware\Models\Attribute\Category', 'categoryAttribute')
-                ->set('categoryAttribute.swagLink', $categoryLink)
-                ->set('categoryAttribute.swagShowByDefault', $defaultSort)
-                ->where('categoryAttribute.categoryId = :categoryId')
-                ->setParameter('categoryId', $categoryId);
-
-            $builder->getQuery()->execute();
+            $this->getSortRepository()->updateCategoryAttributes($categoryId, $baseSort, $categoryLink, $defaultSort);
 
             $this->View()->assign(array('success' => true));
         } catch(\Exception $ex) {
@@ -219,6 +223,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         //get sql values needed for update query
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
+
+        //update category base sorting
+        $this->getSortRepository()->updateCategoryAttributes($categoryId, $sort);
 
         //update positions
         $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES " . rtrim($sqlValues, ',');
@@ -383,17 +390,23 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     public function unpinArticleAction()
     {
         $product = $this->Request()->getParam('products');
+        $baseSort = $this->Request()->getParam('sortBy');
         $sortId = (int) $product['positionId'];
+
         try {
             if (!$sortId) {
                 throw new Exception("Unpin product '{$product['name']}' with id '{$product['id']}', failed!");
             }
 
-            $categoryId = (int) $this->Request()->getParam('categoryId');
+            $categoryId = (int)$this->Request()->getParam('categoryId');
 
             $this->getSortRepository()->unpinById($sortId);
 
             $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
+
+            if ($baseSort) {
+                $this->getSortRepository()->updateCategoryAttributes($categoryId, $baseSort);
+            }
 
             $this->View()->assign(array('success' => true));
         } catch(\Exception $ex) {
