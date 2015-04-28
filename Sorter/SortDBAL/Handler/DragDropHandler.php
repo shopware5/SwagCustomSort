@@ -25,6 +25,12 @@ class DragDropHandler implements SortingHandlerInterface
         $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
         $categoryId = Shopware()->Front()->Request()->getParam('sCategory');
         $linkedCategoryId = $categoryComponent->getLinkedCategoryId($categoryId);
+        $hasCustomSort = $categoryComponent->hasCustomSort($categoryId);
+        if ($hasCustomSort) {
+            $baseSorting = $categoryComponent->getCategoryBaseSort($categoryId);
+        } else {
+            $baseSorting = Shopware()->Config()->get('defaultListingSorting');
+        }
 
         //apply 'plugin' order
         if ($linkedCategoryId) {
@@ -49,17 +55,15 @@ class DragDropHandler implements SortingHandlerInterface
         $query->addOrderBy('-customSort.position', $sorting->getDirection());
 
         //for records with no 'plugin' order data use the default shopware order
-        $handlerData = $this->getDefaultData();
+        $handlerData = $this->getDefaultData($baseSorting);
         if ($handlerData) {
             $sorting->setDirection($handlerData['direction']);
             $handlerData['handler']->generateSorting($sorting, $query, $context);
         }
     }
 
-    protected function getDefaultData()
+    protected function getDefaultData($defaultSort)
     {
-        $defaultSort = Shopware()->Config()->get('defaultListingSorting');
-
         switch ($defaultSort) {
             case StoreFrontCriteriaFactory::SORTING_RELEASE_DATE:
                 return array(
