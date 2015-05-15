@@ -31,7 +31,9 @@ class Shopware_Controllers_Widgets_CustomSort extends Enlight_Controller_Action
 
         $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
         $showCustomSort = $categoryComponent->showCustomSortName($categoryId);
-        if ($showCustomSort && !$hideFilters) {
+        $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
+        $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
+        if (($showCustomSort && !$hideFilters) || ($baseSort > 0 && $useDefaultSort)) {
             $showCustomSortOption = true;
         } else {
             $showCustomSortOption = false;

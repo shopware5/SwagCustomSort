@@ -154,7 +154,8 @@ class Listing
 
         $useDefaultSort = (bool) $categoryAttributes->getSwagShowByDefault();
         $hasOwnSort = $this->hasOwnSort($categoryId);
-        if ($useDefaultSort && $hasOwnSort) {
+        $baseSort = $this->getCategoryBaseSort($categoryId);
+        if ($useDefaultSort && ($hasOwnSort || $baseSort > 0)) {
             return true;
         }
 
