@@ -26,7 +26,8 @@ class DragDropHandler implements SortingHandlerInterface
         $categoryId = Shopware()->Front()->Request()->getParam('sCategory');
         $linkedCategoryId = $categoryComponent->getLinkedCategoryId($categoryId);
         $hasCustomSort = $categoryComponent->hasCustomSort($categoryId);
-        if ($hasCustomSort) {
+        $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
+        if ($hasCustomSort || $baseSort > 0) {
             $baseSorting = $categoryComponent->getCategoryBaseSort($categoryId);
         } else {
             $baseSorting = Shopware()->Config()->get('defaultListingSorting');

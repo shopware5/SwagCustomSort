@@ -279,9 +279,12 @@ class CustomSortRepository extends ModelRepository
     {
         $builder = $this->getEntityManager()->getDBALQueryBuilder();
         $builder->update('s_categories_attributes')
-            ->set('swag_base_sort', $baseSort)
             ->where('categoryID = :categoryId')
             ->setParameter('categoryId', $categoryId);
+
+        if ($baseSort != 0) {
+            $builder->set('swag_base_sort', $baseSort);
+        }
 
         if ($categoryLink !== null) {
             $builder->set('swag_link', $categoryLink);

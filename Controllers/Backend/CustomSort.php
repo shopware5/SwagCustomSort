@@ -148,9 +148,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         $categoryAttributes = $this->getModelManager()->getRepository('\Shopware\Models\Attribute\Category')->findOneBy(array('categoryId' => $categoryId));
         if ($categoryAttributes) {
-            $hasCustomSort = $this->getSortRepository()->hasCustomSort($categoryId);
-            if ($hasCustomSort) {
-                $defaultSort = $categoryAttributes->getSwagBaseSort();
+            $baseSort = $categoryAttributes->getSwagBaseSort();
+            if ($baseSort > 0) {
+                $defaultSort = $baseSort;
             }
 
             $data = array(
@@ -223,9 +223,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         //get sql values needed for update query
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
-
-        //update category base sorting
-        $this->getSortRepository()->updateCategoryAttributes($categoryId, $sort);
 
         //update positions
         $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES " . rtrim($sqlValues, ',');
@@ -390,7 +387,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     public function unpinArticleAction()
     {
         $product = $this->Request()->getParam('products');
-        $baseSort = $this->Request()->getParam('sortBy');
         $sortId = (int) $product['positionId'];
 
         try {
@@ -403,10 +399,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $this->getSortRepository()->unpinById($sortId);
 
             $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
-
-            if ($baseSort) {
-                $this->getSortRepository()->updateCategoryAttributes($categoryId, $baseSort);
-            }
 
             $this->View()->assign(array('success' => true));
         } catch(\Exception $ex) {
