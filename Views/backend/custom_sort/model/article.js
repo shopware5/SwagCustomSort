@@ -1,5 +1,6 @@
 //{block name="backend/custom_sort/model/article"}
 Ext.define('Shopware.apps.CustomSort.model.Article', {
+
     /**
      * Extend for the standard ExtJS 4
      * @string
@@ -22,11 +23,11 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
         {
             name: 'thumbnail',
             type: 'string',
-            convert: function(value, record) {
+            convert: function (value, record) {
                 if (record.get('path').indexOf('media/image') === -1) {
                     return 'media/image/thumbnail/' + record.get('path') + '_140x140.' + record.get('extension');
                 } else {
-                    var name =  record.get('path').replace('media/image/', '');
+                    var name = record.get('path').replace('media/image/', '');
                     name = name.replace('.' + record.get('extension'), '');
                     return 'media/image/thumbnail/' + name + '_140x140.' + record.get('extension');
                 }
@@ -39,7 +40,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
      * Configure the data communication
      * @object
      */
-    proxy:{
+    proxy: {
         /**
          * Set proxy type to ajax
          * @string

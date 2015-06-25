@@ -1,7 +1,7 @@
 //{namespace name="backend/custom_sort/view/main"}
 //{block name="backend/custom_sort/view/main/main"}
 Ext.define('Shopware.apps.CustomSort.view.main.Window', {
-    
+
     extend: 'Enlight.app.Window',
 
     alias: 'widget.sort-main-window',
@@ -24,7 +24,7 @@ Ext.define('Shopware.apps.CustomSort.view.main.Window', {
      * Sets up the ui component
      * @return void
      */
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
 
         me.items = me.createItems();
@@ -36,21 +36,23 @@ Ext.define('Shopware.apps.CustomSort.view.main.Window', {
      * Creates the elements for this component.
      * @return array
      */
-    createItems: function() {
+    createItems: function () {
         var me = this;
 
-        return [{
-            xtype: 'sort-category-tree',
-            region: 'west',
-            flex: 0.25,
-            store: me.treeStore
-        }, {
-            xtype: 'sort-articles-view',
-            region: 'center',
-            store: me.categorySettings,
-            treeStore: me.treeStore,
-            articleStore: me.articleStore
-        }];
+        return [
+            {
+                xtype: 'sort-category-tree',
+                region: 'west',
+                flex: 0.25,
+                store: me.treeStore
+            }, {
+                xtype: 'sort-articles-view',
+                region: 'center',
+                store: me.categorySettings,
+                treeStore: me.treeStore,
+                articleStore: me.articleStore
+            }
+        ];
     }
 
 });

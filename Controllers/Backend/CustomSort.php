@@ -1,14 +1,40 @@
 <?php
 
+/**
+ * Shopware 5
+ * Copyright (c) shopware AG
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Shopware" is a registered trademark of shopware AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
+use Shopware\Components\Model\ModelManager;
+use Shopware\CustomModels\CustomSort\CustomSortRepository;
+
 class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backend_ExtJs
 {
     /**
-     * @var Shopware\Components\Model\ModelManager $em
+     * @var ModelManager $em
      */
     private $em = null;
 
     /**
-     * @var Shopware\CustomModels\CustomSort\ArticleSort
+     * @var CustomSortRepository
      */
     private $sortRepo = null;
 
@@ -20,18 +46,18 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     /**
      * References the shopware config object
      *
-     * @var Shopware_Components_Config
+     * @var \Shopware_Components_Config
      */
     private $config = null;
 
 
     /**
-     * @var Enlight_Event_EventManager
+     * @var \Enlight_Event_EventManager
      */
     private $events = null;
 
     /**
-     * @return Shopware\Components\Model\ModelManager
+     * @return ModelManager
      */
     public function getModelManager()
     {
@@ -50,7 +76,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     /**
      * Returns sort repository
      *
-     * @return Shopware\CustomModels\CustomSort\ArticleSort
+     * @return CustomSortRepository
      */
     public function getSortRepository()
     {
@@ -64,7 +90,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     /**
      * Returns pdo mysql db adapter instance
      *
-     * @return Enlight_Components_Db_Adapter_Pdo_Mysql
+     * @return \Enlight_Components_Db_Adapter_Pdo_Mysql
      */
     public function getDB()
     {
@@ -78,7 +104,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     /**
      * Returns config instance
      *
-     * @return Shopware_Components_Config
+     * @return \Shopware_Components_Config
      */
     public function getConfig()
     {
@@ -90,7 +116,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     }
 
     /**
-     * @return Enlight_Event_EventManager
+     * @return \Enlight_Event_EventManager
      */
     public function getEvents()
     {
@@ -119,7 +145,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
             if ($offset !== null && $limit !== null) {
                 $builder->setFirstResult($offset)
-                        ->setMaxResults($limit);
+                    ->setMaxResults($limit);
             }
 
             $getProducts = $builder->execute()->fetchAll();
@@ -146,7 +172,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             'baseSort' => $defaultSort
         );
 
-        $categoryAttributes = $this->getModelManager()->getRepository('\Shopware\Models\Attribute\Category')->findOneBy(array('categoryId' => $categoryId));
+        /** @var \Shopware\Models\Attribute\Category $categoryAttributes */
+        $categoryAttributes = $this->getModelManager()->getRepository('\Shopware\Models\Attribute\Category')
+            ->findOneBy(array('categoryId' => $categoryId));
         if ($categoryAttributes) {
             $baseSort = $categoryAttributes->getSwagBaseSort();
             if ($baseSort > 0) {
@@ -178,7 +206,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $this->getSortRepository()->updateCategoryAttributes($categoryId, $baseSort, $categoryLink, $defaultSort);
 
             $this->View()->assign(array('success' => true));
-        } catch(\Exception $ex) {
+        } catch (\Exception $ex) {
             $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
         }
     }
@@ -255,7 +283,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
         //apply new positions for the products
         $result = array();
-        foreach($products as $productData) {
+        foreach ($products as $productData) {
             $newPosition = $productData['position'];
             $oldPosition = $productData['oldPosition'];
 
@@ -264,12 +292,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $result[$newPosition]['oldPosition'] = $oldPosition;
         }
 
-        foreach($allProducts as $id => &$product) {
+        foreach ($allProducts as $id => &$product) {
             if (array_key_exists($id, $products)) {
                 continue;
             }
 
-            while($result[$index]) {
+            while ($result[$index]) {
                 $index++;
             }
 
@@ -293,7 +321,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     private function getSQLValues($productsForUpdate, $categoryId)
     {
         $sqlValues = '';
-        foreach($productsForUpdate as $newArticle) {
+        foreach ($productsForUpdate as $newArticle) {
             if ($newArticle['id'] > 0) {
                 $sqlValues .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['id'] . "', '" . $newArticle['position'] . "', '" . $newArticle['pin'] . "'),";
             }
@@ -305,7 +333,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     private function prepareKeys($products)
     {
         $result = array();
-        foreach($products as $product) {
+        foreach ($products as $product) {
             $result[$product['id']] = $product;
         }
 
@@ -323,7 +351,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     private function getOffset($products, $categoryId)
     {
         $offset = null;
-        foreach($products as $productData) {
+        foreach ($products as $productData) {
             $newPosition = $productData['position'];
             $oldPosition = $productData['oldPosition'];
 
@@ -360,7 +388,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     private function getLength($products, $offset, $categoryId)
     {
         $length = null;
-        foreach($products as $productData) {
+        foreach ($products as $productData) {
             $newPosition = $productData['position'];
             $oldPosition = $productData['oldPosition'];
 
@@ -394,14 +422,14 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
                 throw new Exception("Unpin product '{$product['name']}' with id '{$product['id']}', failed!");
             }
 
-            $categoryId = (int)$this->Request()->getParam('categoryId');
+            $categoryId = (int) $this->Request()->getParam('categoryId');
 
             $this->getSortRepository()->unpinById($sortId);
 
             $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
 
             $this->View()->assign(array('success' => true));
-        } catch(\Exception $ex) {
+        } catch (\Exception $ex) {
             $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
         }
     }
@@ -452,6 +480,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
             if ($categories) {
                 foreach ($categories as $childCategoryId) {
+                    /** @var \Shopware\Models\Category\Category $childCategoryModel */
                     $childCategoryModel = Shopware()->Models()->getReference('Shopware\Models\Category\Category', $childCategoryId);
                     if ($childCategoryModel) {
                         $article->removeCategory($childCategoryModel);
@@ -509,6 +538,4 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     {
         $this->categoryIdCollection[] = $categoryIdCollection;
     }
-
-
 }

@@ -1,19 +1,53 @@
 <?php
 
+/**
+ * Shopware 5
+ * Copyright (c) shopware AG
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Shopware" is a registered trademark of shopware AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
+use Enlight_Event_EventArgs;
+use Shopware\Components\Model\ModelManager;
+use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as SwagCustomSort_Bootstrap;
 
 class Backend implements SubscriberInterface
 {
+    /**
+     * @var SwagCustomSort_Bootstrap $bootstrap
+     */
     protected $bootstrap;
 
+    /**
+     * @var ModelManager $em
+     */
     protected $em;
 
+    /**
+     * @var \Shopware\CustomModels\CustomSort\CustomSortRepository $customSortRepo
+     */
     protected $customSortRepo = null;
 
-    public function __construct(\Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap $bootstrap, \Shopware\Components\Model\ModelManager $em)
-    {
+    public function __construct(SwagCustomSort_Bootstrap $bootstrap, ModelManager $em) {
         $this->bootstrap = $bootstrap;
         $this->em = $em;
     }
@@ -41,8 +75,7 @@ class Backend implements SubscriberInterface
      */
     public function onPostDispatchSecureBackendIndex(Enlight_Event_EventArgs $args)
     {
-        //TODO: check license
-
+        /** @var \Enlight_View_Default $view */
         $view = $args->getSubject()->View();
 
         $view->addTemplateDir($this->bootstrap->Path() . 'Views/');
@@ -55,7 +88,7 @@ class Backend implements SubscriberInterface
         $articleDetailId = $articleModel->getId();
 
         $position = $this->getSortRepository()->getPositionByArticleId($articleDetailId);
-        if ($position !== null) {
+        if ($position) {
             $categories = $articleModel->getCategories();
             foreach ($categories as $category) {
                 $catAttributes = $category->getAttribute();

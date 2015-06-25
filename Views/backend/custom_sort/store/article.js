@@ -1,5 +1,6 @@
 //{block name="backend/custom_sort/store/article"}
 Ext.define('Shopware.apps.CustomSort.store.Article', {
+
     /**
      * Extend for the standard ExtJS 4
      * @string
@@ -16,7 +17,7 @@ Ext.define('Shopware.apps.CustomSort.store.Article', {
      * Define the used model for this store
      * @string
      */
-    model : 'Shopware.apps.CustomSort.model.Article',
+    model: 'Shopware.apps.CustomSort.model.Article',
 
     /**
      * Page range of the store
@@ -24,7 +25,7 @@ Ext.define('Shopware.apps.CustomSort.store.Article', {
     pageSize: 10,
 
     listeners: {
-        write: function(store) {
+        write: function (store) {
             store.load();
         }
     }

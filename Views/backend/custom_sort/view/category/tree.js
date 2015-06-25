@@ -12,7 +12,7 @@ Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
      * Register the alias for this class.
      * @string
      */
-    alias : 'widget.sort-category-tree',
+    alias: 'widget.sort-category-tree',
 
     collapsible: true,
 
@@ -33,7 +33,7 @@ Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
     /**
      * Initialize the controller and defines the necessary default configuration
      */
-    initComponent : function() {
+    initComponent: function () {
         var me = this;
 
         me.columns = me.createColumns();
@@ -46,16 +46,17 @@ Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
      *
      * @return [array] columns - generated columns
      */
-    createColumns : function() {
-        var columns = [{
+    createColumns: function () {
+        var columns = [
+            {
                 xtype: 'treecolumn',
                 sortable: false,
-                flex:1,
+                flex: 1,
                 dataIndex: 'text'
-            }];
+            }
+        ];
 
         return columns;
     }
-
 });
 //{/block}

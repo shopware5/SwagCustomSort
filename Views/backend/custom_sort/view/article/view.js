@@ -12,7 +12,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
      * Register the alias for this class.
      * @string
      */
-    alias : 'widget.sort-articles-view',
+    alias: 'widget.sort-articles-view',
 
     /**
      * The Ext.container.Container.layout for the fieldset's immediate child items.
@@ -32,14 +32,16 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
      *
      * @return void
      */
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
 
         me.tbar = me.createActionToolbar();
-        me.items = [{
-            xtype: 'sort-articles-list',
-            store: me.articleStore
-        }];
+        me.items = [
+            {
+                xtype: 'sort-articles-list',
+                store: me.articleStore
+            }
+        ];
 
         me.callParent(arguments);
     },
@@ -49,7 +51,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
      *
      * @return [Ext.toolbar.Toolbar] grid toolbar
      */
-    createActionToolbar: function() {
+    createActionToolbar: function () {
         var me = this;
 
         //Create checkbox for displaying custom sort by default
@@ -60,7 +62,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             inputValue: 1,
             uncheckedValue: 0,
             listeners: {
-                change: function(oldValue, newValue) {
+                change: function (oldValue, newValue) {
                     if (me.store.data.items[0].data.defaultSort != newValue) {
                         me.fireEvent('defaultSort');
                     }
@@ -73,7 +75,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             valueField: 'id',
             displayField: 'name',
             treeField: 'categoryId',
-            selectedRecord : me.record,
+            selectedRecord: me.record,
             store: Ext.create('Shopware.store.CategoryTree'),
             forceSelection: true,
             fieldLabel: '{s name=view/category_sync}Sync from category{/s}',
@@ -85,7 +87,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             rootVisible: false,
             enableKeyEvents: true,
             listeners: {
-                select: function(field, record) {
+                select: function (field, record) {
                     me.fireEvent('categoryLink', record);
                 },
                 keyup: function () {
@@ -107,7 +109,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             name: 'baseSort',
             labelClsExtra: 'swag-custom-sort-radiobtn-topmargin',
             store: Ext.create('Ext.data.Store', {
-                fields: [ 'id', 'name' ],
+                fields: ['id', 'name'],
                 data: [
                     { id: 1, name: '{s name=view/sort/release}Release date{/s}' },
                     { id: 2, name: '{s name=view/sort/popularity}Popularity{/s}' },
@@ -121,7 +123,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
                 ]
             }),
             listeners: {
-                select: function(field, records) {
+                select: function (field, records) {
                     var sort = records[0].get('id');
                     me.fireEvent('sortChange', sort);
                 }
@@ -135,6 +137,5 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             me.sorting
         ];
     }
-
 });
 //{/block}

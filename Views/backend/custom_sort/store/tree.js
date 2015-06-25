@@ -1,5 +1,6 @@
 //{block name="backend/custom_sort/store/tree"}
 Ext.define('Shopware.apps.CustomSort.store.Tree', {
+
     /**
      * Extend for the standard ExtJS 4
      * @string
@@ -13,7 +14,7 @@ Ext.define('Shopware.apps.CustomSort.store.Tree', {
      */
     defaultRootId: 1,
 
-    alias : 'store.category',
+    alias: 'store.category',
 
     /**
      * Disable auto loading for this store

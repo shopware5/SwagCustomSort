@@ -1,5 +1,6 @@
 //{block name="backend/custom_sort/model/settings"}
 Ext.define('Shopware.apps.CustomSort.model.Settings', {
+
     /**
      * Extend for the standard ExtJS 4
      * @string

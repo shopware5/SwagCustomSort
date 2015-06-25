@@ -1,6 +1,6 @@
 {
     "label": {
-        "de": "Custom sorting",
+        "de": "Individuelle Sortierung",
         "en": "Custom sorting"
     },
     "copyright": "(c) by Shopware AG",
@@ -11,12 +11,12 @@
     "currentVersion": "1.0.0",
 
     "changelog": {
-      "de": {
-        "1.0.0": "First version of Custom sorting"
-      },
-      "en": {
-        "1.0.0": "First version of Custom sorting"
-      }
+        "de": {
+            "1.0.0": "PT-2775 - Erstveröffentlichung;"
+        },
+        "en": {
+            "1.0.0": "PT-2775 - First release;"
+        }
     },
 
     "compatibility": {

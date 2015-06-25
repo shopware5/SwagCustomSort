@@ -1,12 +1,36 @@
 <?php
 
+/**
+ * Shopware 5
+ * Copyright (c) shopware AG
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Shopware" is a registered trademark of shopware AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 namespace Shopware\CustomModels\CustomSort;
 
+use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Components\Model\ModelManager;
 use Shopware\Components\Model\ModelRepository;
 
 class CustomSortRepository extends ModelRepository
 {
-
     /**
      * Check if selected category has custom sorted products
      *
@@ -16,7 +40,8 @@ class CustomSortRepository extends ModelRepository
     public function hasCustomSort($categoryId)
     {
         $categoryId = (int) $categoryId;
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->select('id')
             ->from('s_articles_sort', 'sort')
             ->where('categoryId = :categoryId')
@@ -36,7 +61,8 @@ class CustomSortRepository extends ModelRepository
     public function getMaxPosition($categoryId)
     {
         $categoryId = (int) $categoryId;
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->select('MAX(position)')
             ->from('s_articles_sort', 'sort')
             ->where('categoryId = :categoryId')
@@ -56,9 +82,10 @@ class CustomSortRepository extends ModelRepository
      */
     public function getArticleImageQuery($categoryId, $orderBy)
     {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
 
-        $builder->select(array(
+        $builder->select(
+            array(
                 'sort.id as positionId',
                 'product.id',
                 'product.name',
@@ -67,7 +94,8 @@ class CustomSortRepository extends ModelRepository
                 'sort.position as position',
                 'sort.position as oldPosition',
                 'sort.pin as pin',
-            ))
+            )
+        )
             ->from('s_articles', 'product')
             ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
             ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
@@ -91,7 +119,7 @@ class CustomSortRepository extends ModelRepository
      */
     public function getArticleImageCountQuery($categoryId)
     {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
 
         $builder->select('COUNT(DISTINCT product.id) as Total')
             ->from('s_articles', 'product')
@@ -107,7 +135,7 @@ class CustomSortRepository extends ModelRepository
     /**
      * Sort products for current category by passed sort type
      *
-     * @param \Shopware\Components\Model\QueryBuilder $builder
+     * @param QueryBuilder $builder
      * @param integer $orderBy
      */
     private function sortUnsortedByDefault($builder, $orderBy)
@@ -161,11 +189,12 @@ class CustomSortRepository extends ModelRepository
      */
     public function unpinById($id)
     {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->update('s_articles_sort')
-                ->set('pin', 0)
-                ->where('id = :id')
-                ->setParameter('id', $id);
+            ->set('pin', 0)
+            ->where('id = :id')
+            ->setParameter('id', $id);
 
         $builder->execute();
     }
@@ -182,13 +211,14 @@ class CustomSortRepository extends ModelRepository
             $maxPinPosition = 0;
         }
 
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->delete('s_articles_sort')
-                ->where('categoryId = :categoryId')
-                ->andWhere('position >= :maxPinPosition')
-                ->andWhere('pin = 0')
-                ->setParameter('categoryId', $categoryId)
-                ->setParameter(':maxPinPosition', $maxPinPosition);
+            ->where('categoryId = :categoryId')
+            ->andWhere('position >= :maxPinPosition')
+            ->andWhere('pin = 0')
+            ->setParameter('categoryId', $categoryId)
+            ->setParameter(':maxPinPosition', $maxPinPosition);
 
         $builder->execute();
     }
@@ -201,13 +231,14 @@ class CustomSortRepository extends ModelRepository
      */
     public function getMaxPinPosition($categoryId)
     {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->select(array('MAX(position) AS maxPinPosition'))
-                ->from('s_articles_sort')
-                ->where('categoryId = :categoryId')
-                ->andWhere('pin = 1')
-                ->orderBy('position', 'DESC')
-                ->setParameter('categoryId', $categoryId);
+            ->from('s_articles_sort', 'sort')
+            ->where('categoryId = :categoryId')
+            ->andWhere('pin = 1')
+            ->orderBy('position', 'DESC')
+            ->setParameter('categoryId', $categoryId);
 
         $maxPinPosition = $builder->execute()->fetchColumn();
 
@@ -222,11 +253,13 @@ class CustomSortRepository extends ModelRepository
      */
     public function getPositionByArticleId($articleId)
     {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->select(array('position'))
-            ->from('s_articles_sort')
+            ->from('s_articles_sort', 'sort')
             ->where('articleId = :articleId')
             ->setParameter('articleId', $articleId);
+
         $position = $builder->execute()->fetchColumn();
 
         return $position;
@@ -240,9 +273,10 @@ class CustomSortRepository extends ModelRepository
      */
     public function getPositionOfDeletedProduct($categoryId)
     {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->select(array('swag_deleted_position'))
-            ->from('s_categories_attributes')
+            ->from('s_categories_attributes', 'categories_attributes')
             ->where('categoryID = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
@@ -258,7 +292,8 @@ class CustomSortRepository extends ModelRepository
      */
     public function resetDeletedPosition($categoryId)
     {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->update('s_categories_attributes')
             ->set('swag_deleted_position', 'null')
             ->where('categoryID = :categoryId')
@@ -277,7 +312,8 @@ class CustomSortRepository extends ModelRepository
      */
     public function updateCategoryAttributes($categoryId, $baseSort, $categoryLink = null, $defaultSort = null)
     {
-        $builder = $this->getEntityManager()->getDBALQueryBuilder();
+        $builder = $this->getQueryBuilder();
+
         $builder->update('s_categories_attributes')
             ->where('categoryID = :categoryId')
             ->setParameter('categoryId', $categoryId);
@@ -295,5 +331,18 @@ class CustomSortRepository extends ModelRepository
         }
 
         $builder->execute();
+    }
+
+    /**
+     * @return QueryBuilder
+     */
+    private function getQueryBuilder()
+    {
+        /** @var ModelManager $em */
+        $em = $this->getEntityManager();
+        /** @var QueryBuilder $builder */
+        $builder = $em->getDBALQueryBuilder();
+
+        return $builder;
     }
 }

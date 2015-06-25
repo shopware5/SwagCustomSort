@@ -1,16 +1,44 @@
 <?php
 
+/**
+ * Shopware 5
+ * Copyright (c) shopware AG
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * "Shopware" is a registered trademark of shopware AG.
+ * The licensing of the program under the AGPLv3 does not imply a
+ * trademark license. Therefore any rights, title and interest in
+ * our trademarks remain entirely with us.
+ */
+
 namespace Shopware\SwagCustomSort\Components;
+
+use Shopware\Components\Model\ModelManager;
+use Shopware\Models\Attribute\Category as CategoryAttributes;
+use Shopware\Models\Category\Category;
+use Shopware_Components_Config as Config;
 
 class Listing
 {
     /**
-     * @var Shopware_Components_Config
+     * @var Config
      */
     private $config = null;
 
     /**
-     * @var /Shopware\Components\Model\ModelManager
+     * @var ModelManager
      */
     private $em = null;
 
@@ -20,21 +48,31 @@ class Listing
 
     private $customSortRepo = null;
 
-    public function __construct(Shopware_Components_Config $config, \Shopware\Components\Model\ModelManager $em) {
+    public function __construct(Config $config, ModelManager $em)
+    {
         $this->config = $config;
         $this->em = $em;
     }
 
+    /**
+     * @return Config
+     */
     public function getConfig()
     {
         return $this->config;
     }
 
+    /**
+     * @return ModelManager
+     */
     public function getEntityManager()
     {
         return $this->em;
     }
 
+    /**
+     * @return null|\Shopware\Components\Model\ModelRepository
+     */
     public function getCategoryAttributesRepository()
     {
         if ($this->categoryAttributesRepo === null) {
@@ -44,6 +82,9 @@ class Listing
         return $this->categoryAttributesRepo;
     }
 
+    /**
+     * @return null|\Shopware\Models\Category\Repository
+     */
     public function getCategoryRepository()
     {
         if ($this->categoryRepo === null) {
@@ -53,6 +94,9 @@ class Listing
         return $this->categoryRepo;
     }
 
+    /**
+     * @return null|\Shopware\CustomModels\CustomSort\CustomSortRepository
+     */
     public function getCustomSortRepository()
     {
         if ($this->customSortRepo === null) {
@@ -62,6 +106,10 @@ class Listing
         return $this->customSortRepo;
     }
 
+    /**
+     * @param $categoryId
+     * @return bool
+     */
     public function showCustomSortName($categoryId)
     {
         $sortName = $this->getFormattedSortName();
@@ -77,6 +125,9 @@ class Listing
         return false;
     }
 
+    /**
+     * @return string
+     */
     public function getFormattedSortName()
     {
         $formattedName = $this->getSortName();
@@ -84,6 +135,9 @@ class Listing
         return trim($formattedName);
     }
 
+    /**
+     * @return null
+     */
     public function getSortName()
     {
         $name = $this->getConfig()->get('swagCustomSortName');
@@ -91,6 +145,10 @@ class Listing
         return $name;
     }
 
+    /**
+     * @param $categoryId
+     * @return bool
+     */
     public function hasCustomSort($categoryId)
     {
         $isLinked = $this->isLinked($categoryId);
@@ -106,11 +164,15 @@ class Listing
         return false;
     }
 
+    /**
+     * @param $categoryId
+     * @return bool
+     */
     public function isLinked($categoryId)
     {
-        /* @var \Shopware\Models\Attribute\Category $categoryAttributes */
+        /* @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
-        if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
+        if (!$categoryAttributes instanceof CategoryAttributes) {
             return false;
         }
 
@@ -119,9 +181,9 @@ class Listing
             return false;
         }
 
-        /* @var \Shopware\Models\Category\Category $category */
+        /* @var Category $category */
         $category = $this->getCategoryRepository()->find($linkedCategoryId);
-        if (!$category instanceof \Shopware\Models\Category\Category) {
+        if (!$category instanceof Category) {
             return false;
         }
 
@@ -146,9 +208,9 @@ class Listing
      */
     public function showCustomSortAsDefault($categoryId)
     {
-        /* @var \Shopware\Models\Attribute\Category $categoryAttributes */
+        /* @var Category $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
-        if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
+        if (!$categoryAttributes instanceof Category) {
             return false;
         }
 
@@ -170,9 +232,9 @@ class Listing
      */
     public function getLinkedCategoryId($categoryId)
     {
-        /* @var \Shopware\Models\Attribute\Category $categoryAttributes */
+        /* @var Category $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
-        if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
+        if (!$categoryAttributes instanceof Category) {
             return false;
         }
 
@@ -181,9 +243,9 @@ class Listing
             return false;
         }
 
-        /* @var \Shopware\Models\Category\Category $category */
+        /* @var Category $category */
         $category = $this->getCategoryRepository()->find($linkedCategoryId);
-        if (!$category instanceof \Shopware\Models\Category\Category) {
+        if (!$category instanceof Category) {
             return false;
         }
 
@@ -199,7 +261,7 @@ class Listing
     public function getCategoryBaseSort($categoryId)
     {
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(array('categoryId' => $categoryId));
-        if (!$categoryAttributes instanceof \Shopware\Models\Attribute\Category) {
+        if (!$categoryAttributes instanceof Category) {
             return false;
         }
 

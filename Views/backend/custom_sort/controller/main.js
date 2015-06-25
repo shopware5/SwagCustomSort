@@ -32,16 +32,16 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      *
      * @return void
      */
-    init: function() {
+    init: function () {
         var me = this;
 
         me.categoryId = null;
-        me.subApplication.treeStore =  me.subApplication.getStore('Tree');
+        me.subApplication.treeStore = me.subApplication.getStore('Tree');
         me.subApplication.treeStore.load();
 
-        me.subApplication.articleStore =  me.subApplication.getStore('Article');
+        me.subApplication.articleStore = me.subApplication.getStore('Article');
 
-        me.subApplication.categorySettings =  me.subApplication.getStore('Settings');
+        me.subApplication.categorySettings = me.subApplication.getStore('Settings');
 
         me.control({
             'sort-category-tree': {
@@ -77,7 +77,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * Event listener function of the article list panel.
      * Fired when the user uses paging navigation.
      */
-    onPageChange: function() {
+    onPageChange: function () {
         var me = this,
             list = me.getArticleList();
 
@@ -91,7 +91,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * @param [object] view - Ext.view.View
      * @param [Ext.data.Model] The selected record
      */
-    onCategorySelect: function(view, record) {
+    onCategorySelect: function (view, record) {
         var me = this,
             grid = me.getArticleView(),
             list = me.getArticleList();
@@ -105,7 +105,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         me.subApplication.categorySettings.getProxy().extraParams = { categoryId: me.categoryId };
         me.subApplication.categorySettings.load({
-            callback: function(records, operation, success) {
+            callback: function (records, operation, success) {
                 if (success) {
                     var record = records[0];
                     var linkedCategoryId = record.get('categoryLink');
@@ -126,7 +126,10 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                         list.setDisabled(false);
                     }
 
-                    me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId, sortBy: baseSort };
+                    me.subApplication.articleStore.getProxy().extraParams = {
+                        categoryId: me.categoryId,
+                        sortBy: baseSort
+                    };
                     me.subApplication.articleStore.filters.clear();
                     me.subApplication.articleStore.currentPage = 1;
                     me.subApplication.articleStore.load();
@@ -136,10 +139,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             }
         });
 
-
-
-
-        me.subApplication.articleStore.on('load', function(){
+        me.subApplication.articleStore.on('load', function () {
             list.setLoading(false);
         });
     },
@@ -150,7 +150,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * @param [integer] linkedCategoryId
      * @returns [boolean]
      */
-    prepareTreeCombo: function(linkedCategoryId) {
+    prepareTreeCombo: function (linkedCategoryId) {
         var me = this,
             comboBox = me.getArticleView().categoryTreeCombo,
             treePanel = comboBox.getPicker(),
@@ -163,7 +163,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         }
 
         //helper function for selecting tree node
-        var selectNode = function() {
+        var selectNode = function () {
             var node = treeStore.getNodeById(linkedCategoryId);
             if (node) {
                 comboBox.setRawValue(node.get('name'));
@@ -173,7 +173,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         };
 
         //load whole category tree
-        treeStore.on('load', function() {
+        treeStore.on('load', function () {
             treePanel.expandAll();
             treePanel.collapseAll();
 
@@ -192,7 +192,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      *
      * @param [Ext.data.Model] The selected record
      */
-    onSortChange: function(record) {
+    onSortChange: function (record) {
         var me = this,
             list = me.getArticleList();
 
@@ -202,7 +202,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId, sortBy: record }
         me.subApplication.articleStore.load({
-            callback: function() {
+            callback: function () {
                 list.setLoading(false);
             }
         });
@@ -212,7 +212,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * Event listener function of the article view panel.
      * Fired when the user change default display or linked category
      */
-    onSaveSettings: function() {
+    onSaveSettings: function () {
         var me = this,
             grid = me.getArticleView(),
             list = me.getArticleList(),
@@ -231,10 +231,10 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         record.set(values);
 
         record.save({
-            success: function() {
+            success: function () {
                 Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/message}Successfully applied changes{/s}');
             },
-            failure: function() {
+            failure: function () {
                 Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}', '{s name=main/error/message}Changes were not saved{/s}');
             }
         });
@@ -244,7 +244,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      *
      * @param [Ext.data.Store] The article store
      */
-    onMoveToStart: function(articleStore) {
+    onMoveToStart: function (articleStore) {
         if (!articleStore instanceof Ext.data.Store) {
             return false;
         }
@@ -256,7 +256,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         list.setLoading(true);
 
-        selectedRecords.forEach(function(record, index) {
+        selectedRecords.forEach(function (record, index) {
             if (!record instanceof Ext.data.Model) {
                 return false;
             }
@@ -271,13 +271,14 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         return true;
     },
+
     /**
      * Event listener function of the article list.
      * Fired when the user click on "move to end" fast move icon.
      *
      * @param [Ext.data.Store] The article store
      */
-    onMoveToEnd: function(articleStore) {
+    onMoveToEnd: function (articleStore) {
         if (!articleStore instanceof Ext.data.Store) {
             return false;
         }
@@ -290,7 +291,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         list.setLoading(true);
 
-        selectedRecords.forEach(function(record, index) {
+        selectedRecords.forEach(function (record, index) {
             if (!record instanceof Ext.data.Model) {
                 return false;
             }
@@ -312,7 +313,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      *
      * @param [Ext.data.Store] The article store
      */
-    onMoveToPrevPage: function(articleStore) {
+    onMoveToPrevPage: function (articleStore) {
         if (!articleStore instanceof Ext.data.Store) {
             return false;
         }
@@ -326,7 +327,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         list.setLoading(true);
 
-        selectedRecords.forEach(function(record) {
+        selectedRecords.forEach(function (record) {
             if (!record instanceof Ext.data.Model) {
                 return false;
             }
@@ -360,7 +361,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      *
      * @param [Ext.data.Store] The article store
      */
-    onMoveToNextPage: function(articleStore) {
+    onMoveToNextPage: function (articleStore) {
         if (!articleStore instanceof Ext.data.Store) {
             return false;
         }
@@ -373,7 +374,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         list.setLoading(true);
 
-        selectedRecords.forEach(function(record, index) {
+        selectedRecords.forEach(function (record, index) {
             if (!record instanceof Ext.data.Model) {
                 return false;
             }
@@ -408,7 +409,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * @param [Array] Array with selected article in article view list
      * @param [Shopware.apps.Article.model.Article] The target record, on which the dragged record dropped
      */
-    onArticleMove: function(articleStore, articleModel, targetRecord) {
+    onArticleMove: function (articleStore, articleModel, targetRecord) {
         var me = this,
             list = me.getArticleList(),
             startPosition = (articleStore.currentPage - 1) * articleStore.pageSize;
@@ -425,7 +426,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             var positionIndex = articleStore.indexOf(targetRecord) + startPosition;
 
             var forward = [], backward = [], temp = 0;
-            Ext.each(articleModel, function(record) {
+            Ext.each(articleModel, function (record) {
                 var oldPosition = articleStore.indexOf(record) + startPosition;
                 if (oldPosition < positionIndex) {
                     forward.push(record);
@@ -436,7 +437,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 }
             });
 
-            Ext.each(articleModel, function(record, index) {
+            Ext.each(articleModel, function (record, index) {
                 if (!record instanceof Ext.data.Model) {
                     return;
                 }
@@ -469,7 +470,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      *
      * @param [Ext.data.Store] The article store
      */
-    onSaveArticles: function(articleStore) {
+    onSaveArticles: function (articleStore) {
         articleStore.update();
     },
 
@@ -481,7 +482,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * @param [Ext.data.Model] The selected record
      * @param [boolean]
      */
-    onUnpin: function(articleStore, record) {
+    onUnpin: function (articleStore, record) {
         var me = this,
             list = me.getArticleList();
 
@@ -495,11 +496,11 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         record.set('pin', 0);
         articleStore.remove(record);
         articleStore.sync({
-            success: function() {
+            success: function () {
                 Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/message}Successfully applied changes{/s}');
             },
-            failure: function() {
-                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}','{s name=main/error/message}Changes were not saved{/s}');
+            failure: function () {
+                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}', '{s name=main/error/message}Changes were not saved{/s}');
                 store.load();
             }
         });
@@ -515,7 +516,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * @param [Ext.data.Model] The selected record
      * @param [boolean]
      */
-    onRemove: function(articleStore, record) {
+    onRemove: function (articleStore, record) {
         var me = this,
             list = me.getArticleList();
 
@@ -534,17 +535,16 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 articleId: record.get('id'),
                 categoryId: me.categoryId
             },
-            success: function() {
+            success: function () {
                 Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/remove/message}Product successfully removed{/s}');
                 store.load();
             },
-            failure: function() {
-                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}','{s name=main/error/remove/message}Product was not removed{/s}');
+            failure: function () {
+                Shopware.Notification.createGrowlMessage('{s name=main/error/title}Error{/s}', '{s name=main/error/remove/message}Product was not removed{/s}');
             }
         });
 
         return true;
     }
-
 });
 //{/block}
