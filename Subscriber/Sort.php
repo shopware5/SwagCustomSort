@@ -54,6 +54,12 @@ class Sort implements SubscriberInterface
     {
         $request = $args->get('request');
         $criteria = $args->get('criteria');
+
+        //Don't apply custom sort if we are not in category listing
+        if ($request->getActionName() != 'index') {
+            return;
+        }
+
         $sorter = new SortFactory($request, $criteria);
         $sorter->addSort();
     }
