@@ -260,6 +260,7 @@ class Listing
      */
     public function getCategoryBaseSort($categoryId)
     {
+        /* @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
         if (!$categoryAttributes instanceof Category) {
             return false;
