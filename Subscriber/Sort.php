@@ -26,7 +26,9 @@
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
+use Enlight_Controller_Request_Request as Request;
 use Enlight_Event_EventArgs;
+use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\SwagCustomSort\Sorter\SortFactory;
 use \Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
 
@@ -41,6 +43,7 @@ class Sort implements SubscriberInterface
     {
         return array(
             'Shopware_SearchBundle_Create_Listing_Criteria' => 'onCreateListingCriteria',
+            'Shopware_SearchBundle_Create_Ajax_Listing_Criteria' => 'onCreateListingCriteria',
             'Shopware_SearchBundleDBAL_Collect_Sorting_Handlers' => 'onCollectSortingHandlers'
         );
     }
@@ -52,11 +55,13 @@ class Sort implements SubscriberInterface
      */
     public function onCreateListingCriteria(Enlight_Event_EventArgs $args)
     {
+        /** @var Request $request */
         $request = $args->get('request');
+        /** @var Criteria $criteria */
         $criteria = $args->get('criteria');
 
         //Don't apply custom sort if we are not in category listing
-        if ($request->getActionName() != 'index') {
+        if ($request->getActionName() != 'index' && $request->getActionName() != 'ajaxListing') {
             return;
         }
 
