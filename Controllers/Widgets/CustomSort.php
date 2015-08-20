@@ -23,6 +23,8 @@
  * our trademarks remain entirely with us.
  */
 
+use Shopware\SwagCustomSort\Components\Listing;
+
 class Shopware_Controllers_Widgets_CustomSort extends Enlight_Controller_Action
 {
     /**
@@ -30,6 +32,7 @@ class Shopware_Controllers_Widgets_CustomSort extends Enlight_Controller_Action
      */
     public function preDispatch()
     {
+        /** @var Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap $plugin */
         $plugin = Shopware()->Plugins()->Frontend()->SwagCustomSort();
 
         $isEmotion = Shopware()->Shop()->getTemplate()->getVersion() < 3;
@@ -47,14 +50,14 @@ class Shopware_Controllers_Widgets_CustomSort extends Enlight_Controller_Action
         $sCategoryContent = $this->Request()->getParam('sCategoryContent');
         $sSort = $this->Request()->getParam('sSort');
 
-        $hideFilters = $sCategoryContent['hideFilter'];
         $categoryId = (int) $sCategoryContent['id'];
 
+        /** @var Listing $categoryComponent */
         $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
         $showCustomSort = $categoryComponent->showCustomSortName($categoryId);
         $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
         $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
-        if (($showCustomSort && !$hideFilters) || ($baseSort > 0 && $useDefaultSort)) {
+        if ($showCustomSort || ($baseSort > 0 && $useDefaultSort)) {
             $showCustomSortOption = true;
         } else {
             $showCustomSortOption = false;

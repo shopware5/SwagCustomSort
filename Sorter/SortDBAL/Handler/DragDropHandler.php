@@ -35,6 +35,7 @@ use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\PopularitySortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\PriceSortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\ProductNameSortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\SearchRankingSortingHandler;
+use Shopware\SwagCustomSort\Components\Listing;
 use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 
 class DragDropHandler implements SortingHandlerInterface
@@ -56,6 +57,7 @@ class DragDropHandler implements SortingHandlerInterface
      */
     public function generateSorting(SortingInterface $sorting, QueryBuilder $query, ShopContextInterface $context)
     {
+        /** @var Listing $categoryComponent */
         $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
         $categoryId = Shopware()->Front()->Request()->getParam('sCategory');
         $linkedCategoryId = $categoryComponent->getLinkedCategoryId($categoryId);

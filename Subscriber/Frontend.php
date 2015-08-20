@@ -55,6 +55,7 @@ class Frontend implements SubscriberInterface
      */
     public function onPostDispatchSecureListing(Enlight_Event_EventArgs $args)
     {
+        /** @var Listing $categoryComponent */
         $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
         if (!$categoryComponent instanceof Listing) {
             return;
@@ -62,11 +63,10 @@ class Frontend implements SubscriberInterface
 
         /** @var \Enlight_View_Default $view */
         $view = $args->getSubject()->View();
-        $hideFilters = $view->sCategoryContent['hideFilter'];
         $categoryId = $view->sCategoryContent['id'];
         $showCustomSort = $categoryComponent->showCustomSortName($categoryId);
         $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
-        if (($showCustomSort || $baseSort > 0) && !$hideFilters) {
+        if ($showCustomSort || $baseSort > 0) {
             $view->showCustomSort = true;
             $this->extendsTemplate($view, 'frontend/listing/actions/action-sorting.tpl');
         }
@@ -89,6 +89,7 @@ class Frontend implements SubscriberInterface
 
     public function onPreDispatchListing(Enlight_Event_EventArgs $args)
     {
+        /** @var Listing $categoryComponent */
         $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
         if (!$categoryComponent instanceof Listing) {
             return;
