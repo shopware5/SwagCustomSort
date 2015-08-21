@@ -151,9 +151,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $getProducts = $builder->execute()->fetchAll();
             $total = $countBuilder->execute()->fetch();
 
-            $this->View()->assign(array('success' => true, 'data' => $getProducts, 'total' => $total['Total']));
+            $this->View()->assign(['success' => true, 'data' => $getProducts, 'total' => $total['Total']]);
         } catch (\Exception $ex) {
-            $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
+            $this->View()->assign(['success' => false, 'message' => $ex->getMessage()]);
         }
     }
 
@@ -165,31 +165,31 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $categoryId = (int) $this->Request()->getParam('categoryId');
         $defaultSort = $this->getConfig()->get('defaultListingSorting');
 
-        $data = array(
+        $data = [
             'id' => null,
             'defaultSort' => 0,
             'categoryLink' => 0,
             'baseSort' => $defaultSort
-        );
+        ];
 
         /** @var \Shopware\Models\Attribute\Category $categoryAttributes */
         $categoryAttributes = $this->getModelManager()->getRepository('\Shopware\Models\Attribute\Category')
-            ->findOneBy(array('categoryId' => $categoryId));
+            ->findOneBy(['categoryId' => $categoryId]);
         if ($categoryAttributes) {
             $baseSort = $categoryAttributes->getSwagBaseSort();
             if ($baseSort > 0) {
                 $defaultSort = $baseSort;
             }
 
-            $data = array(
+            $data = [
                 'id' => null,
                 'defaultSort' => $categoryAttributes->getSwagShowByDefault(),
                 'categoryLink' => $categoryAttributes->getSwagLink(),
                 'baseSort' => $defaultSort
-            );
+            ];
         }
 
-        $this->View()->assign(array('success' => true, 'data' => $data));
+        $this->View()->assign(['success' => true, 'data' => $data]);
     }
 
     /**
@@ -205,9 +205,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         try {
             $this->getSortRepository()->updateCategoryAttributes($categoryId, $baseSort, $categoryLink, $defaultSort);
 
-            $this->View()->assign(array('success' => true));
+            $this->View()->assign(['success' => true]);
         } catch (\Exception $ex) {
-            $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
+            $this->View()->assign(['success' => false, 'message' => $ex->getMessage()]);
         }
     }
 
@@ -221,7 +221,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             return;
         }
         if ($movedProducts['id']) {
-            $movedProducts = array($movedProducts);
+            $movedProducts = [$movedProducts];
         }
 
         $categoryId = (int) $this->Request()->getParam('categoryId');
@@ -265,7 +265,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         //set current product's cache as invalid
         $this->invalidateProductCache($movedProducts);
 
-        $this->View()->assign(array('success' => true));
+        $this->View()->assign(['success' => true]);
     }
 
     /**
@@ -282,7 +282,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $products = $this->prepareKeys($products);
 
         //apply new positions for the products
-        $result = array();
+        $result = [];
         foreach ($products as $productData) {
             $newPosition = $productData['position'];
             $oldPosition = $productData['oldPosition'];
@@ -297,8 +297,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
                 continue;
             }
 
-            while ($result[$index]) {
-                $index++;
+            while (array_key_exists($index, $result)) {
+                ++$index;
             }
 
             $result[$index] = $product;
@@ -332,7 +332,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
     private function prepareKeys($products)
     {
-        $result = array();
+        $result = [];
         foreach ($products as $product) {
             $result[$product['id']] = $product;
         }
@@ -428,9 +428,9 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
             $this->getSortRepository()->deleteUnpinnedRecords($categoryId);
 
-            $this->View()->assign(array('success' => true));
+            $this->View()->assign(['success' => true]);
         } catch (\Exception $ex) {
-            $this->View()->assign(array('success' => false, 'message' => $ex->getMessage()));
+            $this->View()->assign(['success' => false, 'message' => $ex->getMessage()]);
         }
     }
 
@@ -456,7 +456,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     {
         //Invalidate the cache for the current product
         foreach ($movedProducts as $product) {
-            $this->getEvents()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', array('cacheId' => "a{$product['id']}"));
+            $this->getEvents()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', ['cacheId' => "a{$product['id']}"]);
             break;
         }
     }
@@ -491,7 +491,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             Shopware()->Models()->flush();
         }
 
-        $this->View()->assign(array('success' => true));
+        $this->View()->assign(['success' => true]);
     }
 
     /**
@@ -506,7 +506,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $this->setCategoryIdCollection($categoryId);
 
         $sql = "SELECT id FROM s_categories WHERE path LIKE ?";
-        $categories = Shopware()->Db()->fetchAll($sql, array('%|' . $categoryId . '|%'));
+        $categories = Shopware()->Db()->fetchAll($sql, ['%|' . $categoryId . '|%']);
 
         if (!$categories) {
             return;

@@ -44,10 +44,10 @@ class Frontend implements SubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             'Enlight_Controller_Action_PostDispatchSecure_Frontend_Listing' => 'onPostDispatchSecureListing',
             'Enlight_Controller_Action_PreDispatch_Frontend_Listing' => 'onPreDispatchListing'
-        );
+        ];
     }
 
     /**
