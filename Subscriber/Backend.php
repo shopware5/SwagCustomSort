@@ -63,11 +63,11 @@ class Backend implements SubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             'Enlight_Controller_Action_PostDispatchSecure_Backend_Index' => 'onPostDispatchSecureBackendIndex',
             'Shopware\Models\Article\Article::preRemove' => 'preRemoveArticle',
             'Shopware\Models\Category\Category::preRemove' => 'preRemoveCategory'
-        );
+        ];
     }
 
     /**

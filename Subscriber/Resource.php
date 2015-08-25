@@ -48,9 +48,9 @@ class Resource implements SubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             'Enlight_Bootstrap_InitResource_swagcustomsort.listing_component' => 'onInitListingComponent'
-        );
+        ];
     }
 
     /**

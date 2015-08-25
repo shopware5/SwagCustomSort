@@ -41,10 +41,10 @@ class ControllerPath implements SubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_CustomSort' => 'onGetCustomSortControllerPath',
             'Enlight_Controller_Dispatcher_ControllerPath_Widgets_CustomSort' => 'onGetCustomSortControllerPath'
-        );
+        ];
     }
 
     /**

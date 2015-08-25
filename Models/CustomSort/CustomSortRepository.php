@@ -85,7 +85,7 @@ class CustomSortRepository extends ModelRepository
         $builder = $this->getQueryBuilder();
 
         $builder->select(
-            array(
+            [
                 'sort.id as positionId',
                 'product.id',
                 'product.name',
@@ -94,7 +94,7 @@ class CustomSortRepository extends ModelRepository
                 'sort.position as position',
                 'sort.position as oldPosition',
                 'sort.pin as pin',
-            )
+            ]
         )
             ->from('s_articles', 'product')
             ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
@@ -233,7 +233,7 @@ class CustomSortRepository extends ModelRepository
     {
         $builder = $this->getQueryBuilder();
 
-        $builder->select(array('MAX(position) AS maxPinPosition'))
+        $builder->select(['MAX(position) AS maxPinPosition'])
             ->from('s_articles_sort', 'sort')
             ->where('categoryId = :categoryId')
             ->andWhere('pin = 1')
@@ -255,7 +255,7 @@ class CustomSortRepository extends ModelRepository
     {
         $builder = $this->getQueryBuilder();
 
-        $builder->select(array('position'))
+        $builder->select(['position'])
             ->from('s_articles_sort', 'sort')
             ->where('articleId = :articleId')
             ->setParameter('articleId', $articleId);
@@ -275,7 +275,7 @@ class CustomSortRepository extends ModelRepository
     {
         $builder = $this->getQueryBuilder();
 
-        $builder->select(array('swag_deleted_position'))
+        $builder->select(['swag_deleted_position'])
             ->from('s_categories_attributes', 'categories_attributes')
             ->where('categoryID = :categoryId')
             ->setParameter('categoryId', $categoryId);

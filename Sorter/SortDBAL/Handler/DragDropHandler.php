@@ -97,44 +97,48 @@ class DragDropHandler implements SortingHandlerInterface
         }
     }
 
+    /**
+     * @param $defaultSort
+     * @return array
+     */
     protected function getDefaultData($defaultSort)
     {
         switch ($defaultSort) {
             case StoreFrontCriteriaFactory::SORTING_RELEASE_DATE:
-                return array(
+                return [
                     'handler' => new ReleaseDateSortingHandler(),
                     'direction' => 'DESC'
-                );
+                ];
             case StoreFrontCriteriaFactory::SORTING_POPULARITY:
-                return array(
+                return [
                     'handler' => new PopularitySortingHandler(),
                     'direction' => 'DESC'
-                );
+                ];
             case StoreFrontCriteriaFactory::SORTING_CHEAPEST_PRICE:
-                return array(
+                return [
                     'handler' => new PriceSortingHandler(Shopware()->Container()->get('shopware_searchdbal.search_price_helper_dbal')),
                     'direction' => 'ASC'
-                );
+                ];
             case StoreFrontCriteriaFactory::SORTING_HIGHEST_PRICE:
-                return array(
+                return [
                     'handler' => new PriceSortingHandler(Shopware()->Container()->get('shopware_searchdbal.search_price_helper_dbal')),
                     'direction' => 'DESC'
-                );
+                ];
             case StoreFrontCriteriaFactory::SORTING_PRODUCT_NAME_ASC:
-                return array(
+                return [
                     'handler' => new ProductNameSortingHandler(),
                     'direction' => 'ASC'
-                );
+                ];
             case StoreFrontCriteriaFactory::SORTING_PRODUCT_NAME_DESC:
-                return array(
+                return [
                     'handler' => new ProductNameSortingHandler(),
                     'direction' => 'DESC'
-                );
+                ];
             case StoreFrontCriteriaFactory::SORTING_SEARCH_RANKING:
-                return array(
+                return [
                     'handler' => new SearchRankingSortingHandler(),
                     'direction' => 'DESC'
-                );
+                ];
         }
     }
 }

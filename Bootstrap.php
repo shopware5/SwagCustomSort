@@ -95,7 +95,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $sql = "UPDATE s_core_menu SET active = 1 WHERE controller = 'CustomSort';";
         Shopware()->Db()->query($sql);
 
-        return array('success' => true, 'invalidateCache' => array('backend'));
+        return ['success' => true, 'invalidateCache' => ['backend']];
     }
 
     /**
@@ -108,7 +108,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $sql = "UPDATE s_core_menu SET active = 0 WHERE controller = 'CustomSort';";
         Shopware()->Db()->query($sql);
 
-        return array('success' => true, 'invalidateCache' => array('backend'));
+        return ['success' => true, 'invalidateCache' => ['backend']];
     }
 
     /**
@@ -124,13 +124,13 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
      */
     public function onStartDispatch()
     {
-        $subscribers = array(
+        $subscribers = [
             new Resource($this->get('models')),
             new ControllerPath($this->Path()),
             new Frontend($this->Path()),
             new Backend($this, $this->get('models')),
             new Sort()
-        );
+        ];
 
         foreach ($subscribers as $subscriber) {
             $this->Application()->Events()->addSubscriber($subscriber);
@@ -151,10 +151,10 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
      */
     public function createMenu()
     {
-        $parent = $this->Menu()->findOneBy(array('label' => 'Artikel'));
+        $parent = $this->Menu()->findOneBy(['label' => 'Artikel']);
 
         $this->createMenuItem(
-            array(
+            [
                 'label' => 'Custom sort',
                 'controller' => 'CustomSort',
                 'action' => 'Index',
@@ -162,7 +162,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
                 'class' => 'sprite-blue-document-text-image',
                 'parent' => $parent,
                 'position' => 6,
-            )
+            ]
         );
     }
 
@@ -175,9 +175,9 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $em = $this->get('models');
         $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
 
-        $classes = array(
+        $classes = [
             $em->getClassMetadata('Shopware\CustomModels\CustomSort\ArticleSort'),
-        );
+        ];
 
         try {
             $tool->createSchema($classes);
@@ -228,11 +228,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             null
         );
 
-        $em->generateAttributeModels(
-            array(
-                's_categories_attributes'
-            )
-        );
+        $em->generateAttributeModels(['s_categories_attributes']);
     }
 
     /**
@@ -243,25 +239,25 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $form->setElement(
             'text',
             'swagCustomSortName',
-            array(
+            [
                 'label' => 'Name',
                 'value' => 'Individuelle Sortierung',
                 'description' => 'Die neue Sortierung ist unter diesem Namen im Frontend sichtbar.',
                 'required' => true,
                 'scope' => Element::SCOPE_SHOP
-            )
+            ]
         );
 
         $this->addFormTranslations(
-            array(
-                'en_GB' => array(
-                    'swagCustomSortName' => array(
+            [
+                'en_GB' => [
+                    'swagCustomSortName' => [
                         'label' => 'Name',
                         'description' => 'The new sort will be visible in the frontend under this name.',
                         'value' => 'Custom Sorting'
-                    )
-                )
-            )
+                    ]
+                ]
+            ]
         );
     }
 }

@@ -39,10 +39,10 @@ class Sort implements SubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             'Shopware_SearchBundle_Create_Listing_Criteria' => 'onCreateListingCriteria',
             'Shopware_SearchBundleDBAL_Collect_Sorting_Handlers' => 'onCollectSortingHandlers'
-        );
+        ];
     }
 
     /**
