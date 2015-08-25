@@ -25,7 +25,7 @@
 
 namespace Shopware\SwagCustomSort\Sorter;
 
-use Enlight_Controller_Request_RequestHttp as Request;
+use Enlight_Controller_Request_Request as Request;
 use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 use Shopware\Bundle\SearchBundle\SortingInterface;
@@ -44,11 +44,17 @@ class SortFactory
         $this->criteria = $criteria;
     }
 
+    /**
+     * @return Request|null
+     */
     public function getRequest()
     {
         return $this->request;
     }
 
+    /**
+     * @return Criteria|null
+     */
     public function getCriteria()
     {
         return $this->criteria;
