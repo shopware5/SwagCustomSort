@@ -204,11 +204,12 @@ class Listing
     /**
      * Checks whether this category has to use its custom sort by default, e.g. on category load use this custom sort
      *
+     * @param $categoryId
      * @return bool
      */
     public function showCustomSortAsDefault($categoryId)
     {
-        /* @var Category $categoryAttributes */
+        /* @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
         if (!$categoryAttributes instanceof Category) {
             return false;
@@ -232,7 +233,7 @@ class Listing
      */
     public function getLinkedCategoryId($categoryId)
     {
-        /* @var Category $categoryAttributes */
+        /* @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
         if (!$categoryAttributes instanceof Category) {
             return false;
@@ -260,6 +261,7 @@ class Listing
      */
     public function getCategoryBaseSort($categoryId)
     {
+        /* @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
         if (!$categoryAttributes instanceof Category) {
             return false;

@@ -25,6 +25,9 @@
 
 use Shopware\Components\Model\ModelManager;
 use Shopware\CustomModels\CustomSort\CustomSortRepository;
+use Shopware\Models\Article\Article;
+use Shopware\Models\Attribute\Category as CategoryAttributes;
+use Shopware\Models\Category\Category;
 
 class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backend_ExtJs
 {
@@ -172,7 +175,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             'baseSort' => $defaultSort
         ];
 
-        /** @var \Shopware\Models\Attribute\Category $categoryAttributes */
+        /** @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getModelManager()->getRepository('\Shopware\Models\Attribute\Category')
             ->findOneBy(['categoryId' => $categoryId]);
         if ($categoryAttributes) {
@@ -469,18 +472,19 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $articleId = (int) $this->Request()->get('articleId');
         $categoryId = (int) $this->Request()->get('categoryId');
 
+        /** @var Category $category */
         $category = Shopware()->Models()->getReference('Shopware\Models\Category\Category', $categoryId);
         if ($category) {
             $this->collectCategoryIds($category);
             $categories = $this->getCategoryIdCollection();
 
-            /** @var \Shopware\Models\Article\Article $article */
+            /** @var Article $article */
             $article = Shopware()->Models()->getReference('Shopware\Models\Article\Article', (int) $articleId);
             $article->removeCategory($category);
 
             if ($categories) {
                 foreach ($categories as $childCategoryId) {
-                    /** @var \Shopware\Models\Category\Category $childCategoryModel */
+                    /** @var Category $childCategoryModel */
                     $childCategoryModel = Shopware()->Models()->getReference('Shopware\Models\Category\Category', $childCategoryId);
                     if ($childCategoryModel) {
                         $article->removeCategory($childCategoryModel);
@@ -498,7 +502,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
      * Check current category for child categories and
      * add ids to collection.
      *
-     * @param $categoryModel
+     * @param Category $categoryModel
      */
     private function collectCategoryIds($categoryModel)
     {
@@ -532,6 +536,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     /**
      * Insert category id to category ids collection.
      *
+     * @param $categoryIdCollection
      * @return array
      */
     public function setCategoryIdCollection($categoryIdCollection)

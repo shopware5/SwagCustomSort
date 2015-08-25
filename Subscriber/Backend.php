@@ -28,6 +28,8 @@ namespace Shopware\SwagCustomSort\Subscriber;
 use Enlight\Event\SubscriberInterface;
 use Enlight_Event_EventArgs;
 use Shopware\Components\Model\ModelManager;
+use Shopware\Models\Article\Article;
+use Shopware\Models\Category\Category;
 use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as SwagCustomSort_Bootstrap;
 
 class Backend implements SubscriberInterface
@@ -84,12 +86,14 @@ class Backend implements SubscriberInterface
 
     public function preRemoveArticle(Enlight_Event_EventArgs $arguments)
     {
+        /** @var Article $articleModel */
         $articleModel = $arguments->get('entity');
         $articleDetailId = $articleModel->getId();
 
         $position = $this->getSortRepository()->getPositionByArticleId($articleDetailId);
         if ($position) {
             $categories = $articleModel->getCategories();
+            /** @var Category $category */
             foreach ($categories as $category) {
                 $catAttributes = $category->getAttribute();
                 $deletedPosition = $catAttributes->getSwagDeletedPosition();
