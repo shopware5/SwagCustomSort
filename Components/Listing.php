@@ -211,7 +211,7 @@ class Listing
     {
         /* @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
-        if (!$categoryAttributes instanceof Category) {
+        if (!$categoryAttributes instanceof CategoryAttributes) {
             return false;
         }
 
@@ -235,7 +235,7 @@ class Listing
     {
         /* @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
-        if (!$categoryAttributes instanceof Category) {
+        if (!$categoryAttributes instanceof CategoryAttributes) {
             return false;
         }
 
@@ -263,7 +263,7 @@ class Listing
     {
         /* @var CategoryAttributes $categoryAttributes */
         $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
-        if (!$categoryAttributes instanceof Category) {
+        if (!$categoryAttributes instanceof CategoryAttributes) {
             return false;
         }
 
