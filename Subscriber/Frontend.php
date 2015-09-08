@@ -26,59 +26,67 @@
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
-use Enlight_Event_EventArgs;
 use Shopware\SwagCustomSort\Components\Listing;
 use Shopware\SwagCustomSort\Sorter\SortFactory;
+use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as PluginBootstrap;
 
 class Frontend implements SubscriberInterface
 {
     /**
+     * @var PluginBootstrap $bootstrap
+     */
+    private $bootstrap;
+
+    /**
      * @var string $bootstrapPath
      */
-    protected $bootstrapPath;
+    private $bootstrapPath;
 
-    public function __construct($bootstrapPath)
+    /**
+     * @param PluginBootstrap $bootstrap
+     */
+    public function __construct($bootstrap)
     {
-        $this->bootstrapPath = $bootstrapPath;
+        $this->bootstrapPath = $bootstrap->Path();
+        $this->bootstrap = $bootstrap;
     }
 
     public static function getSubscribedEvents()
     {
         return [
             'Enlight_Controller_Action_PostDispatchSecure_Frontend_Listing' => 'onPostDispatchSecureListing',
-            'Enlight_Controller_Action_PreDispatch_Frontend_Listing' => 'onPreDispatchListing'
+            'Enlight_Controller_Action_PreDispatch_Frontend_Listing' => 'onPreDispatchListing',
+            'Enlight_Controller_Action_PreDispatch_Widgets_Listing' => 'onPreDispatchListing'
         ];
     }
 
     /**
-     * @param Enlight_Event_EventArgs $args
+     * @param \Enlight_Controller_ActionEventArgs $args
      */
-    public function onPostDispatchSecureListing(Enlight_Event_EventArgs $args)
+    public function onPostDispatchSecureListing($args)
     {
         /** @var Listing $categoryComponent */
-        $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
+        $categoryComponent = $this->bootstrap->get('swagcustomsort.listing_component');
         if (!$categoryComponent instanceof Listing) {
             return;
         }
-
-        /** @var \Enlight_View_Default $view */
         $view = $args->getSubject()->View();
-        $categoryId = $view->sCategoryContent['id'];
+        $categoryId = $view->getAssign('sCategoryContent')['id'];
         $showCustomSort = $categoryComponent->showCustomSortName($categoryId);
         $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
         if ($showCustomSort || $baseSort > 0) {
-            $view->showCustomSort = true;
+            $view->assign('showCustomSort', true);
             $this->extendsTemplate($view, 'frontend/listing/actions/action-sorting.tpl');
         }
     }
 
     /**
      * @param \Enlight_View_Default $view
-     * @param $templatePath
+     * @param string $templatePath
      */
     protected function extendsTemplate($view, $templatePath)
     {
-        $version = Shopware()->Shop()->getTemplate()->getVersion();
+        $version = $this->bootstrap->get('shop')->getTemplate()->getVersion();
         if ($version >= 3) {
             $view->addTemplateDir($this->bootstrapPath . 'Views/responsive/');
         } else {
@@ -87,10 +95,13 @@ class Frontend implements SubscriberInterface
         }
     }
 
-    public function onPreDispatchListing(Enlight_Event_EventArgs $args)
+    /**
+     * @param \Enlight_Controller_ActionEventArgs $args
+     */
+    public function onPreDispatchListing($args)
     {
         /** @var Listing $categoryComponent */
-        $categoryComponent = Shopware()->Container()->get('swagcustomsort.listing_component');
+        $categoryComponent = $this->bootstrap->get('swagcustomsort.listing_component');
         if (!$categoryComponent instanceof Listing) {
             return;
         }
