@@ -44,6 +44,7 @@ class Sort implements SubscriberInterface
         return [
             'Shopware_SearchBundle_Create_Listing_Criteria' => 'onCreateListingCriteria',
             'Shopware_SearchBundle_Create_Ajax_Listing_Criteria' => 'onCreateListingCriteria',
+            'Shopware_SearchBundle_Create_Product_Navigation_Criteria' => 'onCreateListingCriteria',
             'Shopware_SearchBundleDBAL_Collect_Sorting_Handlers' => 'onCollectSortingHandlers'
         ];
     }
@@ -60,8 +61,10 @@ class Sort implements SubscriberInterface
         /** @var Criteria $criteria */
         $criteria = $args->get('criteria');
 
+        $allowedActions = ['index', 'ajaxListing', 'productNavigation'];
+
         //Don't apply custom sort if we are not in category listing
-        if ($request->getActionName() != 'index' && $request->getActionName() != 'ajaxListing') {
+        if (!in_array($request->getActionName(), $allowedActions)) {
             return;
         }
 

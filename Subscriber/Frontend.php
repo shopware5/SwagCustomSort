@@ -75,7 +75,18 @@ class Frontend implements SubscriberInterface
         $showCustomSort = $categoryComponent->showCustomSortName($categoryId);
         $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
         if ($showCustomSort || $baseSort > 0) {
-            $view->assign('showCustomSort', true);
+            /** @var Listing $categoryComponent */
+            $categoryComponent = $this->bootstrap->get('swagcustomsort.listing_component');
+            $showCustomSort = $categoryComponent->showCustomSortName($categoryId);
+            $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
+            $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
+            if ($showCustomSort || ($baseSort > 0 && $useDefaultSort)) {
+                $showCustomSortOption = true;
+            } else {
+                $showCustomSortOption = false;
+            }
+
+            $view->assign('showCustomSort', $showCustomSortOption);
             $this->extendsTemplate($view, 'frontend/listing/actions/action-sorting.tpl');
         }
     }
