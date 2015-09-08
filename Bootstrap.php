@@ -127,7 +127,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $subscribers = [
             new Resource($this->get('models')),
             new ControllerPath($this->Path()),
-            new Frontend($this->Path()),
+            new Frontend($this),
             new Backend($this, $this->get('models')),
             new Sort()
         ];
