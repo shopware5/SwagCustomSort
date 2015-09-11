@@ -24,12 +24,10 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
             name: 'thumbnail',
             type: 'string',
             convert: function (value, record) {
-                if (record.get('path').indexOf('media/image') === -1) {
-                    return 'media/image/thumbnail/' + record.get('path') + '_140x140.' + record.get('extension');
+                if(!record.get('path')) {
+                    return '{link file="backend/_resources/images/index/no-picture.jpg"}';
                 } else {
-                    var name = record.get('path').replace('media/image/', '');
-                    name = name.replace('.' + record.get('extension'), '');
-                    return 'media/image/thumbnail/' + name + '_140x140.' + record.get('extension');
+                    return 'media/image/thumbnail/' + record.get('path') + '_140x140.' + record.get('extension');
                 }
             }
         },
