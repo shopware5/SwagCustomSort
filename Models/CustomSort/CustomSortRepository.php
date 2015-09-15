@@ -153,13 +153,15 @@ class CustomSortRepository extends ModelRepository
                 $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
                     ->leftJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
                     ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
-                    ->addOrderBy('cheapest_price', 'ASC');
+                    ->addOrderBy('cheapest_price', 'ASC')
+                    ->addOrderBy('product.id', 'DESC');
                 break;
             case 4:
                 $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
                     ->leftJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
                     ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
-                    ->addOrderBy('cheapest_price', 'DESC');
+                    ->addOrderBy('cheapest_price', 'DESC')
+                    ->addOrderBy('product.id', 'DESC');
                 break;
             case 5:
                 $builder->addOrderBy('product.name', 'ASC');
@@ -167,15 +169,25 @@ class CustomSortRepository extends ModelRepository
             case 6:
                 $builder->addOrderBy('product.name', 'DESC');
                 break;
+            case 7:
+                $builder
+                    ->addSelect('(SUM(vote.points) / COUNT(vote.id)) as votes')
+                    ->leftJoin('product', 's_articles_vote', 'vote', 'product.id = vote.articleID')
+                    ->addOrderBy('votes', 'DESC')
+                    ->addOrderBy('product.id', 'DESC')
+                    ->groupBy('product.id');
+                break;
             case 9:
                 $builder
                     ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
-                    ->addOrderBy('variant.instock', 'ASC');
+                    ->addOrderBy('variant.instock', 'ASC')
+                    ->addOrderBy('product.id', 'DESC');
                 break;
             case 10:
                 $builder
                     ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
-                    ->addOrderBy('variant.instock', 'DESC');
+                    ->addOrderBy('variant.instock', 'DESC')
+                    ->addOrderBy('product.id', 'DESC');
                 break;
 
         }

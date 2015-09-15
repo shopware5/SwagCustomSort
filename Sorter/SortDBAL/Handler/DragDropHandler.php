@@ -34,12 +34,17 @@ use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\ReleaseDateSortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\PopularitySortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\PriceSortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\ProductNameSortingHandler;
-use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\SearchRankingSortingHandler;
+use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\RatingSortingHandler;
+use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\StockSortingHandler;
 use Shopware\SwagCustomSort\Components\Listing;
 use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 
 class DragDropHandler implements SortingHandlerInterface
 {
+
+    const SORTING_STOCK_ASC = 9;
+    const SORTING_STOCK_DESC = 10;
+
     /**
      * @param SortingInterface $sorting
      * @return bool
@@ -138,7 +143,17 @@ class DragDropHandler implements SortingHandlerInterface
                 ];
             case StoreFrontCriteriaFactory::SORTING_SEARCH_RANKING:
                 return [
-                    'handler' => new SearchRankingSortingHandler(),
+                    'handler' => new RatingSortingHandler(),
+                    'direction' => 'DESC'
+                ];
+            case DragDropHandler::SORTING_STOCK_ASC:
+                return [
+                    'handler' => new StockSortingHandler(),
+                    'direction' => 'ASC'
+                ];
+            case DragDropHandler::SORTING_STOCK_DESC:
+                return [
+                    'handler' => new StockSortingHandler(),
                     'direction' => 'DESC'
                 ];
         }
