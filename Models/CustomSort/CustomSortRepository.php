@@ -101,7 +101,6 @@ class CustomSortRepository extends ModelRepository
             ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
             ->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)')
             ->where('productCategory.categoryID = :categoryId')
-            ->andWhere('images.main = 1')
             ->groupBy('product.id')
             ->orderBy('-sort.position', 'DESC')
             ->setParameter('categoryId', $categoryId);
