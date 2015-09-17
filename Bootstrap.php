@@ -125,15 +125,15 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
     public function onStartDispatch()
     {
         $subscribers = [
-            new Resource($this->get('models')),
-            new ControllerPath($this->Path()),
+            new Resource($this->get('models'), $this->get('config')),
+            new ControllerPath($this->Path(), $this->get('template')),
             new Frontend($this),
             new Backend($this, $this->get('models')),
-            new Sort()
+            new Sort($this)
         ];
 
         foreach ($subscribers as $subscriber) {
-            $this->Application()->Events()->addSubscriber($subscriber);
+            $this->get('events')->addSubscriber($subscriber);
         }
     }
 
