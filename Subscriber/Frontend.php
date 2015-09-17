@@ -27,7 +27,6 @@ namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
 use Shopware\SwagCustomSort\Components\Listing;
-use Shopware\SwagCustomSort\Sorter\SortFactory;
 use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as PluginBootstrap;
 
 class Frontend implements SubscriberInterface
@@ -55,8 +54,6 @@ class Frontend implements SubscriberInterface
     {
         return [
             'Enlight_Controller_Action_PostDispatchSecure_Frontend_Listing' => 'onPostDispatchSecureListing',
-            'Enlight_Controller_Action_PreDispatch_Frontend_Listing' => 'onPreDispatchListing',
-            'Enlight_Controller_Action_PreDispatch_Widgets_Listing' => 'onPreDispatchListing'
         ];
     }
 
@@ -104,29 +101,5 @@ class Frontend implements SubscriberInterface
             $view->addTemplateDir($this->bootstrapPath . 'Views/emotion/');
             $view->extendsTemplate($templatePath);
         }
-    }
-
-    /**
-     * @param \Enlight_Controller_ActionEventArgs $args
-     */
-    public function onPreDispatchListing($args)
-    {
-        /** @var Listing $categoryComponent */
-        $categoryComponent = $this->bootstrap->get('swagcustomsort.listing_component');
-        if (!$categoryComponent instanceof Listing) {
-            return;
-        }
-
-        /** @var \Enlight_Controller_Request_RequestHttp $request */
-        $request = $args->getSubject()->Request();
-        $categoryId = (int) $request->getParam('sCategory');
-        $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
-        $sortName = $categoryComponent->getFormattedSortName();
-        $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
-        if ((!$useDefaultSort && $baseSort) || empty($sortName) || $request->getParam('sSort') !== null) {
-            return;
-        }
-
-        $request->setParam('sSort', SortFactory::DRAG_DROP_SORTING);
     }
 }

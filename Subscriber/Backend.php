@@ -26,7 +26,8 @@
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
-use Enlight_Event_EventArgs;
+use Enlight_Event_EventArgs as EventArgs;
+use Enlight_Controller_ActionEventArgs as ActionEventArgs;
 use Shopware\Components\Model\ModelManager;
 use Shopware\Models\Article\Article;
 use Shopware\Models\Category\Category;
@@ -49,17 +50,21 @@ class Backend implements SubscriberInterface
      */
     protected $customSortRepo = null;
 
-    public function __construct(SwagCustomSort_Bootstrap $bootstrap, ModelManager $em) {
+    /**
+     * @param SwagCustomSort_Bootstrap $bootstrap
+     * @param ModelManager $em
+     */
+    public function __construct(SwagCustomSort_Bootstrap $bootstrap, ModelManager $em)
+    {
         $this->bootstrap = $bootstrap;
         $this->em = $em;
     }
 
-    public function getSortRepository()
+    private function getSortRepository()
     {
         if ($this->customSortRepo === null) {
             $this->customSortRepo = $this->em->getRepository('Shopware\CustomModels\CustomSort\ArticleSort');
         }
-
         return $this->customSortRepo;
     }
 
@@ -73,18 +78,20 @@ class Backend implements SubscriberInterface
     }
 
     /**
-     * @param Enlight_Event_EventArgs $args
+     * @param ActionEventArgs $args
      */
-    public function onPostDispatchSecureBackendIndex(Enlight_Event_EventArgs $args)
+    public function onPostDispatchSecureBackendIndex(ActionEventArgs $args)
     {
-        /** @var \Enlight_View_Default $view */
         $view = $args->getSubject()->View();
 
         $view->addTemplateDir($this->bootstrap->Path() . 'Views/');
         $view->extendsTemplate('backend/custom_sort/header.tpl');
     }
 
-    public function preRemoveArticle(Enlight_Event_EventArgs $arguments)
+    /**
+     * @param EventArgs $arguments
+     */
+    public function preRemoveArticle(EventArgs $arguments)
     {
         /** @var Article $articleModel */
         $articleModel = $arguments->get('entity');
@@ -98,12 +105,12 @@ class Backend implements SubscriberInterface
                 $catAttributes = $category->getAttribute();
                 $deletedPosition = $catAttributes->getSwagDeletedPosition();
                 if ($deletedPosition === null || $deletedPosition > $position) {
-                    $catAttributes->setSwagDeletedPosition((int) $position);
+                    $catAttributes->setSwagDeletedPosition((int)$position);
                 }
             }
         }
 
-        $builder = Shopware()->Models()->getDBALQueryBuilder();
+        $builder = $this->em->getDBALQueryBuilder();
         $builder->delete('s_articles_sort')
             ->where('articleId = :articleId')
             ->setParameter('articleId', $articleDetailId);
@@ -111,12 +118,15 @@ class Backend implements SubscriberInterface
         $builder->execute();
     }
 
-    public function preRemoveCategory(Enlight_Event_EventArgs $arguments)
+    /**
+     * @param EventArgs $arguments
+     */
+    public function preRemoveCategory(EventArgs $arguments)
     {
         $categoryModel = $arguments->get('entity');
         $categoryId = $categoryModel->getId();
 
-        $builder = Shopware()->Models()->getDBALQueryBuilder();
+        $builder =  $this->em->getDBALQueryBuilder();
         $builder->delete('s_articles_sort')
             ->where('categoryId = :categoryId')
             ->setParameter('categoryId', $categoryId);

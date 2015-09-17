@@ -31,9 +31,24 @@ use Enlight_Event_EventArgs;
 use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\SwagCustomSort\Sorter\SortFactory;
 use \Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
+use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as PluginBootstrap;
+use Shopware\SwagCustomSort\Components\Listing;
 
 class Sort implements SubscriberInterface
 {
+    /**
+     * @var PluginBootstrap $bootstrap
+     */
+    private $bootstrap;
+
+    /**
+     * @param PluginBootstrap $bootstrap
+     */
+    public function __construct($bootstrap)
+    {
+        $this->bootstrap = $bootstrap;
+    }
+
     /**
      * Returns an array of event names this subscriber wants to listen to.
      *
@@ -68,6 +83,22 @@ class Sort implements SubscriberInterface
             return;
         }
 
+        /** @var Listing $categoryComponent */
+        $categoryComponent = $this->bootstrap->get('swagcustomsort.listing_component');
+        if (!$categoryComponent instanceof Listing) {
+            return;
+        }
+
+        $categoryId = (int)$request->getParam('sCategory');
+        $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
+        $sortName = $categoryComponent->getFormattedSortName();
+        $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
+        if ((!$useDefaultSort && $baseSort) || empty($sortName) || $request->getParam('sSort') !== null) {
+            return;
+        }
+
+        $request->setParam('sSort', SortFactory::DRAG_DROP_SORTING);
+
         $sorter = new SortFactory($request, $criteria);
         $sorter->addSort();
     }
@@ -75,14 +106,10 @@ class Sort implements SubscriberInterface
     /**
      * Register plugin sorting handlers.
      *
-     * @param Enlight_Event_EventArgs $args
-     *
      * @return DragDropHandler
      */
-    public function onCollectSortingHandlers(Enlight_Event_EventArgs $args)
+    public function onCollectSortingHandlers()
     {
-        $args->setReturn(new DragDropHandler());
-
-        return $args->getReturn();
+        return new DragDropHandler();
     }
 }

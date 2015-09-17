@@ -26,17 +26,32 @@
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
+use Enlight_Template_Manager as TemplateManager;
 
+/**
+ * Class ControllerPath
+ * @package Shopware\SwagCustomSort\Subscriber
+ */
 class ControllerPath implements SubscriberInterface
 {
     /**
      * @var string $bootstrapPath
      */
-    protected $bootstrapPath;
+    private $bootstrapPath;
 
-    public function __construct($bootstrapPath)
+    /**
+     * @var TemplateManager $templateManager
+     */
+    private $templateManager;
+
+    /**
+     * @param string $bootstrapPath
+     * @param TemplateManager $templateManager
+     */
+    public function __construct($bootstrapPath, TemplateManager $templateManager)
     {
         $this->bootstrapPath = $bootstrapPath;
+        $this->templateManager = $templateManager;
     }
 
     public static function getSubscribedEvents()
@@ -48,14 +63,6 @@ class ControllerPath implements SubscriberInterface
     }
 
     /**
-     * Register module template directory
-     */
-    protected function registerView()
-    {
-        Shopware()->Template()->addTemplateDir($this->bootstrapPath . 'Views/');
-    }
-
-    /**
     * This function is responsible to resolve the backend / frontend controller path.
     *
     * @param  \Enlight_Event_EventArgs $args
@@ -63,7 +70,7 @@ class ControllerPath implements SubscriberInterface
     */
     public function onGetCustomSortControllerPath(\Enlight_Event_EventArgs $args)
     {
-        $this->registerView();
+        $this->templateManager->addTemplateDir($this->bootstrapPath . 'Views/');
 
         switch ($args->getName()) {
             case 'Enlight_Controller_Dispatcher_ControllerPath_Backend_CustomSort':

@@ -28,6 +28,7 @@ namespace Shopware\SwagCustomSort\Subscriber;
 use Enlight\Event\SubscriberInterface;
 use Shopware\Components\Model\ModelManager;
 use Shopware\SwagCustomSort\Components\Listing;
+use Shopware_Components_Config as ShopwareConfig;
 
 class Resource implements SubscriberInterface
 {
@@ -36,9 +37,19 @@ class Resource implements SubscriberInterface
      */
     private $modelManager;
 
-    public function __construct(ModelManager $modelManager)
+    /**
+     * @var ShopwareConfig
+     */
+    private $config;
+
+    /**
+     * @param ModelManager $modelManager
+     * @param ShopwareConfig $config
+     */
+    public function __construct(ModelManager $modelManager, ShopwareConfig $config)
     {
         $this->modelManager = $modelManager;
+        $this->config = $config;
     }
 
     /**
@@ -61,7 +72,7 @@ class Resource implements SubscriberInterface
     public function onInitListingComponent()
     {
         return new Listing(
-            Shopware()->Config(),
+            $this->config,
             $this->modelManager
         );
     }
