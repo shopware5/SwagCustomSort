@@ -80,10 +80,8 @@ class DragDropHandler implements SortingHandlerInterface
                 'productCategory',
                 's_articles_sort',
                 'customSort',
-                'customSort.articleId = productCategory.articleID'
+                'customSort.articleId = productCategory.articleID AND (customSort.categoryId = :sortCategoryId OR customSort.categoryId IS NULL)'
             );
-
-            $query->andWhere('customSort.categoryId = :sortCategoryId OR customSort.categoryId IS NULL');
             $query->setParameter('sortCategoryId', $linkedCategoryId);
         } else {
             $query->leftJoin(
