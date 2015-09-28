@@ -34,8 +34,6 @@ use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\ReleaseDateSortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\PopularitySortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\PriceSortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\ProductNameSortingHandler;
-use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\RatingSortingHandler;
-use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\StockSortingHandler;
 use Shopware\SwagCustomSort\Components\Listing;
 use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 
@@ -44,6 +42,16 @@ class DragDropHandler implements SortingHandlerInterface
 
     const SORTING_STOCK_ASC = 9;
     const SORTING_STOCK_DESC = 10;
+
+    /**
+     * @var Sorting $sortingComponent
+     */
+    private $sortingComponent;
+
+    public function __construct(Sorting $sortingComponent)
+    {
+        $this->sortingComponent = $sortingComponent;
+    }
 
     /**
      * @param SortingInterface $sorting
@@ -92,7 +100,11 @@ class DragDropHandler implements SortingHandlerInterface
             );
         }
 
-        $query->addOrderBy('-customSort.position', $sorting->getDirection());
+        //exclude passed products ids from result
+        $sortedProductsIds = $this->sortingComponent->getSortedProductsIds();
+        if ($sortedProductsIds) {
+            $query->andWhere($query->expr()->notIn("product.id", $sortedProductsIds));
+        }
 
         //for records with no 'plugin' order data use the default shopware order
         $handlerData = $this->getDefaultData($baseSorting);

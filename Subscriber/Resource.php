@@ -29,6 +29,7 @@ use Enlight\Event\SubscriberInterface;
 use Shopware\Components\Model\ModelManager;
 use Shopware\SwagCustomSort\Components\Listing;
 use Shopware_Components_Config as ShopwareConfig;
+use Shopware\SwagCustomSort\Components\Sorting;
 
 class Resource implements SubscriberInterface
 {
@@ -60,7 +61,8 @@ class Resource implements SubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            'Enlight_Bootstrap_InitResource_swagcustomsort.listing_component' => 'onInitListingComponent'
+            'Enlight_Bootstrap_InitResource_swagcustomsort.listing_component' => 'onInitListingComponent',
+            'Enlight_Bootstrap_InitResource_swagcustomsort.sorting_component' => 'onInitSortingComponent'
         ];
     }
 
@@ -75,5 +77,15 @@ class Resource implements SubscriberInterface
             $this->config,
             $this->modelManager
         );
+    }
+
+    /**
+     * returns new instance of Listing
+     *
+     * @return Listing
+     */
+    public function onInitSortingComponent()
+    {
+        return new Sorting();
     }
 }

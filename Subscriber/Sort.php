@@ -42,11 +42,23 @@ class Sort implements SubscriberInterface
     private $bootstrap;
 
     /**
+     * @var ModelManager $em
+     */
+    protected $em;
+
+    /**
+     * @var Sorting $sortingComponent
+     */
+    private $sortingComponent;
+
+    /**
      * @param PluginBootstrap $bootstrap
      */
-    public function __construct($bootstrap)
+    public function __construct($bootstrap, ModelManager $em, Sorting $sortingComponent)
     {
         $this->bootstrap = $bootstrap;
+        $this->em = $em;
+        $this->sortingComponent = $sortingComponent;
     }
 
     /**

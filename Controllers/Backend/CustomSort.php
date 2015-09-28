@@ -136,6 +136,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     public function getArticleListAction()
     {
         $categoryId = (int) $this->Request()->getParam('categoryId');
+        $page = (int) $this->Request()->getParam('page');
         $limit = (int) $this->Request()->getParam('limit', null);
         $offset = (int) $this->Request()->getParam('start');
 
@@ -143,18 +144,22 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         try {
-            $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sort);
+            $sorting = Shopware()->Container()->get('swagcustomsort.sorting_component');
+
+            $sortedProducts = $this->getSortRepository()->getSortedProducts($categoryId);
+            $sorting->setSortedProducts($sortedProducts);
+
+            $sortedProductsIds = $sorting->getSortedProductsIds();
+            $newOffset = $sorting->getOffset($offset, $page, $limit);
+            $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sortedProductsIds, $sort, $newOffset, $limit);
+
             $countBuilder = $this->getSortRepository()->getArticleImageCountQuery($categoryId);
-
-            if ($offset !== null && $limit !== null) {
-                $builder->setFirstResult($offset)
-                    ->setMaxResults($limit);
-            }
-
-            $getProducts = $builder->execute()->fetchAll();
             $total = $countBuilder->execute()->fetch();
 
-            $this->View()->assign(['success' => true, 'data' => $getProducts, 'total' => $total['Total']]);
+            $getUnsortedProducts = $builder->execute()->fetchAll();
+            $result = $sorting->sortProducts($getUnsortedProducts, $offset, $limit);
+
+            $this->View()->assign(['success' => true, 'data' => $result, 'total' => $total['Total']]);
         } catch (\Exception $ex) {
             $this->View()->assign(['success' => false, 'message' => $ex->getMessage()]);
         }
@@ -223,7 +228,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         if (empty($movedProducts)) {
             return;
         }
-        if ($movedProducts['id']) {
+
+        if ($movedProducts['articleID']) {
             $movedProducts = [$movedProducts];
         }
 
@@ -235,22 +241,28 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         //get all products
-        $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sort);
-        if ($offset !== null && $length !== null) {
-            $builder->setFirstResult($offset)
-                ->setMaxResults($length);
-        }
+        $sorting = Shopware()->Container()->get('swagcustomsort.sorting_component');
 
-        $allProducts = $builder->execute()->fetchAll();
+        //Get all sorted products for current category and set them in components for further sorting
+        $allSortedProducts = $this->getSortRepository()->getSortedProducts($categoryId);
+        $sorting->setSortedProducts($allSortedProducts);
+
+        //Get unsorted products for current category
+        $sortedProductsIds = $sorting->getSortedProductsIds();
+        $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sortedProductsIds, $sort);
+        $getProducts = $builder->execute()->fetchAll();
+
+        //Return result with proper position of all products
+        $getAllProducts = $sorting->sortProducts($getProducts, $offset, $length);
 
         //check for deleted products
         $deletedPosition = $this->getSortRepository()->getPositionOfDeletedProduct($categoryId);
         if ($deletedPosition !== null) {
-            $allProducts = $this->fixDeletedPosition((int) $deletedPosition, $allProducts);
+            $getAllProducts = $this->fixDeletedPosition((int) $deletedPosition, $getAllProducts);
         }
 
         //get sorted products
-        $sortedProducts = $this->applyNewPosition($allProducts, $movedProducts, $offset);
+        $sortedProducts = $this->applyNewPosition($getAllProducts, $movedProducts, $offset);
 
         //get sql values needed for update query
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
@@ -325,8 +337,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     {
         $sqlValues = '';
         foreach ($productsForUpdate as $newArticle) {
-            if ($newArticle['id'] > 0) {
-                $sqlValues .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['id'] . "', '" . $newArticle['position'] . "', '" . $newArticle['pin'] . "'),";
+            if ($newArticle['articleID'] > 0 && $newArticle['pin'] > 0) {
+                $sqlValues .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['articleID'] . "', '" . $newArticle['position'] . "', '" . $newArticle['pin'] . "'),";
             }
         }
 
@@ -337,7 +349,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     {
         $result = [];
         foreach ($products as $product) {
-            $result[$product['id']] = $product;
+            $result[$product['articleID']] = $product;
         }
 
         return $result;

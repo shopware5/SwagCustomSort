@@ -532,7 +532,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             url: '{url controller="CustomSort" action="removeProduct"}',
             method: 'POST',
             params: {
-                articleId: record.get('id'),
+                articleId: record.get('articleID'),
                 categoryId: me.categoryId
             },
             success: function () {
