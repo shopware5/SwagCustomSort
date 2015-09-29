@@ -29,6 +29,8 @@ use Enlight\Event\SubscriberInterface;
 use Enlight_Controller_Request_Request as Request;
 use Enlight_Event_EventArgs;
 use Shopware\Bundle\SearchBundle\Criteria;
+use Shopware\Components\Model\ModelManager;
+use Shopware\SwagCustomSort\Components\Sorting;
 use Shopware\SwagCustomSort\Sorter\SortFactory;
 use \Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
 use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as PluginBootstrap;
@@ -53,8 +55,10 @@ class Sort implements SubscriberInterface
 
     /**
      * @param PluginBootstrap $bootstrap
+     * @param ModelManager $em
+     * @param Sorting $sortingComponent
      */
-    public function __construct($bootstrap, ModelManager $em, Sorting $sortingComponent)
+    public function __construct(PluginBootstrap $bootstrap, ModelManager $em, Sorting $sortingComponent)
     {
         $this->bootstrap = $bootstrap;
         $this->em = $em;
@@ -117,7 +121,8 @@ class Sort implements SubscriberInterface
 
         //Get all sorted products for current category and set them in components for further sorting
         $linkedCategoryId = $categoryComponent->getLinkedCategoryId($categoryId);
-        $sortedProducts = $this->em->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getSortedProducts($categoryId, $linkedCategoryId);
+        $sortedProducts = $this->em->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')
+            ->getSortedProducts($categoryId, $linkedCategoryId);
         $this->sortingComponent->setSortedProducts($sortedProducts);
 
         //Get new offset based on page so we can get correct position of unsorted products

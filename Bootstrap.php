@@ -25,6 +25,7 @@
 
 use Shopware\Models\Config\Element;
 use Shopware\Models\Config\Form;
+use Shopware\SwagCustomSort\Components\Sorting;
 use Shopware\SwagCustomSort\Subscriber\Backend;
 use Shopware\SwagCustomSort\Subscriber\ControllerPath;
 use Shopware\SwagCustomSort\Subscriber\Frontend;
@@ -130,6 +131,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         $resourceSubscriber = new Resource($this->get('models'));
         $this->Application()->Events()->addSubscriber($resourceSubscriber);
 
+        /** @var Sorting $sortingComponent */
         $sortingComponent = $container->get('swagcustomsort.sorting_component');
 
         $subscribers = [

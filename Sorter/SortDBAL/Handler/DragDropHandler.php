@@ -35,6 +35,7 @@ use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\PopularitySortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\PriceSortingHandler;
 use \Shopware\Bundle\SearchBundleDBAL\SortingHandler\ProductNameSortingHandler;
 use Shopware\SwagCustomSort\Components\Listing;
+use Shopware\SwagCustomSort\Components\Sorting;
 use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 
 class DragDropHandler implements SortingHandlerInterface
@@ -48,6 +49,9 @@ class DragDropHandler implements SortingHandlerInterface
      */
     private $sortingComponent;
 
+    /**
+     * @param Sorting $sortingComponent
+     */
     public function __construct(Sorting $sortingComponent)
     {
         $this->sortingComponent = $sortingComponent;

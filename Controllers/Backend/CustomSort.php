@@ -28,6 +28,7 @@ use Shopware\CustomModels\CustomSort\CustomSortRepository;
 use Shopware\Models\Article\Article;
 use Shopware\Models\Attribute\Category as CategoryAttributes;
 use Shopware\Models\Category\Category;
+use Shopware\SwagCustomSort\Components\Sorting;
 
 class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backend_ExtJs
 {
@@ -144,6 +145,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sort = (int) $this->Request()->getParam('sortBy', $defaultSort);
 
         try {
+            /** @var Sorting $sorting */
             $sorting = Shopware()->Container()->get('swagcustomsort.sorting_component');
 
             $sortedProducts = $this->getSortRepository()->getSortedProducts($categoryId);
@@ -151,7 +153,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
 
             $sortedProductsIds = $sorting->getSortedProductsIds();
             $newOffset = $sorting->getOffset($offset, $page, $limit);
-            $builder = $this->getSortRepository()->getArticleImageQuery($categoryId, $sortedProductsIds, $sort, $newOffset, $limit);
+            $builder = $this->getSortRepository()
+                ->getArticleImageQuery($categoryId, $sortedProductsIds, $sort, $newOffset, $limit);
 
             $countBuilder = $this->getSortRepository()->getArticleImageCountQuery($categoryId);
             $total = $countBuilder->execute()->fetch();
@@ -268,7 +271,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
 
         //update positions
-        $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES " . rtrim($sqlValues, ',');
+        $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES "
+            . rtrim($sqlValues, ',');
         $this->getDB()->query($sql);
 
         //reset deleted product flag
@@ -338,7 +342,11 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sqlValues = '';
         foreach ($productsForUpdate as $newArticle) {
             if ($newArticle['articleID'] > 0 && $newArticle['pin'] > 0) {
-                $sqlValues .= "('" . $newArticle['positionId'] . "', '" . $categoryId . "', '" . $newArticle['articleID'] . "', '" . $newArticle['position'] . "', '" . $newArticle['pin'] . "'),";
+                $sqlValues .= "('" . $newArticle['positionId'] . "', '"
+                    . $categoryId . "', '"
+                    . $newArticle['articleID'] . "', '"
+                    . $newArticle['position'] . "', '"
+                    . $newArticle['pin'] . "'),";
             }
         }
 
@@ -471,7 +479,10 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     {
         //Invalidate the cache for the current product
         foreach ($movedProducts as $product) {
-            $this->getEvents()->notify('Shopware_Plugins_HttpCache_InvalidateCacheId', ['cacheId' => "a{$product['id']}"]);
+            $this->getEvents()->notify(
+                'Shopware_Plugins_HttpCache_InvalidateCacheId',
+                ['cacheId' => "a{$product['id']}"]
+            );
             break;
         }
     }
@@ -497,7 +508,8 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             if ($categories) {
                 foreach ($categories as $childCategoryId) {
                     /** @var Category $childCategoryModel */
-                    $childCategoryModel = Shopware()->Models()->getReference('Shopware\Models\Category\Category', $childCategoryId);
+                    $childCategoryModel = Shopware()->Models()
+                        ->getReference('Shopware\Models\Category\Category', $childCategoryId);
                     if ($childCategoryModel) {
                         $article->removeCategory($childCategoryModel);
                     }

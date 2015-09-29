@@ -111,6 +111,7 @@ class Sorting
         ksort($result);
 
         $getLimitedResult = array_slice($result, 0, $this->limit);
+
         return $getLimitedResult;
     }
 
@@ -172,12 +173,12 @@ class Sorting
     public function getOffset($offset, $page, $limit)
     {
         $page = $page - 1;
-        while($page >= 1) {
+        while ($page >= 1) {
             $min = ($page - 1) * $limit;
             $max = $page * $limit;
 
-            foreach($this->sortedProducts as $sorted) {
-                if(($sorted['position'] >= $min) && ($sorted['position'] < $max)) {
+            foreach ($this->sortedProducts as $sorted) {
+                if (($sorted['position'] >= $min) && ($sorted['position'] < $max)) {
                     $offset--;
                 }
             }

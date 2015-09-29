@@ -46,7 +46,7 @@ class StoreFrontBundle implements SubscriberInterface
      * @param Container $container
      * @param Sorting $sortingComponent
      */
-    function __construct(Container $container, Sorting $sortingComponent)
+    public function __construct(Container $container, Sorting $sortingComponent)
     {
         $this->container = $container;
         $this->sortingComponent = $sortingComponent;

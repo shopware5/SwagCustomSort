@@ -79,6 +79,5 @@ class SortProductSearch implements ProductSearchInterface
             $totalCount,
             $facets
         );
-
     }
 }
