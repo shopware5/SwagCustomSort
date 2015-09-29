@@ -151,8 +151,7 @@ class CustomSortRepository extends ModelRepository
             ->setParameter('categoryId', $categoryId);
 
             if ($linkedCategoryId !== false) {
-                $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId')
-                    ->andWhere('sort.categoryId = :linkedCategoryId OR sort.categoryId IS NULL')
+                $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND sort.categoryId = :linkedCategoryId OR sort.categoryId IS NULL')
                     ->setParameter('linkedCategoryId', $linkedCategoryId);
             } else {
                 $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)');

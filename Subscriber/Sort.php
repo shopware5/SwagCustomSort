@@ -111,6 +111,22 @@ class Sort implements SubscriberInterface
 
         $request->setParam('sSort', SortFactory::DRAG_DROP_SORTING);
 
+        $page = (int) $request->getParam('sPage');
+        $offset = (int) $criteria->getOffset();
+        $limit = (int) $criteria->getLimit();
+
+        //Get all sorted products for current category and set them in components for further sorting
+        $linkedCategoryId = $categoryComponent->getLinkedCategoryId($categoryId);
+        $sortedProducts = $this->em->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')->getSortedProducts($categoryId, $linkedCategoryId);
+        $this->sortingComponent->setSortedProducts($sortedProducts);
+
+        //Get new offset based on page so we can get correct position of unsorted products
+        $newOffset = $this->sortingComponent->getOffset($offset, $page, $limit);
+
+        $this->sortingComponent->setOffsetAndLimit($offset, $limit);
+
+        $criteria->offset($newOffset);
+
         $sorter = new SortFactory($request, $criteria);
         $sorter->addSort();
     }
@@ -122,6 +138,6 @@ class Sort implements SubscriberInterface
      */
     public function onCollectSortingHandlers()
     {
-        return new DragDropHandler();
+        return new DragDropHandler($this->sortingComponent);
     }
 }
