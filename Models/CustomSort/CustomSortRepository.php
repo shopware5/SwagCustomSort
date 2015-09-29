@@ -125,7 +125,6 @@ class CustomSortRepository extends ModelRepository
             ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
             ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
             ->where('productCategory.categoryID = :categoryId')
-            ->andWhere('images.main = 1')
             ->setParameter('categoryId', $categoryId);
 
         return $builder;
