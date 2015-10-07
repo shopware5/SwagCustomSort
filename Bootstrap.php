@@ -137,7 +137,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         /** @var Sorting $sortingComponent */
         $sortingComponent = $container->get('swagcustomsort.sorting_component');
         /** @var Listing $listingComponent */
-        $listingComponent = $this->bootstrap->get('swagcustomsort.listing_component');
+        $listingComponent = $this->get('swagcustomsort.listing_component');
 
         $subscribers = [
             new Resource($this->get('models'), $this->get('config')),
