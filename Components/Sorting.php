@@ -84,8 +84,13 @@ class Sorting
      */
     public function sortByNumber($numbers)
     {
+        $sortedProducts = $this->getSortedProducts();
+        if (empty($sortedProducts)) {
+            return $numbers;
+        }
+
         $result = [];
-        foreach ($this->getSortedProducts() as $sort) {
+        foreach ($sortedProducts as $sort) {
             //Remove unsorted product if sorted one exists
             $num = array_search($sort['ordernumber'], $numbers);
             if ($num) {

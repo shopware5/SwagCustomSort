@@ -107,6 +107,11 @@ class Sort implements SubscriberInterface
         $sortName = $this->listingComponent->getFormattedSortName();
         $baseSort = $this->listingComponent->getCategoryBaseSort($categoryId);
         $sortId = $request->getParam('sSort');
+
+        if ($request->getParam('sSort') == SortFactory::DRAG_DROP_SORTING) {
+            $useDefaultSort = true;
+        }
+
         if ((!$useDefaultSort && $baseSort) || empty($sortName)
             || ($sortId !== null && $sortId != SortFactory::DRAG_DROP_SORTING)
         ) {
