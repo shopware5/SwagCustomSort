@@ -25,11 +25,14 @@
 
 use Shopware\Models\Config\Element;
 use Shopware\Models\Config\Form;
+use Shopware\SwagCustomSort\Components\Listing;
+use Shopware\SwagCustomSort\Components\Sorting;
 use Shopware\SwagCustomSort\Subscriber\Backend;
 use Shopware\SwagCustomSort\Subscriber\ControllerPath;
 use Shopware\SwagCustomSort\Subscriber\Frontend;
 use Shopware\SwagCustomSort\Subscriber\Resource;
 use Shopware\SwagCustomSort\Subscriber\Sort;
+use Shopware\SwagCustomSort\Subscriber\StoreFrontBundle;
 
 /**
  * Class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap
@@ -124,16 +127,29 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
      */
     public function onStartDispatch()
     {
+        /** @var Enlight_Event_EventManager $eventManager */
+        $eventManager = $this->get('events');
+        $container = $this->get('service_container');
+
+        $resourceSubscriber = new Resource($this->get('models'), $this->get('config'));
+        $eventManager->addSubscriber($resourceSubscriber);
+
+        /** @var Sorting $sortingComponent */
+        $sortingComponent = $container->get('swagcustomsort.sorting_component');
+        /** @var Listing $listingComponent */
+        $listingComponent = $this->bootstrap->get('swagcustomsort.listing_component');
+
         $subscribers = [
             new Resource($this->get('models'), $this->get('config')),
             new ControllerPath($this->Path(), $this->get('template')),
             new Frontend($this),
             new Backend($this, $this->get('models')),
-            new Sort($this)
+            new Sort($this->get('models'), $sortingComponent, $listingComponent),
+            new StoreFrontBundle($container, $sortingComponent)
         ];
 
         foreach ($subscribers as $subscriber) {
-            $this->get('events')->addSubscriber($subscriber);
+            $eventManager->addSubscriber($subscriber);
         }
     }
 

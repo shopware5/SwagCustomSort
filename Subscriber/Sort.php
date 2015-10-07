@@ -29,24 +29,39 @@ use Enlight\Event\SubscriberInterface;
 use Enlight_Controller_Request_Request as Request;
 use Enlight_Event_EventArgs;
 use Shopware\Bundle\SearchBundle\Criteria;
-use Shopware\SwagCustomSort\Sorter\SortFactory;
-use \Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
-use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as PluginBootstrap;
+use Shopware\Components\Model\ModelManager;
 use Shopware\SwagCustomSort\Components\Listing;
+use Shopware\SwagCustomSort\Components\Sorting;
+use Shopware\SwagCustomSort\Sorter\SortFactory;
+use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
 
 class Sort implements SubscriberInterface
 {
     /**
-     * @var PluginBootstrap $bootstrap
+     * @var ModelManager $em
      */
-    private $bootstrap;
+    protected $em;
 
     /**
-     * @param PluginBootstrap $bootstrap
+     * @var Sorting $sortingComponent
      */
-    public function __construct($bootstrap)
+    private $sortingComponent;
+
+    /**
+     * @var Listing $listingComponent
+     */
+    private $listingComponent;
+
+    /**
+     * @param ModelManager $em
+     * @param Sorting $sortingComponent
+     * @param Listing $listingComponent
+     */
+    public function __construct(ModelManager $em, Sorting $sortingComponent, Listing $listingComponent)
     {
-        $this->bootstrap = $bootstrap;
+        $this->em = $em;
+        $this->sortingComponent = $sortingComponent;
+        $this->listingComponent = $listingComponent;
     }
 
     /**
@@ -83,21 +98,40 @@ class Sort implements SubscriberInterface
             return;
         }
 
-        /** @var Listing $categoryComponent */
-        $categoryComponent = $this->bootstrap->get('swagcustomsort.listing_component');
-        if (!$categoryComponent instanceof Listing) {
+        if (!$this->listingComponent instanceof Listing) {
             return;
         }
 
-        $categoryId = (int)$request->getParam('sCategory');
-        $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
-        $sortName = $categoryComponent->getFormattedSortName();
-        $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
-        if ((!$useDefaultSort && $baseSort) || empty($sortName) || $request->getParam('sSort') !== null) {
+        $categoryId = (int) $request->getParam('sCategory');
+        $useDefaultSort = $this->listingComponent->showCustomSortAsDefault($categoryId);
+        $sortName = $this->listingComponent->getFormattedSortName();
+        $baseSort = $this->listingComponent->getCategoryBaseSort($categoryId);
+        $sortId = $request->getParam('sSort');
+        if ((!$useDefaultSort && $baseSort) || empty($sortName)
+            || ($sortId !== null && $sortId != SortFactory::DRAG_DROP_SORTING)
+        ) {
             return;
         }
 
+        $criteria->resetSorting();
         $request->setParam('sSort', SortFactory::DRAG_DROP_SORTING);
+
+        $page = (int) $request->getParam('sPage');
+        $offset = (int) $criteria->getOffset();
+        $limit = (int) $criteria->getLimit();
+
+        //Get all sorted products for current category and set them in components for further sorting
+        $linkedCategoryId = $this->listingComponent->getLinkedCategoryId($categoryId);
+        $sortedProducts = $this->em->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')
+            ->getSortedProducts($categoryId, $linkedCategoryId);
+        $this->sortingComponent->setSortedProducts($sortedProducts);
+
+        //Get new offset based on page so we can get correct position of unsorted products
+        $newOffset = $this->sortingComponent->getOffset($offset, $page, $limit);
+
+        $this->sortingComponent->setOffsetAndLimit($offset, $limit);
+
+        $criteria->offset($newOffset);
 
         $sorter = new SortFactory($request, $criteria);
         $sorter->addSort();
@@ -110,6 +144,6 @@ class Sort implements SubscriberInterface
      */
     public function onCollectSortingHandlers()
     {
-        return new DragDropHandler();
+        return new DragDropHandler($this->sortingComponent);
     }
 }

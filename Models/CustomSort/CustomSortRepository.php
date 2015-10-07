@@ -74,20 +74,65 @@ class CustomSortRepository extends ModelRepository
     }
 
     /**
-     * Return product list for selected category
+     * Return product list and exclude product containing passed ids for selected category
      *
-     * @param $categoryId
-     * @param $orderBy
+     * @param int $categoryId
+     * @param array $sortedProductsIds
+     * @param int $orderBy
+     * @param int|null $offset
+     * @param int|null $limit
      * @return mixed
      */
-    public function getArticleImageQuery($categoryId, $orderBy)
+    public function getArticleImageQuery($categoryId, $sortedProductsIds, $orderBy, $offset = null, $limit = null)
     {
         $builder = $this->getQueryBuilder();
 
         $builder->select(
             [
+                'product.id as articleID',
+                'product.name',
+                'images.img as path',
+                'images.extension',
+            ]
+        )
+            ->from('s_articles', 'product')
+            ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
+            ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
+            ->where('productCategory.categoryID = :categoryId')
+            ->groupBy('product.id')
+            ->setParameter('categoryId', $categoryId);
+
+        if ($sortedProductsIds) {
+            $builder->andWhere($builder->expr()->notIn("product.id", $sortedProductsIds));
+        }
+
+        if ($offset !== null && $limit !== null) {
+            $builder->setFirstResult($offset)
+                ->setMaxResults($limit);
+        }
+
+        $this->sortUnsortedByDefault($builder, $orderBy);
+
+        return $builder;
+    }
+
+    /**
+     * Get products from current category which are manually sorted
+     *
+     * @param int $categoryId
+     * @param bool|false $linkedCategoryId
+     * @return array
+     */
+    public function getSortedProducts($categoryId, $linkedCategoryId = false)
+    {
+        $categoryId = (int) $categoryId;
+        $builder = $this->getQueryBuilder();
+
+        $builder->select(
+            [
                 'sort.id as positionId',
-                'product.id',
+                'product.id as articleID',
+                'productDetail.ordernumber',
                 'product.name',
                 'images.img as path',
                 'images.extension',
@@ -97,17 +142,24 @@ class CustomSortRepository extends ModelRepository
             ]
         )
             ->from('s_articles', 'product')
-            ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id')
+            ->innerJoin('product', 's_articles_categories_ro', 'productCategory', 'productCategory.articleID = product.id AND productCategory.categoryID IN (:categoryId)')
+            ->innerJoin('product', 's_articles_details', 'productDetail', 'productDetail.articleID = product.id')
             ->leftJoin('product', 's_articles_img', 'images', 'product.id = images.articleID')
-            ->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)')
-            ->where('productCategory.categoryID = :categoryId')
+            ->where('sort.pin = 1')
             ->groupBy('product.id')
             ->orderBy('-sort.position', 'DESC')
             ->setParameter('categoryId', $categoryId);
 
-        $this->sortUnsortedByDefault($builder, $orderBy);
+        if ($linkedCategoryId !== false) {
+            $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND sort.categoryId = :linkedCategoryId OR sort.categoryId IS NULL')
+                ->setParameter('linkedCategoryId', $linkedCategoryId);
+        } else {
+            $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)');
+        }
 
-        return $builder;
+        $result = $builder->execute()->fetchAll();
+
+        return $result;
     }
 
     /**

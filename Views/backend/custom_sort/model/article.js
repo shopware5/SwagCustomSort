@@ -13,7 +13,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
      */
     fields: [
         //{block name="backend/custom_sort/model/article/fields"}{/block}
-        { name: 'id', type: 'int', useNull: true },
+        { name: 'articleID', type: 'int', useNull: true },
         { name: 'positionId', type: 'int', useNull: true },
         { name: 'name', type: 'string' },
         { name: 'position', type: 'int' },
@@ -24,7 +24,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
             name: 'thumbnail',
             type: 'string',
             convert: function (value, record) {
-                if(!record.get('path')) {
+                if (!record.get('path')) {
                     return '{link file="backend/_resources/images/index/no-picture.jpg"}';
                 } else {
                     return 'media/image/thumbnail/' + record.get('path') + '_140x140.' + record.get('extension');
@@ -33,6 +33,13 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
         },
         { name: 'pin', type: 'int' }
     ],
+
+    /**
+     * defines the field for the unique identifier - id is default.
+     *
+     * @int
+     */
+    idProperty: 'articleID',
 
     /**
      * Configure the data communication

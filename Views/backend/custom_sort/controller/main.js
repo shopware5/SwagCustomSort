@@ -200,7 +200,10 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         me.onSaveSettings();
 
-        me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId, sortBy: record }
+        me.subApplication.articleStore.getProxy().extraParams = {
+            categoryId: me.categoryId,
+            sortBy: record
+        };
         me.subApplication.articleStore.load({
             callback: function () {
                 list.setLoading(false);
@@ -532,7 +535,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             url: '{url controller="CustomSort" action="removeProduct"}',
             method: 'POST',
             params: {
-                articleId: record.get('id'),
+                articleId: record.get('articleID'),
                 categoryId: me.categoryId
             },
             success: function () {
