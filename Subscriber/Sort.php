@@ -109,8 +109,8 @@ class Sort implements SubscriberInterface
         $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
         $sortName = $categoryComponent->getFormattedSortName();
         $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
-        $sortId = (int) $request->getParam('sSort');
-        if ((!$useDefaultSort && $baseSort) || empty($sortName) || ($sortId !== null && $sortId !== SortFactory::DRAG_DROP_SORTING)) {
+        $sortId = $request->getParam('sSort');
+        if ((!$useDefaultSort && $baseSort) || empty($sortName) || ($sortId !== null && $sortId != SortFactory::DRAG_DROP_SORTING)) {
             return;
         }
 
