@@ -200,7 +200,10 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         me.onSaveSettings();
 
-        me.subApplication.articleStore.getProxy().extraParams = { categoryId: me.categoryId, sortBy: record }
+        me.subApplication.articleStore.getProxy().extraParams = {
+            categoryId: me.categoryId,
+            sortBy: record
+        };
         me.subApplication.articleStore.load({
             callback: function () {
                 list.setLoading(false);

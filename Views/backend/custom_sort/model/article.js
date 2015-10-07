@@ -24,7 +24,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
             name: 'thumbnail',
             type: 'string',
             convert: function (value, record) {
-                if(!record.get('path')) {
+                if (!record.get('path')) {
                     return '{link file="backend/_resources/images/index/no-picture.jpg"}';
                 } else {
                     return 'media/image/thumbnail/' + record.get('path') + '_140x140.' + record.get('extension');
@@ -39,7 +39,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
      *
      * @int
      */
-    idProperty : 'articleID',
+    idProperty: 'articleID',
 
     /**
      * Configure the data communication

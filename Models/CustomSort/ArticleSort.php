@@ -36,7 +36,6 @@ use Shopware\Components\Model\ModelEntity;
  */
 class ArticleSort extends ModelEntity
 {
-
     /**
      * @var integer $id
      *

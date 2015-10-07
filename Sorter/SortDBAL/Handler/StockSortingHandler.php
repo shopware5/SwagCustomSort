@@ -3,7 +3,6 @@
 namespace Shopware\SwagCustomSort\Sorter\SortDBAL\Handler;
 
 use Shopware\Bundle\SearchBundleDBAL\SortingHandlerInterface;
-
 use Shopware\Bundle\SearchBundle\SortingInterface;
 use Shopware\Bundle\StoreFrontBundle\Struct\ShopContextInterface;
 use Shopware\Bundle\SearchBundleDBAL\QueryBuilder;
@@ -27,12 +26,8 @@ class StockSortingHandler implements SortingHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function generateSorting(
-        SortingInterface $sorting,
-        QueryBuilder $query,
-        ShopContextInterface $context
-    ) {
-
+    public function generateSorting(SortingInterface $sorting, QueryBuilder $query, ShopContextInterface $context)
+    {
         $query->addOrderBy('variant.instock', $sorting->getDirection())
             ->addOrderBy('product.id', 'DESC');
     }

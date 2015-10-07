@@ -40,7 +40,6 @@ use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 
 class DragDropHandler implements SortingHandlerInterface
 {
-
     const SORTING_STOCK_ASC = 9;
     const SORTING_STOCK_DESC = 10;
 

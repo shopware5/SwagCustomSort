@@ -30,19 +30,13 @@ use Enlight_Controller_Request_Request as Request;
 use Enlight_Event_EventArgs;
 use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\Components\Model\ModelManager;
+use Shopware\SwagCustomSort\Components\Listing;
 use Shopware\SwagCustomSort\Components\Sorting;
 use Shopware\SwagCustomSort\Sorter\SortFactory;
-use \Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
-use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as PluginBootstrap;
-use Shopware\SwagCustomSort\Components\Listing;
+use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
 
 class Sort implements SubscriberInterface
 {
-    /**
-     * @var PluginBootstrap $bootstrap
-     */
-    private $bootstrap;
-
     /**
      * @var ModelManager $em
      */
@@ -54,15 +48,20 @@ class Sort implements SubscriberInterface
     private $sortingComponent;
 
     /**
-     * @param PluginBootstrap $bootstrap
+     * @var Listing $listingComponent
+     */
+    private $listingComponent;
+
+    /**
      * @param ModelManager $em
      * @param Sorting $sortingComponent
+     * @param Listing $listingComponent
      */
-    public function __construct(PluginBootstrap $bootstrap, ModelManager $em, Sorting $sortingComponent)
+    public function __construct(ModelManager $em, Sorting $sortingComponent, Listing $listingComponent)
     {
-        $this->bootstrap = $bootstrap;
         $this->em = $em;
         $this->sortingComponent = $sortingComponent;
+        $this->listingComponent = $listingComponent;
     }
 
     /**
@@ -99,18 +98,18 @@ class Sort implements SubscriberInterface
             return;
         }
 
-        /** @var Listing $categoryComponent */
-        $categoryComponent = $this->bootstrap->get('swagcustomsort.listing_component');
-        if (!$categoryComponent instanceof Listing) {
+        if (!$this->listingComponent instanceof Listing) {
             return;
         }
 
-        $categoryId = (int)$request->getParam('sCategory');
-        $useDefaultSort = $categoryComponent->showCustomSortAsDefault($categoryId);
-        $sortName = $categoryComponent->getFormattedSortName();
-        $baseSort = $categoryComponent->getCategoryBaseSort($categoryId);
+        $categoryId = (int) $request->getParam('sCategory');
+        $useDefaultSort = $this->listingComponent->showCustomSortAsDefault($categoryId);
+        $sortName = $this->listingComponent->getFormattedSortName();
+        $baseSort = $this->listingComponent->getCategoryBaseSort($categoryId);
         $sortId = $request->getParam('sSort');
-        if ((!$useDefaultSort && $baseSort) || empty($sortName) || ($sortId !== null && $sortId != SortFactory::DRAG_DROP_SORTING)) {
+        if ((!$useDefaultSort && $baseSort) || empty($sortName)
+            || ($sortId !== null && $sortId != SortFactory::DRAG_DROP_SORTING)
+        ) {
             return;
         }
 
@@ -122,7 +121,7 @@ class Sort implements SubscriberInterface
         $limit = (int) $criteria->getLimit();
 
         //Get all sorted products for current category and set them in components for further sorting
-        $linkedCategoryId = $categoryComponent->getLinkedCategoryId($categoryId);
+        $linkedCategoryId = $this->listingComponent->getLinkedCategoryId($categoryId);
         $sortedProducts = $this->em->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')
             ->getSortedProducts($categoryId, $linkedCategoryId);
         $this->sortingComponent->setSortedProducts($sortedProducts);
