@@ -126,7 +126,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
      */
     public function onStartDispatch()
     {
-        $container = Shopware()->Container();
+        $container = $this->get('service_container');
 
         $resourceSubscriber = new Resource($this->get('models'));
         $this->Application()->Events()->addSubscriber($resourceSubscriber);
