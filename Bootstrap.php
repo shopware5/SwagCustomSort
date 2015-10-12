@@ -89,6 +89,15 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
     }
 
     /**
+     * @param string $version
+     * @return bool
+     */
+    public function update($version)
+    {
+        return true;
+    }
+
+    /**
      * Standard plugin enable method
      *
      * @return array
