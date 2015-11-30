@@ -1,0 +1,34 @@
+{
+    "label": {
+        "de": "Individuelle Sortierung",
+        "en": "Custom sorting"
+    },
+    "copyright": "(c) by Shopware AG",
+    "license": "proprietary",
+    "link": "http://store.shopware.com",
+    "author": "Shopware AG",
+
+    "currentVersion": "1.0.3",
+
+    "changelog": {
+        "de": {
+            "1.0.3": "PT-4076 - Bugfix: Fehler beim Update;",
+            "1.0.2": "PT-3618 - Bugfix: Backendmodul Artikel ohne Bilder; PT-3828 - Bugfix: Fehler beim Sortieren von nicht gepinnten Artikeln; PT-3362, PT-3534 - Bugfix: Doppelte Artikel im Listing; PT-3402, PT-3428, PT-3881 - Bugfix: Kleinere Fehler und Verbesserungen;",
+            "1.0.1": "PT-3324 - Bugfix: Fehler mit Herstellerseiten;",
+            "1.0.0": "PT-2775 - Erstveröffentlichung;"
+        },
+        "en": {
+            "1.0.3": "PT-4076 - Bugfix: Error on update;",
+            "1.0.2": "PT-3618 - Bugfix: Backend module products without images; PT-3828 - Bugfix: Error on sorting of not pinned products; PT-3362, PT-3534 - Bugfix: doubled products at listing; PT-3402, PT-3428, PT-3881 - Bugfix: Minor issues and improvements;",
+            "1.0.1": "PT-3324 - Bugfix: Error on supplier pages;",
+            "1.0.0": "PT-2775 - First release;"
+        }
+    },
+
+    "compatibility": {
+        "minimumVersion": "5.0.0",
+        "maximumVersion": null,
+        "blacklist": [
+        ]
+    }
+}

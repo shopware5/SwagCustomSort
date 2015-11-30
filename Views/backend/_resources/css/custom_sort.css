@@ -1,0 +1,143 @@
+.swag-custom-sort-bold-checkbox {
+    font-weight: bold;
+}
+
+.swag-custom-sort-radiobtn-topmargin {
+    margin-top: 3px;
+    margin-left: 5px;
+}
+
+.x-article-sort .thumb {
+    float: left;
+    position: relative;
+    width: 175px;
+    height: 205px;
+    border: 1px solid #c7c7c7;
+    margin: 10px;
+    padding: 5px;
+    text-align: center;
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
+}
+
+.x-article-sort .thumb .detail {
+    position: absolute;
+    bottom: 0;
+    width: 95%;
+}
+
+.x-article-sort .thumb .pin {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    background-position: 0 -1044px !important
+}
+
+.x-article-sort .thumb .remove {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+.x-article-sort .thumb .pin,
+.x-article-sort .thumb .remove {
+    cursor: pointer;
+}
+
+.thumb .detail .paging {
+    margin: 0 auto;
+}
+
+.thumb .detail .paging span {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    background-image: url('../images/sprite-arrows.png');
+    background-repeat: no-repeat;
+}
+
+.detail .paging span.first {
+    background-position: 0 -198px;
+}
+
+.detail .paging span.first.disabled {
+    cursor: auto;
+    background-position: 0 -132px;
+}
+
+.detail .paging span.prev {
+    background-position: 0px -66px;
+}
+
+.detail .paging span.prev.disabled {
+    cursor: auto;
+    background-position: 0 0;
+}
+
+.detail .paging span.next {
+    background-position: 0px -462px;
+}
+
+.detail .paging span.next.disabled {
+    cursor: auto;
+    background-position: 0 -396px;
+}
+
+.detail .paging span.last {
+    background-position: 0px -330px;
+}
+
+.detail .paging span.last.disabled {
+    cursor: auto;
+    background-position: 0 -264px;
+}
+
+.x-article-sort .thumb span {
+    display: block;
+    width: 95%;
+    text-align: center;
+}
+
+.x-article-sort .thumb.x-item-selected {
+    -webkit-box-shadow: 0 0 5px #189eff;
+    -moz-box-shadow: 0 0 5px #189eff;
+    box-shadow: 0 0 5px #189eff;
+    border-color: #189eff;
+}
+
+.x-article-sort .thumb.drag-over:before {
+    position: absolute;
+    height: 205px;
+    left: -15px;
+    width: 8px;
+    top: -8px;
+    content: '';
+    background-image: url("data:image/gif;base64,R0lGODlhCAAHAMQfAEeTPUyaQonOfXDEZKTXmqLVmKbYnJ7TlHG2aJvRkYTJd2KsWHm/boXOfoDMeFmkTkaSPG7CY4LHeIHCd2W5WI7Pil+yU3+2eJ/UlZfPjojOgoXKeYjOfKrZoEaSPQAAACH5BAEAAB8ALAAAAAAIAAcAAAUk4CdGmmhKCteYCEN0gvNdz4QZ21CJS1JQpk8gc7AEAR4PRBQCADs="), url("data:image/gif;base64,R0lGODlhCAAHAMQfAEeTPUyaQonOfXDEZKTXmqLVmKbYnJ7TlHG2aJvRkYTJd2KsWHm/boXOfoDMeFmkTkaSPG7CY4LHeIHCd2W5WI7Pil+yU3+2eJ/UlZfPjojOgoXKeYjOfKrZoEaSPQAAACH5BAEAAB8ALAAAAAAIAAcAAAUl4PcBngeJYpAdFvotSUGJ1zNhxjZUH8IQHYEDJVFwGq5PRIMKAQA7"), url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAIAAAB7QOjdAAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wFEw8kDadh29MAAAAdaVRYdENvbW1lbnQAAAAAAENyZWF0ZWQgd2l0aCBHSU1QZC5lBwAAAA9JREFUCNdjLN9TyMDAAAAISAGmeGPMqAAAAABJRU5ErkJggg==");
+    background-repeat: no-repeat, no-repeat, repeat-y;
+    background-position: left bottom, left top, 3px top;
+}
+
+.x-article-sort .empty-text {
+    box-shadow: #f5f7f8 0 1px 0px 0 inset, #f5f7f8 0 -1px 0px 0 inset, #f5f7f8 -1px 0 0px 0 inset, #f5f7f8 1px 0 0px 0 inset;
+    top: 50%;
+    left: 50%;
+    width: 150px;
+    margin: 0 0 0 -75px;
+    position: absolute;
+    border: 1px solid #c9cfd4;
+    padding: 6px;
+}
+
+.x-article-sort .empty-text span {
+    display: block;
+    background: #f0f2f4;
+    color: #668498;
+    text-shadow: 0 1px 0 #ffffff;
+    font: 11px/18px Arial, Verdana, sans-serif;
+    text-align: center;
+    padding: 4px 0;
+}
