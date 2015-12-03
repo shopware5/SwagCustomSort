@@ -30,7 +30,7 @@ The new sortings will be displayed in the frontend with their chosen name. The n
 
 ## Images
 <img src="image1.jpg" alt="Backend" style="width: 500px;"/>
-<img src="image1.jpg" alt="Frontend" style="width: 500px;"/>
+<img src="image2.jpg" alt="Frontend" style="width: 500px;"/>
 
 ## License
 
