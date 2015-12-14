@@ -1,7 +1,6 @@
 # SwagCustomSort
-
-## Supported versions
-Shopware version 5.0.0 or higher
+> Working with Shopware version 5.0.0 to 5.1.1.
+> Higher versions may work either but were not tested.
 
 ## Description 
 Do you want to comletely customize the sort order of the article listing?
