@@ -29,6 +29,9 @@ The new sortings will be displayed in the frontend with their chosen name. The n
 * the amount of products is customizable for a better overview (from 10 to all articles)
 * displaying as own sorting entry in the frontend
 
+**Requirements:**
+
+* You need to create product thumbnails of the size 140x140 in the media manager.
 
 ## Images
 <img src="image1.jpg" alt="Backend" style="width: 500px;"/>

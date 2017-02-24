@@ -27,7 +27,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
                 if (!record.get('path')) {
                     return '{link file="backend/_resources/images/index/no-picture.jpg"}';
                 } else {
-                    return 'media/image/thumbnail/' + record.get('path') + '_140x140.' + record.get('extension');
+                    return record.get('path');
                 }
             }
         },
