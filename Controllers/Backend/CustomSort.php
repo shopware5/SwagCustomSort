@@ -62,6 +62,26 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     protected $categoryIdCollection;
 
     /**
+     * Convert a given virtual media path to its real URL used in the
+     * media repository for Shopware versions >= 5.1.0 (which introduced the
+     * MediaService).
+     * For older versions the path matches the filesystem structure.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    private function getMediaPath($path)
+    {
+        if (version_compare(Shopware()->Config()->get('Version'), '5.1', '<')) {
+            return $path;
+        }
+        /** @var Shopware\Bundle\MediaBundle\MediaService $mediaService */
+        $mediaService = $this->get('shopware_media.media_service');
+        return $mediaService->getUrl($path);
+    }
+
+    /**
      * Returns sort repository
      *
      * @return CustomSortRepository
@@ -146,6 +166,12 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $getUnsortedProducts = $builder->execute()->fetchAll();
             $result = $sorting->sortProducts($getUnsortedProducts, $offset, $limit);
 
+            $result = array_map(function ($resultElement) {
+                $resultElement['path'] = $this->getMediaPath(
+                    'media/image/thumbnail/' . $resultElement['path'] . '_140x140.' . $resultElement['extension']
+                );
+                return $resultElement;
+            }, $result);
             $this->View()->assign(['success' => true, 'data' => $result, 'total' => $total['Total']]);
         } catch (\Exception $ex) {
             $this->View()->assign(['success' => false, 'message' => $ex->getMessage()]);
