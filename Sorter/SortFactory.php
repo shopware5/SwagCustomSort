@@ -17,10 +17,14 @@ class SortFactory
 {
     const DRAG_DROP_SORTING = 8;
 
-    private $request = null;
+    private $request;
 
-    private $criteria = null;
+    private $criteria;
 
+    /**
+     * @param Request  $request
+     * @param Criteria $criteria
+     */
     public function __construct(Request $request, Criteria $criteria)
     {
         $this->request = $request;
@@ -28,7 +32,7 @@ class SortFactory
     }
 
     /**
-     * @return Request|null
+     * @return Request
      */
     public function getRequest()
     {
@@ -36,7 +40,7 @@ class SortFactory
     }
 
     /**
-     * @return Criteria|null
+     * @return Criteria
      */
     public function getCriteria()
     {

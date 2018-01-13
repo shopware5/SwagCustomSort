@@ -17,12 +17,12 @@ class ListProductService implements ListProductServiceInterface
     /**
      * @var ListProductServiceInterface
      */
-    private $coreService = null;
+    private $coreService;
 
     /**
      * @var Sorting
      */
-    private $sortingComponent = null;
+    private $sortingComponent;
 
     /**
      * @param ListProductServiceInterface $coreService
@@ -35,10 +35,7 @@ class ListProductService implements ListProductServiceInterface
     }
 
     /**
-     * @param string                         $number
-     * @param Struct\ProductContextInterface $context
-     *
-     * @return Struct\ListProduct
+     * {@inheritdoc}
      */
     public function get($number, Struct\ProductContextInterface $context)
     {
@@ -48,17 +45,12 @@ class ListProductService implements ListProductServiceInterface
     }
 
     /**
-     * @param array                          $numbers
-     * @param Struct\ProductContextInterface $context
-     *
-     * @return Struct\ListProduct[]
+     * {@inheritdoc}
      */
     public function getList(array $numbers, Struct\ProductContextInterface $context)
     {
         $getSortedNumbers = $this->sortingComponent->sortByNumber($numbers);
 
-        $products = $this->coreService->getList($getSortedNumbers, $context);
-
-        return $products;
+        return $this->coreService->getList($getSortedNumbers, $context);
     }
 }

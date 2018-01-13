@@ -1,5 +1,5 @@
-//{namespace name="backend/custom_sort/main"}
-//{block name="backend/custom_sort/controller/main"}
+// {namespace name="backend/custom_sort/main"}
+// {block name="backend/custom_sort/controller/main"}
 Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
     /**
@@ -21,8 +21,8 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * @array
      */
     refs: [
-        { ref: 'articleView', selector: 'sort-articles-view' },
-        { ref: 'articleList', selector: 'sort-articles-list' }
+        { ref: 'productView', selector: 'sort-products-view' },
+        { ref: 'productList', selector: 'sort-products-list' }
     ],
 
     /**
@@ -39,7 +39,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         me.subApplication.treeStore = me.subApplication.getStore('Tree');
         me.subApplication.treeStore.load();
 
-        me.subApplication.articleStore = me.subApplication.getStore('Article');
+        me.subApplication.productStore = me.subApplication.getStore('Product');
 
         me.subApplication.categorySettings = me.subApplication.getStore('Settings');
 
@@ -47,18 +47,18 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             'sort-category-tree': {
                 itemclick: me.onCategorySelect
             },
-            'sort-articles-view': {
+            'sort-products-view': {
                 defaultSort: me.onSaveSettings,
                 sortChange: me.onSortChange,
                 categoryLink: me.onSaveSettings
             },
-            'sort-articles-list': {
+            'sort-products-list': {
                 pageChange: me.onPageChange,
                 moveToStart: me.onMoveToStart,
                 moveToEnd: me.onMoveToEnd,
                 moveToPrevPage: me.onMoveToPrevPage,
                 moveToNextPage: me.onMoveToNextPage,
-                articleMove: me.onArticleMove,
+                productMove: me.onProductMove,
                 unpin: me.onUnpin,
                 remove: me.onRemove
             }
@@ -66,7 +66,7 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
         me.mainWindow = me.getView('main.Window').create({
             treeStore: me.subApplication.treeStore,
-            articleStore: me.subApplication.articleStore,
+            productStore: me.subApplication.productStore,
             categorySettings: me.subApplication.categorySettings
         }).show();
 
@@ -74,12 +74,12 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     /**
-     * Event listener function of the article list panel.
+     * Event listener function of the product list panel.
      * Fired when the user uses paging navigation.
      */
     onPageChange: function () {
         var me = this,
-            list = me.getArticleList();
+            list = me.getProductList();
 
         list.setLoading(true);
     },
@@ -88,15 +88,15 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
      * Event listener function of the category tree panel.
      * Fired when the user select category from category tree.
      *
-     * @param [object] view - Ext.view.View
-     * @param [Ext.data.Model] The selected record
+     * @param { object } view - Ext.view.View
+     * @param { Ext.data.Model } record The selected record
      */
     onCategorySelect: function (view, record) {
         var me = this,
-            grid = me.getArticleView(),
-            list = me.getArticleList();
+            grid = me.getProductView(),
+            list = me.getProductList();
 
-        //Hide grid buttons on category select
+        // Hide grid buttons on category select
         grid.setDisabled(true);
         list.setDisabled(true);
         list.setLoading(true);
@@ -126,20 +126,20 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                         list.setDisabled(false);
                     }
 
-                    me.subApplication.articleStore.getProxy().extraParams = {
+                    me.subApplication.productStore.getProxy().extraParams = {
                         categoryId: me.categoryId,
                         sortBy: baseSort
                     };
-                    me.subApplication.articleStore.filters.clear();
-                    me.subApplication.articleStore.currentPage = 1;
-                    me.subApplication.articleStore.load();
+                    me.subApplication.productStore.filters.clear();
+                    me.subApplication.productStore.currentPage = 1;
+                    me.subApplication.productStore.load();
 
                     grid.sorting.setValue(baseSort);
                 }
             }
         });
 
-        me.subApplication.articleStore.on('load', function () {
+        me.subApplication.productStore.on('load', function () {
             list.setLoading(false);
         });
     },
@@ -147,22 +147,22 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     /**
      * Prepare combo tree if selected category is linked to another category.
      *
-     * @param [integer] linkedCategoryId
-     * @returns [boolean]
+     * @param { integer } linkedCategoryId
+     * @returns { boolean }
      */
     prepareTreeCombo: function (linkedCategoryId) {
         var me = this,
-            comboBox = me.getArticleView().categoryTreeCombo,
+            comboBox = me.getProductView().categoryTreeCombo,
             treePanel = comboBox.getPicker(),
             treeStore = treePanel.getStore();
 
-        //clear tree selection if it is not linked
+        // clear tree selection if it is not linked
         if (!linkedCategoryId) {
             treePanel.collapseAll();
             comboBox.setRawValue();
         }
 
-        //helper function for selecting tree node
+        // helper function for selecting tree node
         var selectNode = function () {
             var node = treeStore.getNodeById(linkedCategoryId);
             if (node) {
@@ -172,39 +172,39 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             }
         };
 
-        //load whole category tree
+        // load whole category tree
         treeStore.on('load', function () {
             treePanel.expandAll();
             treePanel.collapseAll();
 
-            //select tree node on first load
+            // select tree node on first load
             selectNode();
         });
 
-        //select tree node on change
+        // select tree node on change
         selectNode();
         return true;
     },
 
     /**
      * Event listener function of the sort combobox.
-     * Fired when the user change sorting of articles in article view panel.
+     * Fired when the user change sorting of products in product view panel.
      *
-     * @param [Ext.data.Model] The selected record
+     * @param { Ext.data.Model } record The selected record
      */
     onSortChange: function (record) {
         var me = this,
-            list = me.getArticleList();
+            list = me.getProductList();
 
         list.setLoading(true);
 
         me.onSaveSettings();
 
-        me.subApplication.articleStore.getProxy().extraParams = {
+        me.subApplication.productStore.getProxy().extraParams = {
             categoryId: me.categoryId,
             sortBy: record
         };
-        me.subApplication.articleStore.load({
+        me.subApplication.productStore.load({
             callback: function () {
                 list.setLoading(false);
             }
@@ -212,13 +212,13 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     /**
-     * Event listener function of the article view panel.
+     * Event listener function of the product view panel.
      * Fired when the user change default display or linked category
      */
     onSaveSettings: function () {
         var me = this,
-            grid = me.getArticleView(),
-            list = me.getArticleList(),
+            grid = me.getProductView(),
+            list = me.getProductList(),
             form = grid.getForm(),
             record = form.getRecord(),
             values = form.getValues();
@@ -245,84 +245,84 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
 
     /**
      *
-     * @param [Ext.data.Store] The article store
+     * @param { Ext.data.Store } productStore
      */
-    onMoveToStart: function (articleStore) {
-        if (!articleStore instanceof Ext.data.Store) {
+    onMoveToStart: function (productStore) {
+        if (!(productStore instanceof Ext.data.Store)) {
             return false;
         }
 
         var me = this,
-            list = me.getArticleList(),
+            list = me.getProductList(),
             selectedRecords = list.dataView.getSelectionModel().getSelection(),
             oldPosition = null;
 
         list.setLoading(true);
 
         selectedRecords.forEach(function (record, index) {
-            if (!record instanceof Ext.data.Model) {
+            if (!(record instanceof Ext.data.Model)) {
                 return false;
             }
 
-            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+            oldPosition = productStore.indexOf(record) + ((productStore.currentPage - 1) * productStore.pageSize);
             record.set('position', index);
             record.set('oldPosition', oldPosition);
             record.set('pin', 1);
         });
 
-        me.onSaveArticles(articleStore);
+        me.onSaveProducts(productStore);
 
         return true;
     },
 
     /**
-     * Event listener function of the article list.
+     * Event listener function of the product list.
      * Fired when the user click on "move to end" fast move icon.
      *
-     * @param [Ext.data.Store] The article store
+     * @param { Ext.data.Store } productStore
      */
-    onMoveToEnd: function (articleStore) {
-        if (!articleStore instanceof Ext.data.Store) {
+    onMoveToEnd: function (productStore) {
+        if (!(productStore instanceof Ext.data.Store)) {
             return false;
         }
 
         var me = this,
-            list = me.getArticleList(),
+            list = me.getProductList(),
             selectedRecords = list.dataView.getSelectionModel().getSelection(),
             oldPosition = null,
-            total = articleStore.getTotalCount() - 1;
+            total = productStore.getTotalCount() - 1;
 
         list.setLoading(true);
 
         selectedRecords.forEach(function (record, index) {
-            if (!record instanceof Ext.data.Model) {
+            if (!(record instanceof Ext.data.Model)) {
                 return false;
             }
 
-            oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
+            oldPosition = productStore.indexOf(record) + ((productStore.currentPage - 1) * productStore.pageSize);
             record.set('position', total - index);
             record.set('oldPosition', oldPosition);
             record.set('pin', 1);
         });
 
-        me.onSaveArticles(articleStore);
+        me.onSaveProducts(productStore);
 
         return true;
     },
 
     /**
-     * Event listener function of the article list.
+     * Event listener function of the product list.
      * Fired when the user click on "move to prev page" fast move icon.
      *
-     * @param [Ext.data.Store] The article store
+     * @param { Ext.data.Store } productStore
      */
-    onMoveToPrevPage: function (articleStore) {
-        if (!articleStore instanceof Ext.data.Store) {
+    onMoveToPrevPage: function (productStore) {
+        if (!(productStore instanceof Ext.data.Store)) {
             return false;
         }
 
         var me = this,
-            list = me.getArticleList(),
+            list = me.getProductList(),
             selectedRecords = list.dataView.getSelectionModel().getSelection(),
             oldPosition = null,
             position = null,
@@ -331,20 +331,20 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         list.setLoading(true);
 
         selectedRecords.forEach(function (record) {
-            if (!record instanceof Ext.data.Model) {
+            if (!(record instanceof Ext.data.Model)) {
                 return false;
             }
 
-            if (articleStore.allProductsPageSize && articleStore.indexOf(record) < articleStore.allProductsPageSize) {
+            if (productStore.allProductsPageSize && productStore.indexOf(record) < productStore.allProductsPageSize) {
                 return true;
             }
 
-            if (articleStore.allProductsPageSize) { //all products mode
-                oldPosition = articleStore.indexOf(record);
-                position = oldPosition - articleStore.allProductsPageSize;
+            if (productStore.allProductsPageSize) { // all products mode
+                oldPosition = productStore.indexOf(record);
+                position = oldPosition - productStore.allProductsPageSize;
             } else {
-                oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
-                position = ((articleStore.currentPage - 1) * articleStore.pageSize) - count;
+                oldPosition = productStore.indexOf(record) + ((productStore.currentPage - 1) * productStore.pageSize);
+                position = ((productStore.currentPage - 1) * productStore.pageSize) - count;
             }
 
             record.set('oldPosition', oldPosition);
@@ -353,24 +353,24 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             count--;
         });
 
-        me.onSaveArticles(articleStore);
+        me.onSaveProducts(productStore);
 
         return true;
     },
 
     /**
-     * Event listener function of the article list.
+     * Event listener function of the product list.
      * Fired when the user click on "move to next page" fast move icon.
      *
-     * @param [Ext.data.Store] The article store
+     * @param { Ext.data.Store } productStore
      */
-    onMoveToNextPage: function (articleStore) {
-        if (!articleStore instanceof Ext.data.Store) {
+    onMoveToNextPage: function (productStore) {
+        if (!(productStore instanceof Ext.data.Store)) {
             return false;
         }
 
         var me = this,
-            list = me.getArticleList(),
+            list = me.getProductList(),
             selectedRecords = list.dataView.getSelectionModel().getSelection(),
             oldPosition = null,
             position = null;
@@ -378,20 +378,20 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         list.setLoading(true);
 
         selectedRecords.forEach(function (record, index) {
-            if (!record instanceof Ext.data.Model) {
+            if (!(record instanceof Ext.data.Model)) {
                 return false;
             }
 
-            if (articleStore.allProductsPageSize && articleStore.indexOf(record) >= (articleStore.totalCount - articleStore.allProductsPageSize)) {
+            if (productStore.allProductsPageSize && productStore.indexOf(record) >= (productStore.totalCount - productStore.allProductsPageSize)) {
                 return true;
             }
 
-            if (articleStore.allProductsPageSize) { //all products mode
-                oldPosition = articleStore.indexOf(record);
-                position = oldPosition + articleStore.allProductsPageSize;
+            if (productStore.allProductsPageSize) { // all products mode
+                oldPosition = productStore.indexOf(record);
+                position = oldPosition + productStore.allProductsPageSize;
             } else {
-                oldPosition = articleStore.indexOf(record) + ((articleStore.currentPage - 1) * articleStore.pageSize);
-                position = (articleStore.currentPage * articleStore.pageSize) + index;
+                oldPosition = productStore.indexOf(record) + ((productStore.currentPage - 1) * productStore.pageSize);
+                position = (productStore.currentPage * productStore.pageSize) + index;
             }
 
             record.set('oldPosition', oldPosition);
@@ -399,38 +399,37 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
             record.set('pin', 1);
         });
 
-        me.onSaveArticles(articleStore);
+        me.onSaveProducts(productStore);
 
         return true;
     },
 
     /**
-     * Event listener function of the article view list.
-     * Fired when the user move selected articles.
+     * Event listener function of the product view list.
+     * Fired when the user move selected products.
      *
-     * @param [Ext.data.Store] The article store
-     * @param [Array] Array with selected article in article view list
-     * @param [Shopware.apps.Article.model.Article] The target record, on which the dragged record dropped
+     * @param { Ext.data.Store } productStore
+     * @param { Array } productModel Array with selected product in product view list
+     * @param { Shopware.apps.Article.model.Article} targetRecord The target record, on which the dragged record dropped
      */
-    onArticleMove: function (articleStore, articleModel, targetRecord) {
+    onProductMove: function (productStore, productModel, targetRecord) {
         var me = this,
-            list = me.getArticleList(),
-            startPosition = (articleStore.currentPage - 1) * articleStore.pageSize;
+            list = me.getProductList(),
+            startPosition = (productStore.currentPage - 1) * productStore.pageSize;
 
-        if (!articleStore instanceof Ext.data.Store
-            || !targetRecord instanceof Ext.data.Model) {
+        if (!(productStore instanceof Ext.data.Store) ||
+            !(targetRecord instanceof Ext.data.Model)) {
             return false;
         }
 
         list.setLoading(true);
-        var count = articleModel.length;
+        var count = productModel.length;
         if (count > 0) {
-
-            var positionIndex = articleStore.indexOf(targetRecord) + startPosition;
+            var positionIndex = productStore.indexOf(targetRecord) + startPosition;
 
             var forward = [], backward = [], temp = 0;
-            Ext.each(articleModel, function (record) {
-                var oldPosition = articleStore.indexOf(record) + startPosition;
+            Ext.each(productModel, function (record) {
+                var oldPosition = productStore.indexOf(record) + startPosition;
                 if (oldPosition < positionIndex) {
                     forward.push(record);
                 }
@@ -440,14 +439,14 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 }
             });
 
-            Ext.each(articleModel, function (record, index) {
-                if (!record instanceof Ext.data.Model) {
+            Ext.each(productModel, function (record, index) {
+                if (!(record instanceof Ext.data.Model)) {
                     return;
                 }
 
                 var oldPosition, position;
 
-                oldPosition = articleStore.indexOf(record) + startPosition;
+                oldPosition = productStore.indexOf(record) + startPosition;
                 if (oldPosition < positionIndex) {
                     position = positionIndex - forward.length + index;
                 }
@@ -461,44 +460,42 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
                 record.set('oldPosition', oldPosition);
                 record.set('pin', 1);
             });
-
         }
 
-        me.onSaveArticles(articleStore);
+        me.onSaveProducts(productStore);
     },
 
     /**
-     * Event listener function of the article view list.
-     * Fired when the user move article in view list or use fast move buttons.
+     * Event listener function of the product view list.
+     * Fired when the user move product in view list or use fast move buttons.
      *
-     * @param [Ext.data.Store] The article store
+     * @param { Ext.data.Store } productStore
      */
-    onSaveArticles: function (articleStore) {
-        articleStore.update();
+    onSaveProducts: function (productStore) {
+        productStore.update();
     },
 
     /**
-     * Event listener function of the article view list.
-     * Fired when the user click on unpin icon on article.
+     * Event listener function of the product view list.
+     * Fired when the user click on unpin icon on product.
      *
-     * @param [Ext.data.Store] The article store
-     * @param [Ext.data.Model] The selected record
-     * @param [boolean]
+     * @param { Ext.data.Store } productStore
+     * @param { Ext.data.Model } record The selected record
      */
-    onUnpin: function (articleStore, record) {
+    onUnpin: function (productStore, record) {
         var me = this,
-            list = me.getArticleList();
+            list = me.getProductList();
 
-        if (!articleStore instanceof Ext.data.Store || !record instanceof Ext.data.Model) {
+        if (!(productStore instanceof Ext.data.Store) || !(record instanceof Ext.data.Model)) {
             return false;
         }
 
         list.setLoading(true);
 
-        var store = articleStore;
+        var store = productStore;
         record.set('pin', 0);
-        articleStore.remove(record);
-        articleStore.sync({
+        productStore.remove(record);
+        productStore.sync({
             success: function () {
                 Shopware.Notification.createGrowlMessage('{s name=main/success/title}Success{/s}', '{s name=main/success/message}Successfully applied changes{/s}');
             },
@@ -512,30 +509,29 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
     },
 
     /**
-     * Event listener function of the article view list.
-     * Fired when the user click on remove icon on article.
+     * Event listener function of the product view list.
+     * Fired when the user click on remove icon on product.
      *
-     * @param [Ext.data.Store] The article store
-     * @param [Ext.data.Model] The selected record
-     * @param [boolean]
+     * @param { Ext.data.Store } productStore
+     * @param { Ext.data.Model } record The selected record
      */
-    onRemove: function (articleStore, record) {
+    onRemove: function (productStore, record) {
         var me = this,
-            list = me.getArticleList();
+            list = me.getProductList();
 
-        if (!articleStore instanceof Ext.data.Store || !record instanceof Ext.data.Model) {
+        if (!(productStore instanceof Ext.data.Store) || !(record instanceof Ext.data.Model)) {
             return false;
         }
 
         list.setLoading(true);
 
-        var store = articleStore;
+        var store = productStore;
 
         Ext.Ajax.request({
             url: '{url controller="CustomSort" action="removeProduct"}',
             method: 'POST',
             params: {
-                articleId: record.get('articleID'),
+                productId: record.get('productId'),
                 categoryId: me.categoryId
             },
             success: function () {
@@ -550,4 +546,4 @@ Ext.define('Shopware.apps.CustomSort.controller.Main', {
         return true;
     }
 });
-//{/block}
+// {/block}

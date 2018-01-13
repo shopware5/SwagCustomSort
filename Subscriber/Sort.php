@@ -13,6 +13,7 @@ use Enlight_Controller_Request_Request as Request;
 use Enlight_Event_EventArgs;
 use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\Components\Model\ModelManager;
+use Shopware\CustomModels\CustomSort\ProductSort;
 use Shopware\SwagCustomSort\Components\Listing;
 use Shopware\SwagCustomSort\Components\Sorting;
 use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
@@ -48,9 +49,7 @@ class Sort implements SubscriberInterface
     }
 
     /**
-     * Returns an array of event names this subscriber wants to listen to.
-     *
-     * @return array The event names to listen to
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
@@ -77,7 +76,7 @@ class Sort implements SubscriberInterface
         $allowedActions = ['index', 'ajaxListing', 'productNavigation'];
 
         //Don't apply custom sort if we are not in category listing
-        if (!in_array($request->getActionName(), $allowedActions)) {
+        if (!in_array($request->getActionName(), $allowedActions, true)) {
             return;
         }
 
@@ -91,12 +90,12 @@ class Sort implements SubscriberInterface
         $baseSort = $this->listingComponent->getCategoryBaseSort($categoryId);
         $sortId = $request->getParam('sSort');
 
-        if ($request->getParam('sSort') == SortFactory::DRAG_DROP_SORTING) {
+        if ((int) $sortId === SortFactory::DRAG_DROP_SORTING) {
             $useDefaultSort = true;
         }
 
         if ((!$useDefaultSort && $baseSort) || empty($sortName)
-            || ($sortId !== null && $sortId != SortFactory::DRAG_DROP_SORTING)
+            || ($sortId !== null && (int) $sortId !== SortFactory::DRAG_DROP_SORTING)
         ) {
             return;
         }
@@ -110,7 +109,7 @@ class Sort implements SubscriberInterface
 
         //Get all sorted products for current category and set them in components for further sorting
         $linkedCategoryId = $this->listingComponent->getLinkedCategoryId($categoryId);
-        $sortedProducts = $this->em->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')
+        $sortedProducts = $this->em->getRepository(ProductSort::class)
             ->getSortedProducts($categoryId, $linkedCategoryId);
         $this->sortingComponent->setSortedProducts($sortedProducts);
 

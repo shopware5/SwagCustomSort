@@ -21,11 +21,6 @@ class Sorting
     private $sortedProductsIds = [];
 
     /**
-     * @var array
-     */
-    private $sortedProductsNumber = [];
-
-    /**
      * @var int
      */
     private $offset = 0;
@@ -49,17 +44,17 @@ class Sorting
         //Contain all products
         $allUnsortedProducts = [];
         foreach ($allProducts as $product) {
-            $allUnsortedProducts[$product['articleID']] = $product;
+            $allUnsortedProducts[$product['productId']] = $product;
         }
 
         $result = [];
         foreach ($this->getSortedProducts() as $sort) {
-            $articleId = $sort['articleID'];
+            $productId = $sort['productId'];
             $position = $sort['position'];
             if ($position >= $offset && $position <= ($limit + $offset)) {
                 $result[$position] = $sort;
             }
-            unset($allUnsortedProducts[$articleId]);
+            unset($allUnsortedProducts[$productId]);
         }
 
         $i = $offset;
@@ -101,7 +96,7 @@ class Sorting
         $result = [];
         foreach ($sortedProducts as $sort) {
             //Remove unsorted product if sorted one exists
-            $num = array_search($sort['ordernumber'], $numbers);
+            $num = array_search($sort['ordernumber'], $numbers, true);
             if ($num) {
                 unset($numbers[$num]);
             }
@@ -124,34 +119,22 @@ class Sorting
 
         ksort($result);
 
-        $getLimitedResult = array_slice($result, 0, $this->limit);
-
-        return $getLimitedResult;
-    }
-
-    /**
-     * Return data for all sorted products
-     *
-     * @return array
-     */
-    public function getSortedProducts()
-    {
-        return $this->sortedProducts;
+        return array_slice($result, 0, $this->limit);
     }
 
     /**
      * Set proper position of sorted products
      *
-     * @param $sortedProducts
+     * @param array $sortedProducts
      */
-    public function setSortedProducts($sortedProducts)
+    public function setSortedProducts(array $sortedProducts)
     {
         if ($sortedProducts) {
             foreach ($sortedProducts as $sortedProduct) {
                 $position = $sortedProduct['position'];
 
                 $this->sortedProducts[$position] = $sortedProduct;
-                $this->sortedProductsIds[] = $sortedProduct['articleID'];
+                $this->sortedProductsIds[] = $sortedProduct['productId'];
             }
         }
     }
@@ -167,16 +150,6 @@ class Sorting
     }
 
     /**
-     * Return array with all sorted products
-     *
-     * @return array
-     */
-    public function getSortedProductsNumbers()
-    {
-        return $this->sortedProductsNumber;
-    }
-
-    /**
      * Return new offset by counting sorted products for in previous pages
      *
      * @param int $offset
@@ -187,7 +160,7 @@ class Sorting
      */
     public function getOffset($offset, $page, $limit)
     {
-        $page = $page - 1;
+        --$page;
         while ($page >= 1) {
             $min = ($page - 1) * $limit;
             $max = $page * $limit;
@@ -228,5 +201,15 @@ class Sorting
     public function getTotalCount()
     {
         return count($this->getSortedProducts());
+    }
+
+    /**
+     * Return data for all sorted products
+     *
+     * @return array
+     */
+    private function getSortedProducts()
+    {
+        return $this->sortedProducts;
     }
 }

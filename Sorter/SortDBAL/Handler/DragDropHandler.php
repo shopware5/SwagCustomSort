@@ -40,9 +40,7 @@ class DragDropHandler implements SortingHandlerInterface
     }
 
     /**
-     * @param SortingInterface $sorting
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function supportsSorting(SortingInterface $sorting)
     {
@@ -50,11 +48,7 @@ class DragDropHandler implements SortingHandlerInterface
     }
 
     /**
-     * @param SortingInterface     $sorting
-     * @param QueryBuilder         $query
-     * @param ShopContextInterface $context
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function generateSorting(SortingInterface $sorting, QueryBuilder $query, ShopContextInterface $context)
     {
@@ -74,17 +68,17 @@ class DragDropHandler implements SortingHandlerInterface
         if ($linkedCategoryId) {
             $query->leftJoin(
                 'productCategory',
-                's_articles_sort',
+                's_products_sort',
                 'customSort',
-                'customSort.articleId = productCategory.articleID AND (customSort.categoryId = :sortCategoryId OR customSort.categoryId IS NULL)'
+                'customSort.productId = productCategory.articleID AND (customSort.categoryId = :sortCategoryId OR customSort.categoryId IS NULL)'
             );
             $query->setParameter('sortCategoryId', $linkedCategoryId);
         } else {
             $query->leftJoin(
                 'productCategory',
-                's_articles_sort',
+                's_products_sort',
                 'customSort',
-                'customSort.articleId = productCategory.articleID AND (customSort.categoryId = productCategory.categoryID OR customSort.categoryId IS NULL)'
+                'customSort.productId = productCategory.articleID AND (customSort.categoryId = productCategory.categoryID OR customSort.categoryId IS NULL)'
             );
         }
 
@@ -105,9 +99,11 @@ class DragDropHandler implements SortingHandlerInterface
     /**
      * @param $defaultSort
      *
+     * @throws \RuntimeException
+     *
      * @return array
      */
-    protected function getDefaultData($defaultSort)
+    private function getDefaultData($defaultSort)
     {
         switch ($defaultSort) {
             case StoreFrontCriteriaFactory::SORTING_RELEASE_DATE:
@@ -155,6 +151,9 @@ class DragDropHandler implements SortingHandlerInterface
                     'handler' => new StockSortingHandler(),
                     'direction' => 'DESC',
                 ];
+
+            default:
+                throw new \RuntimeException('No matching sort found');
         }
     }
 }

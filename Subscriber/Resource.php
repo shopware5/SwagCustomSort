@@ -63,9 +63,9 @@ class Resource implements SubscriberInterface
     }
 
     /**
-     * returns new instance of Listing
+     * returns new instance of Sorting
      *
-     * @return Listing
+     * @return Sorting
      */
     public function onInitSortingComponent()
     {

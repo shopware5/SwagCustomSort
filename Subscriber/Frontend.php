@@ -33,6 +33,9 @@ class Frontend implements SubscriberInterface
         $this->bootstrap = $bootstrap;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return [

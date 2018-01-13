@@ -11,7 +11,6 @@ namespace Shopware\SwagCustomSort\Bundle\SearchBundle;
 use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\Bundle\SearchBundle\ProductNumberSearchResult;
 use Shopware\Bundle\SearchBundle\ProductSearchInterface;
-use Shopware\Bundle\SearchBundle\ProductSearchResult;
 use Shopware\Bundle\StoreFrontBundle\Struct;
 use Shopware\SwagCustomSort\Components\Sorting;
 
@@ -43,13 +42,7 @@ class SortProductSearch implements ProductSearchInterface
     }
 
     /**
-     * Creates a search request on the internal search gateway to
-     * get the product result for the passed criteria object.
-     *
-     * @param Criteria                       $criteria
-     * @param Struct\ProductContextInterface $context
-     *
-     * @return ProductSearchResult
+     * {@inheritdoc}
      */
     public function search(Criteria $criteria, Struct\ProductContextInterface $context)
     {

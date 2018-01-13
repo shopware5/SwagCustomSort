@@ -7,7 +7,7 @@
     margin-left: 5px;
 }
 
-.x-article-sort .thumb {
+.x-product-sort .thumb {
     float: left;
     position: relative;
     width: 175px;
@@ -21,13 +21,13 @@
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
 }
 
-.x-article-sort .thumb .detail {
+.x-product-sort .thumb .detail {
     position: absolute;
     bottom: 0;
     width: 95%;
 }
 
-.x-article-sort .thumb .pin {
+.x-product-sort .thumb .pin {
     position: absolute;
     top: 5px;
     right: 10px;
@@ -36,14 +36,14 @@
     background-position: 0 -1044px !important
 }
 
-.x-article-sort .thumb .remove {
+.x-product-sort .thumb .remove {
     display: block;
     width: 16px;
     height: 16px;
 }
 
-.x-article-sort .thumb .pin,
-.x-article-sort .thumb .remove {
+.x-product-sort .thumb .pin,
+.x-product-sort .thumb .remove {
     cursor: pointer;
 }
 
@@ -70,7 +70,7 @@
 }
 
 .detail .paging span.prev {
-    background-position: 0px -66px;
+    background-position: 0 -66px;
 }
 
 .detail .paging span.prev.disabled {
@@ -79,7 +79,7 @@
 }
 
 .detail .paging span.next {
-    background-position: 0px -462px;
+    background-position: 0 -462px;
 }
 
 .detail .paging span.next.disabled {
@@ -88,7 +88,7 @@
 }
 
 .detail .paging span.last {
-    background-position: 0px -330px;
+    background-position: 0 -330px;
 }
 
 .detail .paging span.last.disabled {
@@ -96,20 +96,20 @@
     background-position: 0 -264px;
 }
 
-.x-article-sort .thumb span {
+.x-product-sort .thumb span {
     display: block;
     width: 95%;
     text-align: center;
 }
 
-.x-article-sort .thumb.x-item-selected {
+.x-product-sort .thumb.x-item-selected {
     -webkit-box-shadow: 0 0 5px #189eff;
     -moz-box-shadow: 0 0 5px #189eff;
     box-shadow: 0 0 5px #189eff;
     border-color: #189eff;
 }
 
-.x-article-sort .thumb.drag-over:before {
+.x-product-sort .thumb.drag-over:before {
     position: absolute;
     height: 205px;
     left: -15px;
@@ -121,8 +121,8 @@
     background-position: left bottom, left top, 3px top;
 }
 
-.x-article-sort .empty-text {
-    box-shadow: #f5f7f8 0 1px 0px 0 inset, #f5f7f8 0 -1px 0px 0 inset, #f5f7f8 -1px 0 0px 0 inset, #f5f7f8 1px 0 0px 0 inset;
+.x-product-sort .empty-text {
+    box-shadow: #f5f7f8 0 1px 0 0 inset, #f5f7f8 0 -1px 0 0 inset, #f5f7f8 -1px 0 0 0 inset, #f5f7f8 1px 0 0 0 inset;
     top: 50%;
     left: 50%;
     width: 150px;
@@ -132,7 +132,7 @@
     padding: 6px;
 }
 
-.x-article-sort .empty-text span {
+.x-product-sort .empty-text span {
     display: block;
     background: #f0f2f4;
     color: #668498;

@@ -27,13 +27,11 @@ class CustomSortRepository extends ModelRepository
         $builder = $this->getQueryBuilder();
 
         $builder->select('id')
-            ->from('s_articles_sort', 'sort')
+            ->from('s_products_sort', 'sort')
             ->where('categoryId = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
-        $result = (bool) $builder->execute()->fetchColumn();
-
-        return $result;
+        return (bool) $builder->execute()->fetchColumn();
     }
 
     /**
@@ -49,13 +47,11 @@ class CustomSortRepository extends ModelRepository
         $builder = $this->getQueryBuilder();
 
         $builder->select('MAX(position)')
-            ->from('s_articles_sort', 'sort')
+            ->from('s_products_sort', 'sort')
             ->where('categoryId = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
-        $max = $builder->execute()->fetchColumn();
-
-        return $max;
+        return $builder->execute()->fetchColumn();
     }
 
     /**
@@ -69,13 +65,13 @@ class CustomSortRepository extends ModelRepository
      *
      * @return mixed
      */
-    public function getArticleImageQuery($categoryId, $sortedProductsIds, $orderBy, $offset = null, $limit = null)
+    public function getProductImageQuery($categoryId, $sortedProductsIds, $orderBy, $offset = null, $limit = null)
     {
         $builder = $this->getQueryBuilder();
 
         $builder->select(
             [
-                'product.id as articleID',
+                'product.id as productId',
                 'product.name',
                 'images.img as path',
                 'images.extension',
@@ -118,7 +114,7 @@ class CustomSortRepository extends ModelRepository
         $builder->select(
             [
                 'sort.id as positionId',
-                'product.id as articleID',
+                'product.id as productId',
                 'productDetail.ordernumber',
                 'product.name',
                 'images.img as path',
@@ -138,15 +134,13 @@ class CustomSortRepository extends ModelRepository
             ->setParameter('categoryId', $categoryId);
 
         if ($linkedCategoryId !== false) {
-            $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND sort.categoryId = :linkedCategoryId OR sort.categoryId IS NULL')
+            $builder->leftJoin('product', 's_products_sort', 'sort', 'product.id = sort.productId AND sort.categoryId = :linkedCategoryId OR sort.categoryId IS NULL')
                 ->setParameter('linkedCategoryId', $linkedCategoryId);
         } else {
-            $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)');
+            $builder->leftJoin('product', 's_products_sort', 'sort', 'product.id = sort.productId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)');
         }
 
-        $result = $builder->execute()->fetchAll();
-
-        return $result;
+        return $builder->execute()->fetchAll();
     }
 
     /**
@@ -156,7 +150,7 @@ class CustomSortRepository extends ModelRepository
      *
      * @return mixed
      */
-    public function getArticleImageCountQuery($categoryId)
+    public function getProductImageCountQuery($categoryId)
     {
         $builder = $this->getQueryBuilder();
 
@@ -173,13 +167,13 @@ class CustomSortRepository extends ModelRepository
     /**
      * Sets pin value to 0
      *
-     * @param $id - the id of the s_articles_sort record
+     * @param $id - the id of the s_products_sort record
      */
     public function unpinById($id)
     {
         $builder = $this->getQueryBuilder();
 
-        $builder->update('s_articles_sort')
+        $builder->update('s_products_sort')
             ->set('pin', 0)
             ->where('id = :id')
             ->setParameter('id', $id);
@@ -201,7 +195,7 @@ class CustomSortRepository extends ModelRepository
 
         $builder = $this->getQueryBuilder();
 
-        $builder->delete('s_articles_sort')
+        $builder->delete('s_products_sort')
             ->where('categoryId = :categoryId')
             ->andWhere('position >= :maxPinPosition')
             ->andWhere('pin = 0')
@@ -223,36 +217,32 @@ class CustomSortRepository extends ModelRepository
         $builder = $this->getQueryBuilder();
 
         $builder->select(['MAX(position) AS maxPinPosition'])
-            ->from('s_articles_sort', 'sort')
+            ->from('s_products_sort', 'sort')
             ->where('categoryId = :categoryId')
             ->andWhere('pin = 1')
             ->orderBy('position', 'DESC')
             ->setParameter('categoryId', $categoryId);
 
-        $maxPinPosition = $builder->execute()->fetchColumn();
-
-        return $maxPinPosition;
+        return $builder->execute()->fetchColumn();
     }
 
     /**
      * Returns product position for selected product
      *
-     * @param $articleId
+     * @param int $productId
      *
-     * @return mixed
+     * @return string
      */
-    public function getPositionByArticleId($articleId)
+    public function getPositionByProductId($productId)
     {
         $builder = $this->getQueryBuilder();
 
         $builder->select(['position'])
-            ->from('s_articles_sort', 'sort')
-            ->where('articleId = :articleId')
-            ->setParameter('articleId', $articleId);
+            ->from('s_products_sort', 'sort')
+            ->where('productId = :productId')
+            ->setParameter('productId', $productId);
 
-        $position = $builder->execute()->fetchColumn();
-
-        return $position;
+        return $builder->execute()->fetchColumn();
     }
 
     /**
@@ -271,9 +261,7 @@ class CustomSortRepository extends ModelRepository
             ->where('categoryID = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
-        $deletedPosition = $builder->execute()->fetchColumn();
-
-        return $deletedPosition;
+        return $builder->execute()->fetchColumn();
     }
 
     /**
@@ -296,8 +284,8 @@ class CustomSortRepository extends ModelRepository
     /**
      * Update category attributes for selected category
      *
-     * @param $categoryId
-     * @param $baseSort
+     * @param int  $categoryId
+     * @param int  $baseSort
      * @param null $categoryLink
      * @param null $defaultSort
      */
@@ -309,7 +297,7 @@ class CustomSortRepository extends ModelRepository
             ->where('categoryID = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
-        if ($baseSort != 0) {
+        if ($baseSort !== 0) {
             $builder->set('swag_base_sort', $baseSort);
         }
 
@@ -392,9 +380,7 @@ class CustomSortRepository extends ModelRepository
     {
         /** @var ModelManager $em */
         $em = $this->getEntityManager();
-        /** @var QueryBuilder $builder */
-        $builder = $em->getDBALQueryBuilder();
 
-        return $builder;
+        return $em->getDBALQueryBuilder();
     }
 }

@@ -9,6 +9,7 @@
 namespace Shopware\SwagCustomSort\Components;
 
 use Shopware\Components\Model\ModelManager;
+use Shopware\CustomModels\CustomSort\ProductSort;
 use Shopware\Models\Attribute\Category as CategoryAttributes;
 use Shopware\Models\Category\Category;
 use Shopware_Components_Config as Config;
@@ -18,75 +19,34 @@ class Listing
     /**
      * @var Config
      */
-    private $config = null;
+    private $config;
 
     /**
-     * @var ModelManager
+     * @var \Shopware\Components\Model\ModelRepository
      */
-    private $em = null;
+    private $categoryAttributesRepo;
 
-    private $categoryAttributesRepo = null;
+    /**
+     * @var \Shopware\Models\Category\Repository
+     */
+    private $categoryRepo;
 
-    private $categoryRepo = null;
+    /**
+     * @var \Shopware\CustomModels\CustomSort\CustomSortRepository
+     */
+    private $customSortRepo;
 
-    private $customSortRepo = null;
-
-    public function __construct(Config $config, ModelManager $em)
+    /**
+     * @param Config       $config
+     * @param ModelManager $modelManager
+     */
+    public function __construct(Config $config, ModelManager $modelManager)
     {
         $this->config = $config;
-        $this->em = $em;
-    }
 
-    /**
-     * @return Config
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /**
-     * @return ModelManager
-     */
-    public function getEntityManager()
-    {
-        return $this->em;
-    }
-
-    /**
-     * @return null|\Shopware\Components\Model\ModelRepository
-     */
-    public function getCategoryAttributesRepository()
-    {
-        if ($this->categoryAttributesRepo === null) {
-            $this->categoryAttributesRepo = $this->getEntityManager()->getRepository('Shopware\Models\Attribute\Category');
-        }
-
-        return $this->categoryAttributesRepo;
-    }
-
-    /**
-     * @return null|\Shopware\Models\Category\Repository
-     */
-    public function getCategoryRepository()
-    {
-        if ($this->categoryRepo === null) {
-            $this->categoryRepo = $this->getEntityManager()->getRepository('Shopware\Models\Category\Category');
-        }
-
-        return $this->categoryRepo;
-    }
-
-    /**
-     * @return null|\Shopware\CustomModels\CustomSort\CustomSortRepository
-     */
-    public function getCustomSortRepository()
-    {
-        if ($this->customSortRepo === null) {
-            $this->customSortRepo = $this->getEntityManager()->getRepository('Shopware\CustomModels\CustomSort\ArticleSort');
-        }
-
-        return $this->customSortRepo;
+        $this->categoryAttributesRepo = $modelManager->getRepository(CategoryAttributes::class);
+        $this->categoryRepo = $modelManager->getRepository(Category::class);
+        $this->customSortRepo = $modelManager->getRepository(ProductSort::class);
     }
 
     /**
@@ -114,16 +74,9 @@ class Listing
      */
     public function getFormattedSortName()
     {
-        $formattedName = $this->getSortName();
+        $formattedName = $this->config->get('swagCustomSortName');
 
         return trim($formattedName);
-    }
-
-    public function getSortName()
-    {
-        $name = $this->getConfig()->get('swagCustomSortName');
-
-        return $name;
     }
 
     /**
@@ -147,45 +100,6 @@ class Listing
     }
 
     /**
-     * @param $categoryId
-     *
-     * @return bool
-     */
-    public function isLinked($categoryId)
-    {
-        /* @var CategoryAttributes $categoryAttributes */
-        $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
-        if (!$categoryAttributes instanceof CategoryAttributes) {
-            return false;
-        }
-
-        $linkedCategoryId = $categoryAttributes->getSwagLink();
-        if ($linkedCategoryId === null) {
-            return false;
-        }
-
-        /* @var Category $category */
-        $category = $this->getCategoryRepository()->find($linkedCategoryId);
-        if (!$category instanceof Category) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks whether this category has own custom sort
-     *
-     * @param $categoryId
-     *
-     * @return bool
-     */
-    public function hasOwnSort($categoryId)
-    {
-        return $this->getCustomSortRepository()->hasCustomSort($categoryId);
-    }
-
-    /**
      * Checks whether this category has to use its custom sort by default, e.g. on category load use this custom sort
      *
      * @param $categoryId
@@ -195,7 +109,7 @@ class Listing
     public function showCustomSortAsDefault($categoryId)
     {
         /* @var CategoryAttributes $categoryAttributes */
-        $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
+        $categoryAttributes = $this->categoryAttributesRepo->findOneBy(['categoryId' => $categoryId]);
         if (!$categoryAttributes instanceof CategoryAttributes) {
             return false;
         }
@@ -220,7 +134,7 @@ class Listing
     public function getLinkedCategoryId($categoryId)
     {
         /* @var CategoryAttributes $categoryAttributes */
-        $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
+        $categoryAttributes = $this->categoryAttributesRepo->findOneBy(['categoryId' => $categoryId]);
         if (!$categoryAttributes instanceof CategoryAttributes) {
             return false;
         }
@@ -231,7 +145,7 @@ class Listing
         }
 
         /* @var Category $category */
-        $category = $this->getCategoryRepository()->find($linkedCategoryId);
+        $category = $this->categoryRepo->find($linkedCategoryId);
         if (!$category instanceof Category) {
             return false;
         }
@@ -249,7 +163,7 @@ class Listing
     public function getCategoryBaseSort($categoryId)
     {
         /* @var CategoryAttributes $categoryAttributes */
-        $categoryAttributes = $this->getCategoryAttributesRepository()->findOneBy(['categoryId' => $categoryId]);
+        $categoryAttributes = $this->categoryAttributesRepo->findOneBy(['categoryId' => $categoryId]);
         if (!$categoryAttributes instanceof CategoryAttributes) {
             return false;
         }
@@ -260,5 +174,44 @@ class Listing
         }
 
         return $baseSortId;
+    }
+
+    /**
+     * @param $categoryId
+     *
+     * @return bool
+     */
+    private function isLinked($categoryId)
+    {
+        /* @var CategoryAttributes $categoryAttributes */
+        $categoryAttributes = $this->categoryAttributesRepo->findOneBy(['categoryId' => $categoryId]);
+        if (!$categoryAttributes instanceof CategoryAttributes) {
+            return false;
+        }
+
+        $linkedCategoryId = $categoryAttributes->getSwagLink();
+        if ($linkedCategoryId === null) {
+            return false;
+        }
+
+        /* @var Category $category */
+        $category = $this->categoryRepo->find($linkedCategoryId);
+        if (!$category instanceof Category) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks whether this category has own custom sort
+     *
+     * @param $categoryId
+     *
+     * @return bool
+     */
+    private function hasOwnSort($categoryId)
+    {
+        return $this->customSortRepo->hasCustomSort($categoryId);
     }
 }

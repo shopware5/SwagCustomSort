@@ -36,6 +36,9 @@ class ControllerPath implements SubscriberInterface
         $this->templateManager = $templateManager;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return [

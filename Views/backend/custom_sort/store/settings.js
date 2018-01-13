@@ -1,4 +1,4 @@
-//{block name="backend/custom_sort/store/settings"}
+// {block name="backend/custom_sort/store/settings"}
 Ext.define('Shopware.apps.CustomSort.store.Settings', {
 
     /**
@@ -20,4 +20,4 @@ Ext.define('Shopware.apps.CustomSort.store.Settings', {
     model: 'Shopware.apps.CustomSort.model.Settings'
 
 });
-//{/block}
+// {/block}

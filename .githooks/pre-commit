@@ -26,11 +26,11 @@ class PreCommitChecks
         if ($this->isRebase()) {
             echo 'Not on branch' . PHP_EOL;
 
-            return (int) 0;
+            return 0;
         }
 
-        $this->runPhpLint($this->getCommittedFileList('php'));
-        $this->runPhpCsFixer($this->getCommittedFileList('php'));
+        $this->runPhpLint($this->getCommittedFileList());
+        $this->runPhpCsFixer($this->getCommittedFileList());
         $this->runEsLint($this->getCommittedFileList('js'));
 
         if ($this->error) {
@@ -118,6 +118,7 @@ class PreCommitChecks
             return;
         }
 
+        $fixes = [];
         foreach ($fileList as $file) {
             exec('./../../../../../../vendor/bin/php-cs-fixer fix -v --no-ansi --dry-run ' . escapeshellarg($file) . ' 2>&1', $output, $return);
 
@@ -194,7 +195,7 @@ class PreCommitChecks
             './../../../../../../themes/node_modules/eslint/bin/eslint.js ' .
             '--ignore-path .eslintignore ' .
             '-c ./../../../../../../themes/.eslintrc.js ' .
-            '--global "Ext" ' .
+            '--global "Ext, Shopware" ' .
             implode(' ', $fileList),
             $output,
             $return
@@ -213,7 +214,7 @@ class PreCommitChecks
                 './../../../../../../themes/node_modules/eslint/bin/eslint.js ' .
                 '--fix --ignore-path .eslintignore ' .
                 '-c ./../../../../../../themes/.eslintrc.js ' .
-                '--global "Ext" ' .
+                '--global "Ext, Shopware" ' .
                 implode(' ', $fileList),
                 3
             );

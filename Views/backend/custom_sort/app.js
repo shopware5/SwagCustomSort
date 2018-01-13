@@ -1,5 +1,5 @@
-//{namespace name="backend/custom_sort/view/main"}
-//{block name="backend/custom_sort/app"}
+// {namespace name="backend/custom_sort/view/main"}
+// {block name="backend/custom_sort/app"}
 Ext.define('Shopware.apps.CustomSort', {
 
     /**
@@ -37,20 +37,20 @@ Ext.define('Shopware.apps.CustomSort', {
 
     models: [
         'Settings',
-        'Article'
+        'Product'
     ],
 
     stores: [
         'Settings',
         'Tree',
-        'Article'
+        'Product'
     ],
 
     views: [
         'main.Window',
         'category.Tree',
-        'article.View',
-        'article.List'
+        'product.View',
+        'product.List'
     ],
 
     /**
@@ -61,4 +61,4 @@ Ext.define('Shopware.apps.CustomSort', {
         return this.getController('Main').mainWindow;
     }
 });
-//{/block}
+// {/block}

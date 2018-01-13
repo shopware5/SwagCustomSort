@@ -13,10 +13,10 @@ use Shopware\Components\Model\ModelEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="s_articles_sort", indexes={@ORM\Index(name="articleId", columns={"articleId"})})
+ * @ORM\Table(name="s_products_sort", indexes={@ORM\Index(name="productId", columns={"productId"})})
  * @ORM\Entity(repositoryClass="CustomSortRepository")
  */
-class ArticleSort extends ModelEntity
+class ProductSort extends ModelEntity
 {
     /**
      * @var int
@@ -37,9 +37,9 @@ class ArticleSort extends ModelEntity
     /**
      * @var int
      *
-     * @ORM\Column(name="articleId", type="integer")
+     * @ORM\Column(name="productId", type="integer")
      */
-    private $articleId;
+    private $productId;
 
     /**
      * @var int
@@ -66,17 +66,17 @@ class ArticleSort extends ModelEntity
     /**
      * @return int
      */
-    public function getArticleId()
+    public function getProductId()
     {
-        return $this->articleId;
+        return $this->productId;
     }
 
     /**
-     * @param int $articleId
+     * @param int $productId
      */
-    public function setArticleId($articleId)
+    public function setProductId($productId)
     {
-        $this->articleId = $articleId;
+        $this->productId = $productId;
     }
 
     /**
