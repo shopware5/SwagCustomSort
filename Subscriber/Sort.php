@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Subscriber;
@@ -16,30 +15,30 @@ use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\Components\Model\ModelManager;
 use Shopware\SwagCustomSort\Components\Listing;
 use Shopware\SwagCustomSort\Components\Sorting;
-use Shopware\SwagCustomSort\Sorter\SortFactory;
 use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
+use Shopware\SwagCustomSort\Sorter\SortFactory;
 
 class Sort implements SubscriberInterface
 {
     /**
-     * @var ModelManager $em
+     * @var ModelManager
      */
     protected $em;
 
     /**
-     * @var Sorting $sortingComponent
+     * @var Sorting
      */
     private $sortingComponent;
 
     /**
-     * @var Listing $listingComponent
+     * @var Listing
      */
     private $listingComponent;
 
     /**
      * @param ModelManager $em
-     * @param Sorting $sortingComponent
-     * @param Listing $listingComponent
+     * @param Sorting      $sortingComponent
+     * @param Listing      $listingComponent
      */
     public function __construct(ModelManager $em, Sorting $sortingComponent, Listing $listingComponent)
     {
@@ -59,7 +58,7 @@ class Sort implements SubscriberInterface
             'Shopware_SearchBundle_Create_Listing_Criteria' => 'onCreateListingCriteria',
             'Shopware_SearchBundle_Create_Ajax_Listing_Criteria' => 'onCreateListingCriteria',
             'Shopware_SearchBundle_Create_Product_Navigation_Criteria' => 'onCreateListingCriteria',
-            'Shopware_SearchBundleDBAL_Collect_Sorting_Handlers' => 'onCollectSortingHandlers'
+            'Shopware_SearchBundleDBAL_Collect_Sorting_Handlers' => 'onCollectSortingHandlers',
         ];
     }
 

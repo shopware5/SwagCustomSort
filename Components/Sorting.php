@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Components;
@@ -40,8 +39,9 @@ class Sorting
      * Return limited sorted products based on offset and limit
      *
      * @param array $allProducts
-     * @param int $offset
-     * @param int $limit
+     * @param int   $offset
+     * @param int   $limit
+     *
      * @return array
      */
     public function sortProducts($allProducts, $offset, $limit)
@@ -70,7 +70,7 @@ class Sorting
 
             $result[$i] = $product;
 
-            $i++;
+            ++$i;
         }
 
         ksort($result);
@@ -88,6 +88,7 @@ class Sorting
      * Return product numbers after sorted and unsorted products are properly merged
      *
      * @param array $numbers
+     *
      * @return array
      */
     public function sortByNumber($numbers)
@@ -118,7 +119,7 @@ class Sorting
             }
 
             $result[$index] = $number;
-            $index++;
+            ++$index;
         }
 
         ksort($result);
@@ -181,6 +182,7 @@ class Sorting
      * @param int $offset
      * @param int $page
      * @param int $limit
+     *
      * @return int
      */
     public function getOffset($offset, $page, $limit)
@@ -192,11 +194,11 @@ class Sorting
 
             foreach ($this->sortedProducts as $sorted) {
                 if (($sorted['position'] >= $min) && ($sorted['position'] < $max)) {
-                    $offset--;
+                    --$offset;
                 }
             }
 
-            $page--;
+            --$page;
         }
 
         if ($offset < 0) {

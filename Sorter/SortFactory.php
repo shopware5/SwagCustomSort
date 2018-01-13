@@ -1,18 +1,17 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Sorter;
 
 use Enlight_Controller_Request_Request as Request;
 use Shopware\Bundle\SearchBundle\Criteria;
-use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 use Shopware\Bundle\SearchBundle\SortingInterface;
+use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 
 class SortFactory
 {

@@ -1,16 +1,14 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\CustomModels\CustomSort;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use Shopware\Components\Model\ModelEntity;
 
 /**
@@ -21,7 +19,7 @@ use Shopware\Components\Model\ModelEntity;
 class ArticleSort extends ModelEntity
 {
     /**
-     * @var integer $id
+     * @var int
      *
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -30,28 +28,28 @@ class ArticleSort extends ModelEntity
     private $id;
 
     /**
-     * @var integer $categoryId
+     * @var int
      *
      * @ORM\Column(name="categoryId", type="integer")
      */
     private $categoryId;
 
     /**
-     * @var integer $articleId
+     * @var int
      *
      * @ORM\Column(name="articleId", type="integer")
      */
     private $articleId;
 
     /**
-     * @var integer $position
+     * @var int
      *
      * @ORM\Column(name="position", type="integer")
      */
     private $position;
 
     /**
-     * @var boolean $position
+     * @var bool
      *
      * @ORM\Column(name="pin", type="boolean", nullable=false)
      */
@@ -66,7 +64,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getArticleId()
     {
@@ -74,7 +72,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @param integer $articleId
+     * @param int $articleId
      */
     public function setArticleId($articleId)
     {
@@ -82,7 +80,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getCategoryId()
     {
@@ -90,7 +88,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @param integer $categoryId
+     * @param int $categoryId
      */
     public function setCategoryId($categoryId)
     {
@@ -98,7 +96,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getPosition()
     {
@@ -106,7 +104,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @param integer $position
+     * @param int $position
      */
     public function setPosition($position)
     {

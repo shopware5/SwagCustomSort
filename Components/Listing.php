@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Components;
@@ -92,6 +91,7 @@ class Listing
 
     /**
      * @param $categoryId
+     *
      * @return bool
      */
     public function showCustomSortName($categoryId)
@@ -119,9 +119,6 @@ class Listing
         return trim($formattedName);
     }
 
-    /**
-     * @return null
-     */
     public function getSortName()
     {
         $name = $this->getConfig()->get('swagCustomSortName');
@@ -131,6 +128,7 @@ class Listing
 
     /**
      * @param $categoryId
+     *
      * @return bool
      */
     public function hasCustomSort($categoryId)
@@ -150,6 +148,7 @@ class Listing
 
     /**
      * @param $categoryId
+     *
      * @return bool
      */
     public function isLinked($categoryId)
@@ -178,6 +177,7 @@ class Listing
      * Checks whether this category has own custom sort
      *
      * @param $categoryId
+     *
      * @return bool
      */
     public function hasOwnSort($categoryId)
@@ -189,6 +189,7 @@ class Listing
      * Checks whether this category has to use its custom sort by default, e.g. on category load use this custom sort
      *
      * @param $categoryId
+     *
      * @return bool
      */
     public function showCustomSortAsDefault($categoryId)
@@ -213,6 +214,7 @@ class Listing
      * Returns the id of the linked category.
      *
      * @param $categoryId
+     *
      * @return int
      */
     public function getLinkedCategoryId($categoryId)
@@ -241,6 +243,7 @@ class Listing
      * Returns the base sort id for selected category
      *
      * @param $categoryId
+     *
      * @return bool
      */
     public function getCategoryBaseSort($categoryId)

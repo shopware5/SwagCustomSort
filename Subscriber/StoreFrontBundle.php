@@ -1,35 +1,34 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
-use Symfony\Component\DependencyInjection\Container;
-use Shopware\SwagCustomSort\Bundle\StoreFrontBundle\ListProductService;
 use Shopware\SwagCustomSort\Bundle\SearchBundle\SortProductSearch;
+use Shopware\SwagCustomSort\Bundle\StoreFrontBundle\ListProductService;
 use Shopware\SwagCustomSort\Components\Sorting;
+use Symfony\Component\DependencyInjection\Container;
 
 class StoreFrontBundle implements SubscriberInterface
 {
     /**
-     * @var Container $container
+     * @var Container
      */
     private $container;
 
     /**
-     * @var Sorting $sortingComponent
+     * @var Sorting
      */
     private $sortingComponent;
 
     /**
      * @param Container $container
-     * @param Sorting $sortingComponent
+     * @param Sorting   $sortingComponent
      */
     public function __construct(Container $container, Sorting $sortingComponent)
     {
@@ -46,7 +45,7 @@ class StoreFrontBundle implements SubscriberInterface
     {
         return [
             'Enlight_Bootstrap_AfterInitResource_shopware_storefront.list_product_service' => 'afterInitListProductService',
-            'Enlight_Bootstrap_AfterInitResource_shopware_search.product_search' => 'afterInitProductSearch'
+            'Enlight_Bootstrap_AfterInitResource_shopware_search.product_search' => 'afterInitProductSearch',
         ];
     }
 

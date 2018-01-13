@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 use Shopware\Components\Model\ModelManager;
@@ -17,7 +16,12 @@ use Shopware\SwagCustomSort\Components\Sorting;
 class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backend_ExtJs
 {
     /**
-     * @var ModelManager $em
+     * @var array
+     */
+    protected $categoryIdCollection;
+
+    /**
+     * @var ModelManager
      */
     private $em = null;
 
@@ -27,7 +31,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     private $sortRepo = null;
 
     /**
-     * @var \Enlight_Components_Db_Adapter_Pdo_Mysql $db
+     * @var \Enlight_Components_Db_Adapter_Pdo_Mysql
      */
     private $db = null;
 
@@ -37,7 +41,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
      * @var \Shopware_Components_Config
      */
     private $config = null;
-
 
     /**
      * @var \Enlight_Event_EventManager
@@ -54,31 +57,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         }
 
         return $this->em;
-    }
-
-    /**
-     * @var array
-     */
-    protected $categoryIdCollection;
-
-    /**
-     * Convert a given virtual media path to its real URL used in the
-     * media repository for Shopware versions >= 5.1.0 (which introduced the
-     * MediaService).
-     * For older versions the path matches the filesystem structure.
-     *
-     * @param string $path
-     *
-     * @return string
-     */
-    private function getMediaPath($path)
-    {
-        if (version_compare(Shopware()->Config()->get('Version'), '5.1', '<')) {
-            return $path;
-        }
-        /** @var Shopware\Bundle\MediaBundle\MediaService $mediaService */
-        $mediaService = $this->get('shopware_media.media_service');
-        return $mediaService->getUrl($path);
     }
 
     /**
@@ -170,6 +148,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
                 $resultElement['path'] = $this->getMediaPath(
                     'media/image/thumbnail/' . $resultElement['path'] . '_140x140.' . $resultElement['extension']
                 );
+
                 return $resultElement;
             }, $result);
             $this->View()->assign(['success' => true, 'data' => $result, 'total' => $total['Total']]);
@@ -190,7 +169,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             'id' => null,
             'defaultSort' => 0,
             'categoryLink' => 0,
-            'baseSort' => $defaultSort
+            'baseSort' => $defaultSort,
         ];
 
         /** @var CategoryAttributes $categoryAttributes */
@@ -206,7 +185,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
                 'id' => null,
                 'defaultSort' => $categoryAttributes->getSwagShowByDefault(),
                 'categoryLink' => $categoryAttributes->getSwagLink(),
-                'baseSort' => $defaultSort
+                'baseSort' => $defaultSort,
             ];
         }
 
@@ -281,7 +260,7 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $sqlValues = $this->getSQLValues($sortedProducts, $categoryId);
 
         //update positions
-        $sql = "REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES "
+        $sql = 'REPLACE INTO s_articles_sort (id, categoryId, articleId, position, pin) VALUES '
             . rtrim($sqlValues, ',');
         $this->getDB()->query($sql);
 
@@ -295,151 +274,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
         $this->invalidateProductCache($movedProducts);
 
         $this->View()->assign(['success' => true]);
-    }
-
-    /**
-     * Apply new positions of the products
-     *
-     * @param array $allProducts - all products contained in the current category
-     * @param array $products - the selected products, that were dragged
-     * @param int $index - the id of offset products
-     * @return array $result
-     */
-    private function applyNewPosition($allProducts, $products, $index)
-    {
-        $allProducts = $this->prepareKeys($allProducts);
-        $products = $this->prepareKeys($products);
-
-        //apply new positions for the products
-        $result = [];
-        foreach ($products as $productData) {
-            $newPosition = $productData['position'];
-            $oldPosition = $productData['oldPosition'];
-
-            $result[$newPosition] = $productData;
-            $result[$newPosition]['position'] = $newPosition;
-            $result[$newPosition]['oldPosition'] = $oldPosition;
-        }
-
-        foreach ($allProducts as $id => &$product) {
-            if (array_key_exists($id, $products)) {
-                continue;
-            }
-
-            while (array_key_exists($index, $result)) {
-                ++$index;
-            }
-
-            $result[$index] = $product;
-            $result[$index]['position'] = $index;
-            $result[$index]['oldPosition'] = $index;
-
-            $index++;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Returns sql values for update query
-     *
-     * @param array $productsForUpdate
-     * @param int $categoryId
-     * @return string - values for update
-     */
-    private function getSQLValues($productsForUpdate, $categoryId)
-    {
-        $sqlValues = '';
-        foreach ($productsForUpdate as $newArticle) {
-            if ($newArticle['articleID'] > 0 && $newArticle['pin'] > 0) {
-                $sqlValues .= "('" . $newArticle['positionId'] . "', '"
-                    . $categoryId . "', '"
-                    . $newArticle['articleID'] . "', '"
-                    . $newArticle['position'] . "', '"
-                    . $newArticle['pin'] . "'),";
-            }
-        }
-
-        return $sqlValues;
-    }
-
-    private function prepareKeys($products)
-    {
-        $result = [];
-        foreach ($products as $product) {
-            $result[$product['articleID']] = $product;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Helper function, for getting a part of the array, which contains all products.
-     * Returns the offset from which the new array should start.
-     *
-     * @param array $products - selected products
-     * @param int $categoryId
-     * @return int - the smallest position
-     */
-    private function getOffset($products, $categoryId)
-    {
-        $offset = null;
-        foreach ($products as $productData) {
-            $newPosition = $productData['position'];
-            $oldPosition = $productData['oldPosition'];
-
-            if ($offset > min($newPosition, $oldPosition) || $offset === null) {
-                $offset = min($newPosition, $oldPosition);
-            }
-        }
-
-        $maxPosition = $this->getSortRepository()->getMaxPosition($categoryId);
-        if ($maxPosition === null) {
-            return 0;
-        }
-
-        //checks for deleted products
-        $deletedPosition = $this->getSortRepository()->getPositionOfDeletedProduct($categoryId);
-        if ($deletedPosition !== null) {
-            $offset = min($offset, ++$maxPosition, $deletedPosition);
-        } else {
-            $offset = min($offset, ++$maxPosition);
-        }
-
-        return $offset;
-    }
-
-    /**
-     * Helper function, for getting a part of the array, which contains all products.
-     * Returns the length of the new array.
-     *
-     * @param array $products
-     * @param int $offset
-     * @param int $categoryId
-     * @return int - the length of the new array
-     */
-    private function getLength($products, $offset, $categoryId)
-    {
-        $length = null;
-        foreach ($products as $productData) {
-            $newPosition = $productData['position'];
-            $oldPosition = $productData['oldPosition'];
-
-            if ($length < max($newPosition, $oldPosition) || $length === null) {
-                $length = max($newPosition, $oldPosition);
-            }
-        }
-
-        //checks for deleted products
-        $deletedPosition = $this->getSortRepository()->getPositionOfDeletedProduct($categoryId);
-        if ($deletedPosition !== null) {
-            $maxPosition = $this->getSortRepository()->getMaxPosition($categoryId);
-            $length = max($length, $maxPosition);
-        }
-
-        $length = ($length - $offset) + 1;
-
-        return $length;
     }
 
     /**
@@ -464,36 +298,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
             $this->View()->assign(['success' => true]);
         } catch (\Exception $ex) {
             $this->View()->assign(['success' => false, 'message' => $ex->getMessage()]);
-        }
-    }
-
-    private function fixDeletedPosition($deletedPosition, $allProducts)
-    {
-        $index = $deletedPosition;
-        foreach ($allProducts as &$product) {
-            if ($product['position'] < $deletedPosition) {
-                continue;
-            }
-
-            if ($product['position'] === null) {
-                break;
-            }
-
-            $product['position'] = $index++;
-        }
-
-        return $allProducts;
-    }
-
-    private function invalidateProductCache($movedProducts)
-    {
-        //Invalidate the cache for the current product
-        foreach ($movedProducts as $product) {
-            $this->getEvents()->notify(
-                'Shopware_Plugins_HttpCache_InvalidateCacheId',
-                ['cacheId' => "a{$product['id']}"]
-            );
-            break;
         }
     }
 
@@ -533,31 +337,6 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
     }
 
     /**
-     * Check current category for child categories and
-     * add ids to collection.
-     *
-     * @param Category $categoryModel
-     */
-    private function collectCategoryIds($categoryModel)
-    {
-        $categoryId = $categoryModel->getId();
-        $this->setCategoryIdCollection($categoryId);
-
-        $sql = "SELECT id FROM s_categories WHERE path LIKE ?";
-        $categories = Shopware()->Db()->fetchAll($sql, ['%|' . $categoryId . '|%']);
-
-        if (!$categories) {
-            return;
-        }
-
-        foreach ($categories as $categoryId) {
-            $this->setCategoryIdCollection($categoryId);
-        }
-
-        return;
-    }
-
-    /**
      * Get category ids collection.
      *
      * @return array
@@ -571,10 +350,234 @@ class Shopware_Controllers_Backend_CustomSort extends Shopware_Controllers_Backe
      * Insert category id to category ids collection.
      *
      * @param $categoryIdCollection
+     *
      * @return array
      */
     public function setCategoryIdCollection($categoryIdCollection)
     {
         $this->categoryIdCollection[] = $categoryIdCollection;
+    }
+
+    /**
+     * Convert a given virtual media path to its real URL used in the
+     * media repository for Shopware versions >= 5.1.0 (which introduced the
+     * MediaService).
+     * For older versions the path matches the filesystem structure.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    private function getMediaPath($path)
+    {
+        if (version_compare(Shopware()->Config()->get('Version'), '5.1', '<')) {
+            return $path;
+        }
+        /** @var Shopware\Bundle\MediaBundle\MediaService $mediaService */
+        $mediaService = $this->get('shopware_media.media_service');
+
+        return $mediaService->getUrl($path);
+    }
+
+    /**
+     * Apply new positions of the products
+     *
+     * @param array $allProducts - all products contained in the current category
+     * @param array $products    - the selected products, that were dragged
+     * @param int   $index       - the id of offset products
+     *
+     * @return array $result
+     */
+    private function applyNewPosition($allProducts, $products, $index)
+    {
+        $allProducts = $this->prepareKeys($allProducts);
+        $products = $this->prepareKeys($products);
+
+        //apply new positions for the products
+        $result = [];
+        foreach ($products as $productData) {
+            $newPosition = $productData['position'];
+            $oldPosition = $productData['oldPosition'];
+
+            $result[$newPosition] = $productData;
+            $result[$newPosition]['position'] = $newPosition;
+            $result[$newPosition]['oldPosition'] = $oldPosition;
+        }
+
+        foreach ($allProducts as $id => &$product) {
+            if (array_key_exists($id, $products)) {
+                continue;
+            }
+
+            while (array_key_exists($index, $result)) {
+                ++$index;
+            }
+
+            $result[$index] = $product;
+            $result[$index]['position'] = $index;
+            $result[$index]['oldPosition'] = $index;
+
+            ++$index;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns sql values for update query
+     *
+     * @param array $productsForUpdate
+     * @param int   $categoryId
+     *
+     * @return string - values for update
+     */
+    private function getSQLValues($productsForUpdate, $categoryId)
+    {
+        $sqlValues = '';
+        foreach ($productsForUpdate as $newArticle) {
+            if ($newArticle['articleID'] > 0 && $newArticle['pin'] > 0) {
+                $sqlValues .= "('" . $newArticle['positionId'] . "', '"
+                    . $categoryId . "', '"
+                    . $newArticle['articleID'] . "', '"
+                    . $newArticle['position'] . "', '"
+                    . $newArticle['pin'] . "'),";
+            }
+        }
+
+        return $sqlValues;
+    }
+
+    private function prepareKeys($products)
+    {
+        $result = [];
+        foreach ($products as $product) {
+            $result[$product['articleID']] = $product;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Helper function, for getting a part of the array, which contains all products.
+     * Returns the offset from which the new array should start.
+     *
+     * @param array $products   - selected products
+     * @param int   $categoryId
+     *
+     * @return int - the smallest position
+     */
+    private function getOffset($products, $categoryId)
+    {
+        $offset = null;
+        foreach ($products as $productData) {
+            $newPosition = $productData['position'];
+            $oldPosition = $productData['oldPosition'];
+
+            if ($offset > min($newPosition, $oldPosition) || $offset === null) {
+                $offset = min($newPosition, $oldPosition);
+            }
+        }
+
+        $maxPosition = $this->getSortRepository()->getMaxPosition($categoryId);
+        if ($maxPosition === null) {
+            return 0;
+        }
+
+        //checks for deleted products
+        $deletedPosition = $this->getSortRepository()->getPositionOfDeletedProduct($categoryId);
+        if ($deletedPosition !== null) {
+            $offset = min($offset, ++$maxPosition, $deletedPosition);
+        } else {
+            $offset = min($offset, ++$maxPosition);
+        }
+
+        return $offset;
+    }
+
+    /**
+     * Helper function, for getting a part of the array, which contains all products.
+     * Returns the length of the new array.
+     *
+     * @param array $products
+     * @param int   $offset
+     * @param int   $categoryId
+     *
+     * @return int - the length of the new array
+     */
+    private function getLength($products, $offset, $categoryId)
+    {
+        $length = null;
+        foreach ($products as $productData) {
+            $newPosition = $productData['position'];
+            $oldPosition = $productData['oldPosition'];
+
+            if ($length < max($newPosition, $oldPosition) || $length === null) {
+                $length = max($newPosition, $oldPosition);
+            }
+        }
+
+        //checks for deleted products
+        $deletedPosition = $this->getSortRepository()->getPositionOfDeletedProduct($categoryId);
+        if ($deletedPosition !== null) {
+            $maxPosition = $this->getSortRepository()->getMaxPosition($categoryId);
+            $length = max($length, $maxPosition);
+        }
+
+        $length = ($length - $offset) + 1;
+
+        return $length;
+    }
+
+    private function fixDeletedPosition($deletedPosition, $allProducts)
+    {
+        $index = $deletedPosition;
+        foreach ($allProducts as &$product) {
+            if ($product['position'] < $deletedPosition) {
+                continue;
+            }
+
+            if ($product['position'] === null) {
+                break;
+            }
+
+            $product['position'] = $index++;
+        }
+
+        return $allProducts;
+    }
+
+    private function invalidateProductCache($movedProducts)
+    {
+        //Invalidate the cache for the current product
+        foreach ($movedProducts as $product) {
+            $this->getEvents()->notify(
+                'Shopware_Plugins_HttpCache_InvalidateCacheId',
+                ['cacheId' => "a{$product['id']}"]
+            );
+            break;
+        }
+    }
+
+    /**
+     * Check current category for child categories and
+     * add ids to collection.
+     *
+     * @param Category $categoryModel
+     */
+    private function collectCategoryIds($categoryModel)
+    {
+        $categoryId = $categoryModel->getId();
+        $this->setCategoryIdCollection($categoryId);
+
+        $sql = 'SELECT id FROM s_categories WHERE path LIKE ?';
+        $categories = Shopware()->Db()->fetchAll($sql, ['%|' . $categoryId . '|%']);
+
+        if (!$categories) {
+            return;
+        }
+
+        foreach ($categories as $categoryId) {
+            $this->setCategoryIdCollection($categoryId);
+        }
     }
 }

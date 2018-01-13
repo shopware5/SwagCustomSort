@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\CustomModels\CustomSort;
@@ -19,6 +18,7 @@ class CustomSortRepository extends ModelRepository
      * Check if selected category has custom sorted products
      *
      * @param $categoryId
+     *
      * @return bool
      */
     public function hasCustomSort($categoryId)
@@ -40,6 +40,7 @@ class CustomSortRepository extends ModelRepository
      * Return last sort position for selected category
      *
      * @param $categoryId
+     *
      * @return mixed
      */
     public function getMaxPosition($categoryId)
@@ -60,11 +61,12 @@ class CustomSortRepository extends ModelRepository
     /**
      * Return product list and exclude product containing passed ids for selected category
      *
-     * @param int $categoryId
-     * @param array $sortedProductsIds
-     * @param int $orderBy
+     * @param int      $categoryId
+     * @param array    $sortedProductsIds
+     * @param int      $orderBy
      * @param int|null $offset
      * @param int|null $limit
+     *
      * @return mixed
      */
     public function getArticleImageQuery($categoryId, $sortedProductsIds, $orderBy, $offset = null, $limit = null)
@@ -87,7 +89,7 @@ class CustomSortRepository extends ModelRepository
             ->setParameter('categoryId', $categoryId);
 
         if ($sortedProductsIds) {
-            $builder->andWhere($builder->expr()->notIn("product.id", $sortedProductsIds));
+            $builder->andWhere($builder->expr()->notIn('product.id', $sortedProductsIds));
         }
 
         if ($offset !== null && $limit !== null) {
@@ -103,8 +105,9 @@ class CustomSortRepository extends ModelRepository
     /**
      * Get products from current category which are manually sorted
      *
-     * @param int $categoryId
+     * @param int        $categoryId
      * @param bool|false $linkedCategoryId
+     *
      * @return array
      */
     public function getSortedProducts($categoryId, $linkedCategoryId = false)
@@ -150,6 +153,7 @@ class CustomSortRepository extends ModelRepository
      * Return total count of products in selected category
      *
      * @param $categoryId
+     *
      * @return mixed
      */
     public function getArticleImageCountQuery($categoryId)
@@ -164,68 +168,6 @@ class CustomSortRepository extends ModelRepository
             ->setParameter('categoryId', $categoryId);
 
         return $builder;
-    }
-
-    /**
-     * Sort products for current category by passed sort type
-     *
-     * @param QueryBuilder $builder
-     * @param integer $orderBy
-     */
-    private function sortUnsortedByDefault($builder, $orderBy)
-    {
-        switch ($orderBy) {
-            case 1:
-                $builder->addOrderBy('product.datum', 'DESC')
-                    ->addOrderBy('product.changetime', 'DESC');
-                break;
-            case 2:
-                $builder->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
-                    ->addOrderBy('topSeller.sales', 'DESC')
-                    ->addOrderBy('topSeller.article_id', 'DESC');
-                break;
-            case 3:
-                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
-                    ->leftJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
-                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
-                    ->addOrderBy('cheapest_price', 'ASC')
-                    ->addOrderBy('product.id', 'DESC');
-                break;
-            case 4:
-                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
-                    ->leftJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
-                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
-                    ->addOrderBy('cheapest_price', 'DESC')
-                    ->addOrderBy('product.id', 'DESC');
-                break;
-            case 5:
-                $builder->addOrderBy('product.name', 'ASC');
-                break;
-            case 6:
-                $builder->addOrderBy('product.name', 'DESC');
-                break;
-            case 7:
-                $builder
-                    ->addSelect('(SUM(vote.points) / COUNT(vote.id)) as votes')
-                    ->leftJoin('product', 's_articles_vote', 'vote', 'product.id = vote.articleID')
-                    ->addOrderBy('votes', 'DESC')
-                    ->addOrderBy('product.id', 'DESC')
-                    ->groupBy('product.id');
-                break;
-            case 9:
-                $builder
-                    ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
-                    ->addOrderBy('variant.instock', 'ASC')
-                    ->addOrderBy('product.id', 'DESC');
-                break;
-            case 10:
-                $builder
-                    ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
-                    ->addOrderBy('variant.instock', 'DESC')
-                    ->addOrderBy('product.id', 'DESC');
-                break;
-
-        }
     }
 
     /**
@@ -273,6 +215,7 @@ class CustomSortRepository extends ModelRepository
      * Returns the position of the pinned record with max position
      *
      * @param $categoryId
+     *
      * @return mixed
      */
     public function getMaxPinPosition($categoryId)
@@ -295,6 +238,7 @@ class CustomSortRepository extends ModelRepository
      * Returns product position for selected product
      *
      * @param $articleId
+     *
      * @return mixed
      */
     public function getPositionByArticleId($articleId)
@@ -315,6 +259,7 @@ class CustomSortRepository extends ModelRepository
      * Returns last deleted position of product for selected category
      *
      * @param $categoryId
+     *
      * @return mixed
      */
     public function getPositionOfDeletedProduct($categoryId)
@@ -377,6 +322,67 @@ class CustomSortRepository extends ModelRepository
         }
 
         $builder->execute();
+    }
+
+    /**
+     * Sort products for current category by passed sort type
+     *
+     * @param QueryBuilder $builder
+     * @param int          $orderBy
+     */
+    private function sortUnsortedByDefault($builder, $orderBy)
+    {
+        switch ($orderBy) {
+            case 1:
+                $builder->addOrderBy('product.datum', 'DESC')
+                    ->addOrderBy('product.changetime', 'DESC');
+                break;
+            case 2:
+                $builder->leftJoin('product', 's_articles_top_seller_ro', 'topSeller', 'topSeller.article_id = product.id')
+                    ->addOrderBy('topSeller.sales', 'DESC')
+                    ->addOrderBy('topSeller.article_id', 'DESC');
+                break;
+            case 3:
+                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
+                    ->leftJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
+                    ->addOrderBy('cheapest_price', 'ASC')
+                    ->addOrderBy('product.id', 'DESC');
+                break;
+            case 4:
+                $builder->addSelect('MIN(ROUND(defaultPrice.price * priceVariant.minpurchase * 1, 2)) as cheapest_price')
+                    ->leftJoin('product', 's_articles_prices', 'defaultPrice', 'defaultPrice.articleID = product.id')
+                    ->innerJoin('defaultPrice', 's_articles_details', 'priceVariant', 'priceVariant.id = defaultPrice.articledetailsID')
+                    ->addOrderBy('cheapest_price', 'DESC')
+                    ->addOrderBy('product.id', 'DESC');
+                break;
+            case 5:
+                $builder->addOrderBy('product.name', 'ASC');
+                break;
+            case 6:
+                $builder->addOrderBy('product.name', 'DESC');
+                break;
+            case 7:
+                $builder
+                    ->addSelect('(SUM(vote.points) / COUNT(vote.id)) as votes')
+                    ->leftJoin('product', 's_articles_vote', 'vote', 'product.id = vote.articleID')
+                    ->addOrderBy('votes', 'DESC')
+                    ->addOrderBy('product.id', 'DESC')
+                    ->groupBy('product.id');
+                break;
+            case 9:
+                $builder
+                    ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
+                    ->addOrderBy('variant.instock', 'ASC')
+                    ->addOrderBy('product.id', 'DESC');
+                break;
+            case 10:
+                $builder
+                    ->innerJoin('product', 's_articles_details', 'variant', 'variant.id = product.main_detail_id')
+                    ->addOrderBy('variant.instock', 'DESC')
+                    ->addOrderBy('product.id', 'DESC');
+                break;
+        }
     }
 
     /**

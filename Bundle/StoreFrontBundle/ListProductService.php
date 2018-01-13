@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Bundle\StoreFrontBundle;
@@ -21,13 +20,13 @@ class ListProductService implements ListProductServiceInterface
     private $coreService = null;
 
     /**
-     * @var Sorting $sortingComponent
+     * @var Sorting
      */
     private $sortingComponent = null;
 
     /**
      * @param ListProductServiceInterface $coreService
-     * @param Sorting $sortingComponent
+     * @param Sorting                     $sortingComponent
      */
     public function __construct(ListProductServiceInterface $coreService, Sorting $sortingComponent)
     {
@@ -36,8 +35,9 @@ class ListProductService implements ListProductServiceInterface
     }
 
     /**
-     * @param string $number
+     * @param string                         $number
      * @param Struct\ProductContextInterface $context
+     *
      * @return Struct\ListProduct
      */
     public function get($number, Struct\ProductContextInterface $context)
@@ -48,8 +48,9 @@ class ListProductService implements ListProductServiceInterface
     }
 
     /**
-     * @param array $numbers
+     * @param array                          $numbers
      * @param Struct\ProductContextInterface $context
+     *
      * @return Struct\ListProduct[]
      */
     public function getList(array $numbers, Struct\ProductContextInterface $context)

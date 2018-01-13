@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Subscriber;
@@ -12,13 +11,13 @@ namespace Shopware\SwagCustomSort\Subscriber;
 use Enlight\Event\SubscriberInterface;
 use Shopware\Components\Model\ModelManager;
 use Shopware\SwagCustomSort\Components\Listing;
-use Shopware_Components_Config as ShopwareConfig;
 use Shopware\SwagCustomSort\Components\Sorting;
+use Shopware_Components_Config as ShopwareConfig;
 
 class Resource implements SubscriberInterface
 {
     /**
-     * @var ModelManager $modelManager
+     * @var ModelManager
      */
     private $modelManager;
 
@@ -28,7 +27,7 @@ class Resource implements SubscriberInterface
     private $config;
 
     /**
-     * @param ModelManager $modelManager
+     * @param ModelManager   $modelManager
      * @param ShopwareConfig $config
      */
     public function __construct(ModelManager $modelManager, ShopwareConfig $config)
@@ -46,7 +45,7 @@ class Resource implements SubscriberInterface
     {
         return [
             'Enlight_Bootstrap_InitResource_swagcustomsort.listing_component' => 'onInitListingComponent',
-            'Enlight_Bootstrap_InitResource_swagcustomsort.sorting_component' => 'onInitSortingComponent'
+            'Enlight_Bootstrap_InitResource_swagcustomsort.sorting_component' => 'onInitSortingComponent',
         ];
     }
 

@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 use Shopware\Models\Config\Element;
@@ -37,8 +36,9 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
     /**
      * Returns the version of the plugin as a string
      *
-     * @return string|void
      * @throws Exception
+     *
+     * @return string|void
      */
     public function getVersion()
     {
@@ -46,16 +46,16 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
 
         if ($info) {
             return $info['currentVersion'];
-        } else {
-            throw new Exception('The plugin has an invalid version file.');
         }
+        throw new Exception('The plugin has an invalid version file.');
     }
 
     /**
      * Install Plugin / Add Events
      *
-     * @return bool
      * @throws Exception
+     *
+     * @return bool
      */
     public function install()
     {
@@ -74,6 +74,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
 
     /**
      * @param string $version
+     *
      * @return bool
      */
     public function update($version)
@@ -138,7 +139,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
             new Frontend($this),
             new Backend($this, $this->get('models')),
             new Sort($this->get('models'), $sortingComponent, $listingComponent),
-            new StoreFrontBundle($container, $sortingComponent)
+            new StoreFrontBundle($container, $sortingComponent),
         ];
 
         foreach ($subscribers as $subscriber) {
@@ -191,7 +192,6 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
         try {
             $tool->createSchema($classes);
         } catch (\Doctrine\ORM\Tools\ToolsException $e) {
-            //
         }
     }
 
@@ -253,7 +253,7 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
                 'value' => 'Individuelle Sortierung',
                 'description' => 'Die neue Sortierung ist unter diesem Namen im Frontend sichtbar.',
                 'required' => true,
-                'scope' => Element::SCOPE_SHOP
+                'scope' => Element::SCOPE_SHOP,
             ]
         );
 
@@ -263,9 +263,9 @@ class Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap extends Shopware_Compon
                     'swagCustomSortName' => [
                         'label' => 'Name',
                         'description' => 'The new sort will be visible in the frontend under this name.',
-                        'value' => 'Custom Sorting'
-                    ]
-                ]
+                        'value' => 'Custom Sorting',
+                    ],
+                ],
             ]
         );
     }
