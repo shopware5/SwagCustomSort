@@ -1,0 +1,12 @@
+{
+    "name": "shopware/swag-custom-sort",
+    "type": "shopware-frontend-plugin",
+    "description": "Customize the sorting of product listings",
+    "license": "MIT",
+    "extra": {
+        "installer-name": "SwagCustomSort"
+    },
+    "require": {
+        "php": ">=5.6.4"
+    }
+}

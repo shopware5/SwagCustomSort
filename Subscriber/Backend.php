@@ -1,18 +1,19 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
-use Enlight_Event_EventArgs as EventArgs;
 use Enlight_Controller_ActionEventArgs as ActionEventArgs;
+use Enlight_Event_EventArgs as EventArgs;
 use Shopware\Components\Model\ModelManager;
+use Shopware\CustomModels\CustomSort\CustomSortRepository;
+use Shopware\CustomModels\CustomSort\ProductSort;
 use Shopware\Models\Article\Article;
 use Shopware\Models\Category\Category;
 use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as SwagCustomSort_Bootstrap;
@@ -20,23 +21,23 @@ use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as SwagCustomSort_Bootstr
 class Backend implements SubscriberInterface
 {
     /**
-     * @var SwagCustomSort_Bootstrap $bootstrap
+     * @var SwagCustomSort_Bootstrap
      */
     protected $bootstrap;
 
     /**
-     * @var ModelManager $em
+     * @var ModelManager
      */
     protected $em;
 
     /**
-     * @var \Shopware\CustomModels\CustomSort\CustomSortRepository $customSortRepo
+     * @var CustomSortRepository
      */
-    protected $customSortRepo = null;
+    private $customSortRepo;
 
     /**
      * @param SwagCustomSort_Bootstrap $bootstrap
-     * @param ModelManager $em
+     * @param ModelManager             $em
      */
     public function __construct(SwagCustomSort_Bootstrap $bootstrap, ModelManager $em)
     {
@@ -44,20 +45,15 @@ class Backend implements SubscriberInterface
         $this->em = $em;
     }
 
-    private function getSortRepository()
-    {
-        if ($this->customSortRepo === null) {
-            $this->customSortRepo = $this->em->getRepository('Shopware\CustomModels\CustomSort\ArticleSort');
-        }
-        return $this->customSortRepo;
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return [
             'Enlight_Controller_Action_PostDispatchSecure_Backend_Index' => 'onPostDispatchSecureBackendIndex',
-            'Shopware\Models\Article\Article::preRemove' => 'preRemoveArticle',
-            'Shopware\Models\Category\Category::preRemove' => 'preRemoveCategory'
+            'Shopware\Models\Article\Article::preRemove' => 'preRemoveProduct',
+            'Shopware\Models\Category\Category::preRemove' => 'preRemoveCategory',
         ];
     }
 
@@ -75,29 +71,29 @@ class Backend implements SubscriberInterface
     /**
      * @param EventArgs $arguments
      */
-    public function preRemoveArticle(EventArgs $arguments)
+    public function preRemoveProduct(EventArgs $arguments)
     {
-        /** @var Article $articleModel */
-        $articleModel = $arguments->get('entity');
-        $articleDetailId = $articleModel->getId();
+        /** @var Article $productModel */
+        $productModel = $arguments->get('entity');
+        $productVariantId = (int) $productModel->getId();
 
-        $position = $this->getSortRepository()->getPositionByArticleId($articleDetailId);
+        $position = $this->getSortRepository()->getPositionByProductId($productVariantId);
         if ($position) {
-            $categories = $articleModel->getCategories();
+            $categories = $productModel->getCategories();
             /** @var Category $category */
             foreach ($categories as $category) {
                 $catAttributes = $category->getAttribute();
                 $deletedPosition = $catAttributes->getSwagDeletedPosition();
                 if ($deletedPosition === null || $deletedPosition > $position) {
-                    $catAttributes->setSwagDeletedPosition((int)$position);
+                    $catAttributes->setSwagDeletedPosition((int) $position);
                 }
             }
         }
 
         $builder = $this->em->getDBALQueryBuilder();
-        $builder->delete('s_articles_sort')
-            ->where('articleId = :articleId')
-            ->setParameter('articleId', $articleDetailId);
+        $builder->delete('s_products_sort')
+            ->where('productId = :productId')
+            ->setParameter('productId', $productVariantId);
 
         $builder->execute();
     }
@@ -110,11 +106,23 @@ class Backend implements SubscriberInterface
         $categoryModel = $arguments->get('entity');
         $categoryId = $categoryModel->getId();
 
-        $builder =  $this->em->getDBALQueryBuilder();
-        $builder->delete('s_articles_sort')
+        $builder = $this->em->getDBALQueryBuilder();
+        $builder->delete('s_products_sort')
             ->where('categoryId = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
         $builder->execute();
+    }
+
+    /**
+     * @return CustomSortRepository
+     */
+    private function getSortRepository()
+    {
+        if ($this->customSortRepo === null) {
+            $this->customSortRepo = $this->em->getRepository(ProductSort::class);
+        }
+
+        return $this->customSortRepo;
     }
 }

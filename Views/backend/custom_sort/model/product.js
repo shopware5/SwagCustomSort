@@ -1,5 +1,5 @@
-//{block name="backend/custom_sort/model/article"}
-Ext.define('Shopware.apps.CustomSort.model.Article', {
+// {block name="backend/custom_sort/model/product"}
+Ext.define('Shopware.apps.CustomSort.model.Product', {
 
     /**
      * Extend for the standard ExtJS 4
@@ -12,8 +12,8 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
      * @array
      */
     fields: [
-        //{block name="backend/custom_sort/model/article/fields"}{/block}
-        { name: 'articleID', type: 'int', useNull: true },
+        // {block name="backend/custom_sort/model/product/fields"}{/block}
+        { name: 'productId', type: 'int', useNull: true },
         { name: 'positionId', type: 'int', useNull: true },
         { name: 'name', type: 'string' },
         { name: 'position', type: 'int' },
@@ -39,7 +39,7 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
      *
      * @int
      */
-    idProperty: 'articleID',
+    idProperty: 'productId',
 
     /**
      * Configure the data communication
@@ -58,10 +58,10 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
          * @object
          */
         api: {
-            read: '{url controller="CustomSort" action="getArticleList"}',
-            update: '{url controller="CustomSort" action="saveArticleList"}',
-            create: '{url controller="CustomSort" action="saveArticleList"}',
-            destroy: '{url controller="CustomSort" action="unpinArticle"}'
+            read: '{url controller="CustomSort" action="getProductList"}',
+            update: '{url controller="CustomSort" action="saveProductList"}',
+            create: '{url controller="CustomSort" action="saveProductList"}',
+            destroy: '{url controller="CustomSort" action="unpinProduct"}'
         },
 
         /**
@@ -84,4 +84,4 @@ Ext.define('Shopware.apps.CustomSort.model.Article', {
         }
     }
 });
-//{/block}
+// {/block}

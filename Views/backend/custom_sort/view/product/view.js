@@ -1,9 +1,9 @@
-//{namespace name="backend/custom_sort/main"}
-//{block name="backend/custom_sort/view/article/view"}
-Ext.define('Shopware.apps.CustomSort.view.article.View', {
+// {namespace name="backend/custom_sort/main"}
+// {block name="backend/custom_sort/view/product/view"}
+Ext.define('Shopware.apps.CustomSort.view.product.View', {
 
     /**
-     * Define that the article view is an extension of the Ext.form.Panel
+     * Define that the product view is an extension of the Ext.form.Panel
      * @string
      */
     extend: 'Ext.form.Panel',
@@ -12,7 +12,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
      * Register the alias for this class.
      * @string
      */
-    alias: 'widget.sort-articles-view',
+    alias: 'widget.sort-products-view',
 
     /**
      * The Ext.container.Container.layout for the fieldset's immediate child items.
@@ -38,8 +38,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
         me.tbar = me.createActionToolbar();
         me.items = [
             {
-                xtype: 'sort-articles-list',
-                store: me.articleStore
+                xtype: 'sort-products-list',
+                store: me.productStore
             }
         ];
 
@@ -54,7 +54,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
     createActionToolbar: function () {
         var me = this;
 
-        //Create checkbox for displaying custom sort by default
+        // Create checkbox for displaying custom sort by default
         me.defaultSort = Ext.create('Ext.form.field.Checkbox', {
             boxLabel: '{s name=view/default_sort}Show this sort order by default{/s}',
             cls: 'swag-custom-sort-bold-checkbox',
@@ -70,7 +70,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             }
         });
 
-        //Create combo tree in which you can link current category to another
+        // Create combo tree in which you can link current category to another
         me.categoryTreeCombo = Ext.create('Shopware.form.field.ComboTree', {
             valueField: 'id',
             displayField: 'name',
@@ -98,7 +98,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
             }
         });
 
-        //Create combo with base sorting
+        // Create combo with base sorting
         me.sorting = Ext.create('Ext.form.field.ComboBox', {
             editable: false,
             fieldLabel: '{s name=view/sorting}Base sorting{/s}',
@@ -138,4 +138,4 @@ Ext.define('Shopware.apps.CustomSort.view.article.View', {
         ];
     }
 });
-//{/block}
+// {/block}

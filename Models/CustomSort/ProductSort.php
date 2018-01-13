@@ -1,27 +1,25 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\CustomModels\CustomSort;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use Shopware\Components\Model\ModelEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="s_articles_sort", indexes={@ORM\Index(name="articleId", columns={"articleId"})})
+ * @ORM\Table(name="s_products_sort", indexes={@ORM\Index(name="productId", columns={"productId"})})
  * @ORM\Entity(repositoryClass="CustomSortRepository")
  */
-class ArticleSort extends ModelEntity
+class ProductSort extends ModelEntity
 {
     /**
-     * @var integer $id
+     * @var int
      *
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -30,28 +28,28 @@ class ArticleSort extends ModelEntity
     private $id;
 
     /**
-     * @var integer $categoryId
+     * @var int
      *
      * @ORM\Column(name="categoryId", type="integer")
      */
     private $categoryId;
 
     /**
-     * @var integer $articleId
+     * @var int
      *
-     * @ORM\Column(name="articleId", type="integer")
+     * @ORM\Column(name="productId", type="integer")
      */
-    private $articleId;
+    private $productId;
 
     /**
-     * @var integer $position
+     * @var int
      *
      * @ORM\Column(name="position", type="integer")
      */
     private $position;
 
     /**
-     * @var boolean $position
+     * @var bool
      *
      * @ORM\Column(name="pin", type="boolean", nullable=false)
      */
@@ -66,23 +64,23 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @return integer
+     * @return int
      */
-    public function getArticleId()
+    public function getProductId()
     {
-        return $this->articleId;
+        return $this->productId;
     }
 
     /**
-     * @param integer $articleId
+     * @param int $productId
      */
-    public function setArticleId($articleId)
+    public function setProductId($productId)
     {
-        $this->articleId = $articleId;
+        $this->productId = $productId;
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getCategoryId()
     {
@@ -90,7 +88,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @param integer $categoryId
+     * @param int $categoryId
      */
     public function setCategoryId($categoryId)
     {
@@ -98,7 +96,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getPosition()
     {
@@ -106,7 +104,7 @@ class ArticleSort extends ModelEntity
     }
 
     /**
-     * @param integer $position
+     * @param int $position
      */
     public function setPosition($position)
     {

@@ -1,15 +1,15 @@
 # SwagCustomSort
-> Working with Shopware version 5.0.0 to 5.1.1.
+> Working with Shopware version 5.0.0 to 5.2.27.
 > Higher versions may work either but were not tested.
 
 ## Description 
-Do you want to comletely customize the sort order of the article listing?
+Do you want to comletely customize the sort order of the product listing?
 
-Special promotion articles or new articles should always be displayed on top?
+Special promotion products or new products should always be displayed on top?
 
 
 Now you can define custom sortings with the "CustomSort" plugin.
-You can move the articles via drag 'n' drop to their new position.
+You can move the products via drag 'n' drop to their new position.
 Instead of defining own sortings you have the ability to provide basic sorting methods and modify them.
 This lets you create listings fast, effective and with just a few steps.
 
@@ -21,12 +21,12 @@ The new sortings will be displayed in the frontend with their chosen name. The n
 
 **Features:**
 
-* custom sorting for all categories (independend from the category layer)
+* custom sorting for all categories (independent from the category layer)
 * sorting via Drag&Drop
 * base sortings can be inherited
 * setup a custom sorting as default sorting
 * synchronize between categories (e.g language-shops)
-* the amount of products is customizable for a better overview (from 10 to all articles)
+* the amount of products is customizable for a better overview (from 10 to all products)
 * displaying as own sorting entry in the frontend
 
 **Requirements:**

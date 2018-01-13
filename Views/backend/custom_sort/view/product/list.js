@@ -1,9 +1,9 @@
-//{namespace name="backend/custom_sort/main"}
-//{block name="backend/custom_sort/view/article/list"}
-Ext.define('Shopware.apps.CustomSort.view.article.List', {
+// {namespace name="backend/custom_sort/main"}
+// {block name="backend/custom_sort/view/product/list"}
+Ext.define('Shopware.apps.CustomSort.view.product.List', {
 
     /**
-     * Define that the article list is an extension of the Ext.panel.Panel
+     * Define that the product list is an extension of the Ext.panel.Panel
      * @string
      */
     extend: 'Ext.panel.Panel',
@@ -12,7 +12,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
      * Register the alias for this class.
      * @string
      */
-    alias: 'widget.sort-articles-list',
+    alias: 'widget.sort-products-list',
 
     /**
      * Set no border for the window
@@ -32,7 +32,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
      * Set css class for this component
      * @string
      */
-    cls: Ext.baseCSSPrefix + 'article-sort',
+    cls: Ext.baseCSSPrefix + 'product-sort',
 
     /**
      * The initComponent template method is an important initialization step for a Component.
@@ -50,37 +50,37 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         me.viewConfig = {
             plugins: {
                 ptype: 'gridviewdragdrop',
-                ddGroup: 'Article',
+                ddGroup: 'Product',
                 enableDrop: true
             }
         };
 
-        me.items = [me.createArticleView()];
+        me.items = [me.createProductView()];
         me.dockedItems = [me.getPagingBar()];
 
         me.callParent(arguments);
     },
 
     /**
-     * Creates the article listing based on an Ext.view.View (know as DataView)
-     * and binds the "Article"-store to it
+     * Creates the product listing based on an Ext.view.View (know as DataView)
+     * and binds the "Product"-store to it
      *
      * @return [object] this.dataView - created Ext.view.View
      */
-    createArticleView: function () {
+    createProductView: function () {
         var me = this;
 
         me.dataView = Ext.create('Ext.view.View', {
             disabled: false,
             itemSelector: '.thumb',
             name: 'image-listing',
-            emptyText: '<div class="empty-text"><span>{s name=list/no_articles}No articles found{/s}</span></div>',
+            emptyText: '<div class="empty-text"><span>{s name=list/no_products}No products found{/s}</span></div>',
             multiSelect: true,
             store: me.store,
             loadMask: false,
-            tpl: me.createArticleViewTemplate(),
+            tpl: me.createProductViewTemplate(),
             listeners: {
-                itemclick: function (view, record, item, idx, event, opts) {
+                itemclick: function (view, record, item, idx, event) {
                     if (event.target.classList.contains('remove')) {
                         me.fireEvent('remove', me.store, record);
                     }
@@ -100,11 +100,11 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
     },
 
     /**
-     * Creates the template for the article view panel
+     * Creates the template for the product view panel
      *
-     * @return [object] generated Ext.XTemplate
+     * @return { Ext.XTemplate } generated Ext.XTemplate
      */
-    createArticleViewTemplate: function () {
+    createProductViewTemplate: function () {
         var me = this;
         return new Ext.XTemplate(
             '{literal}<tpl for=".">',
@@ -115,7 +115,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                 '</tpl>',
                 '<span class="sprite-cross remove"></span>',
                 '<div class="inner-thumb">',
-                    '<img src="','{link file=""}','{literal}{thumbnail}{/literal}','" />' ,
+                    '<img src="', '{link file=""}', '{literal}{thumbnail}{/literal}', '" />',
                     '<div class="detail">',
                         '<span>{[Ext.util.Format.ellipsis(values.name, 50)]}</span>',
                         '<span class="paging">',
@@ -130,20 +130,20 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             '</tpl>',
             '<div class="x-clear"></div>{/literal}',
             {
-                //Add class if current product is first position in store list
-                startPage: function (article, index) {
+                // Add class if current product is first position in store list
+                startPage: function (product, index) {
                     var store = me.store,
                         view = me.dataView,
                         position,
                         record = view.getStore().getAt((index - 1));
 
                     position = store.indexOf(record) + ((store.currentPage - 1) * store.pageSize);
-                    if (position == 0) {
+                    if (position === 0) {
                         return ' disabled';
                     }
                 },
 
-                //Add class if current product is on first page in store list
+                // Add class if current product is on first page in store list
                 prevPage: function (index) {
                     var store = me.store,
                         pageSize = store.allProductsPageSize;
@@ -155,7 +155,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     }
                 },
 
-                //Add class if current product is on last page in store list
+                // Add class if current product is on last page in store list
                 nextPage: function (index) {
                     var store = me.store,
                         lastPage,
@@ -169,8 +169,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     }
                 },
 
-                //Add class if current product is on last position in store list
-                endPage: function (article, index) {
+                // Add class if current product is on last position in store list
+                endPage: function (product, index) {
                     var store = me.store,
                         view = me.dataView,
                         position,
@@ -192,7 +192,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         var me = this;
 
         var el = me.el;
-        //Trigger event when "move to start" action is clicked
+        // Trigger event when "move to start" action is clicked
         el.on('click', function (event, target) {
             if (target.classList.contains('disabled')) {
                 return false;
@@ -203,7 +203,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             delegate: 'span.first'
         });
 
-        //Trigger event when "move to end" action is clicked
+        // Trigger event when "move to end" action is clicked
         el.on('click', function (event, target) {
             if (target.classList.contains('disabled')) {
                 return false;
@@ -214,7 +214,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             delegate: 'span.last'
         });
 
-        //Trigger event when "move to prev page" action is clicked
+        // Trigger event when "move to prev page" action is clicked
         el.on('click', function (event, target) {
             if (target.classList.contains('disabled')) {
                 return false;
@@ -225,7 +225,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             delegate: 'span.prev'
         });
 
-        //Trigger event when "move to next page" action is clicked
+        // Trigger event when "move to next page" action is clicked
         el.on('click', function (event, target) {
             if (target.classList.contains('disabled')) {
                 return false;
@@ -279,7 +279,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             store: me.store
         });
 
-        //Fire event when user uses paging toolbar
+        // Fire event when user uses paging toolbar
         pagingBar.on('beforechange', function () {
             me.fireEvent('pageChange');
         });
@@ -297,9 +297,8 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
      * a entry in the "number of products"-combo box.
      *
      * @event select
-     * @param [object] combo - Ext.form.field.ComboBox
-     * @param [array] records - Array of selected entries
-     * @return void
+     * @param { object } combo - Ext.form.field.ComboBox
+     * @param { array } records - Array of selected entries
      */
     onPageSizeChange: function (combo, records) {
         var record = records[0],
@@ -325,7 +324,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         me.dataView.on('afterrender', function (v) {
             var selModel = v.getSelectionModel();
             me.dataView.dragZone = new Ext.dd.DragZone(v.getEl(), {
-                ddGroup: 'Article',
+                ddGroup: 'Product',
                 getDragData: function (e) {
                     var sourceEl = e.getTarget(v.itemSelector, 10);
                     if (sourceEl) {
@@ -340,16 +339,14 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                         var d = sourceEl.cloneNode(true);
                         d.id = Ext.id();
 
-                        var result = {
+                        return {
                             ddel: d,
                             sourceEl: sourceEl,
                             repairXY: Ext.fly(sourceEl).getXY(),
                             sourceStore: v.store,
                             draggedRecord: v.getRecord(sourceEl),
-                            articleModels: selected
+                            productModels: selected
                         };
-
-                        return result;
                     }
                 },
                 getRepairXY: function () {
@@ -358,7 +355,7 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
             });
 
             me.dataView.dropZone = new Ext.dd.DropZone(me.dataView.getEl(), {
-                ddGroup: 'Article',
+                ddGroup: 'Product',
                 getTargetFromEvent: function (e) {
                     return e.getTarget(me.dataView.itemSelector);
                 },
@@ -370,15 +367,15 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
                     }
                 },
 
-                onNodeOut: function (target, dd, e, data) {
+                onNodeOut: function (target) {
                     Ext.fly(target).removeCls(me.dragOverCls);
                 },
 
                 onNodeDrop: function (target, dd, e, data) {
                     var draggedRecord = me.dataView.getRecord(target);
-                    var articleModels = data.articleModels;
+                    var productModels = data.productModels;
 
-                    me.fireEvent('articleMove', me.store, articleModels, draggedRecord)
+                    me.fireEvent('productMove', me.store, productModels, draggedRecord);
                 }
             });
 
@@ -386,4 +383,4 @@ Ext.define('Shopware.apps.CustomSort.view.article.List', {
         });
     }
 });
-//{/block}
+// {/block}

@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\CustomModels\CustomSort;
@@ -19,6 +18,7 @@ class CustomSortRepository extends ModelRepository
      * Check if selected category has custom sorted products
      *
      * @param $categoryId
+     *
      * @return bool
      */
     public function hasCustomSort($categoryId)
@@ -27,19 +27,18 @@ class CustomSortRepository extends ModelRepository
         $builder = $this->getQueryBuilder();
 
         $builder->select('id')
-            ->from('s_articles_sort', 'sort')
+            ->from('s_products_sort', 'sort')
             ->where('categoryId = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
-        $result = (bool) $builder->execute()->fetchColumn();
-
-        return $result;
+        return (bool) $builder->execute()->fetchColumn();
     }
 
     /**
      * Return last sort position for selected category
      *
      * @param $categoryId
+     *
      * @return mixed
      */
     public function getMaxPosition($categoryId)
@@ -48,32 +47,31 @@ class CustomSortRepository extends ModelRepository
         $builder = $this->getQueryBuilder();
 
         $builder->select('MAX(position)')
-            ->from('s_articles_sort', 'sort')
+            ->from('s_products_sort', 'sort')
             ->where('categoryId = :categoryId')
             ->setParameter('categoryId', $categoryId);
 
-        $max = $builder->execute()->fetchColumn();
-
-        return $max;
+        return $builder->execute()->fetchColumn();
     }
 
     /**
      * Return product list and exclude product containing passed ids for selected category
      *
-     * @param int $categoryId
-     * @param array $sortedProductsIds
-     * @param int $orderBy
+     * @param int      $categoryId
+     * @param array    $sortedProductsIds
+     * @param int      $orderBy
      * @param int|null $offset
      * @param int|null $limit
+     *
      * @return mixed
      */
-    public function getArticleImageQuery($categoryId, $sortedProductsIds, $orderBy, $offset = null, $limit = null)
+    public function getProductImageQuery($categoryId, $sortedProductsIds, $orderBy, $offset = null, $limit = null)
     {
         $builder = $this->getQueryBuilder();
 
         $builder->select(
             [
-                'product.id as articleID',
+                'product.id as productId',
                 'product.name',
                 'images.img as path',
                 'images.extension',
@@ -87,7 +85,7 @@ class CustomSortRepository extends ModelRepository
             ->setParameter('categoryId', $categoryId);
 
         if ($sortedProductsIds) {
-            $builder->andWhere($builder->expr()->notIn("product.id", $sortedProductsIds));
+            $builder->andWhere($builder->expr()->notIn('product.id', $sortedProductsIds));
         }
 
         if ($offset !== null && $limit !== null) {
@@ -103,8 +101,9 @@ class CustomSortRepository extends ModelRepository
     /**
      * Get products from current category which are manually sorted
      *
-     * @param int $categoryId
+     * @param int        $categoryId
      * @param bool|false $linkedCategoryId
+     *
      * @return array
      */
     public function getSortedProducts($categoryId, $linkedCategoryId = false)
@@ -115,7 +114,7 @@ class CustomSortRepository extends ModelRepository
         $builder->select(
             [
                 'sort.id as positionId',
-                'product.id as articleID',
+                'product.id as productId',
                 'productDetail.ordernumber',
                 'product.name',
                 'images.img as path',
@@ -135,24 +134,23 @@ class CustomSortRepository extends ModelRepository
             ->setParameter('categoryId', $categoryId);
 
         if ($linkedCategoryId !== false) {
-            $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND sort.categoryId = :linkedCategoryId OR sort.categoryId IS NULL')
+            $builder->leftJoin('product', 's_products_sort', 'sort', 'product.id = sort.productId AND sort.categoryId = :linkedCategoryId OR sort.categoryId IS NULL')
                 ->setParameter('linkedCategoryId', $linkedCategoryId);
         } else {
-            $builder->leftJoin('product', 's_articles_sort', 'sort', 'product.id = sort.articleId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)');
+            $builder->leftJoin('product', 's_products_sort', 'sort', 'product.id = sort.productId AND (sort.categoryId = productCategory.categoryID OR sort.categoryId IS NULL)');
         }
 
-        $result = $builder->execute()->fetchAll();
-
-        return $result;
+        return $builder->execute()->fetchAll();
     }
 
     /**
      * Return total count of products in selected category
      *
      * @param $categoryId
+     *
      * @return mixed
      */
-    public function getArticleImageCountQuery($categoryId)
+    public function getProductImageCountQuery($categoryId)
     {
         $builder = $this->getQueryBuilder();
 
@@ -167,10 +165,158 @@ class CustomSortRepository extends ModelRepository
     }
 
     /**
+     * Sets pin value to 0
+     *
+     * @param $id - the id of the s_products_sort record
+     */
+    public function unpinById($id)
+    {
+        $builder = $this->getQueryBuilder();
+
+        $builder->update('s_products_sort')
+            ->set('pin', 0)
+            ->where('id = :id')
+            ->setParameter('id', $id);
+
+        $builder->execute();
+    }
+
+    /**
+     * Deletes all records, which are unpinned, until the pinned record with max position
+     *
+     * @param $categoryId
+     */
+    public function deleteUnpinnedRecords($categoryId)
+    {
+        $maxPinPosition = $this->getMaxPinPosition($categoryId);
+        if ($maxPinPosition === null) {
+            $maxPinPosition = 0;
+        }
+
+        $builder = $this->getQueryBuilder();
+
+        $builder->delete('s_products_sort')
+            ->where('categoryId = :categoryId')
+            ->andWhere('position >= :maxPinPosition')
+            ->andWhere('pin = 0')
+            ->setParameter('categoryId', $categoryId)
+            ->setParameter(':maxPinPosition', $maxPinPosition);
+
+        $builder->execute();
+    }
+
+    /**
+     * Returns the position of the pinned record with max position
+     *
+     * @param $categoryId
+     *
+     * @return mixed
+     */
+    public function getMaxPinPosition($categoryId)
+    {
+        $builder = $this->getQueryBuilder();
+
+        $builder->select(['MAX(position) AS maxPinPosition'])
+            ->from('s_products_sort', 'sort')
+            ->where('categoryId = :categoryId')
+            ->andWhere('pin = 1')
+            ->orderBy('position', 'DESC')
+            ->setParameter('categoryId', $categoryId);
+
+        return $builder->execute()->fetchColumn();
+    }
+
+    /**
+     * Returns product position for selected product
+     *
+     * @param int $productId
+     *
+     * @return string
+     */
+    public function getPositionByProductId($productId)
+    {
+        $builder = $this->getQueryBuilder();
+
+        $builder->select(['position'])
+            ->from('s_products_sort', 'sort')
+            ->where('productId = :productId')
+            ->setParameter('productId', $productId);
+
+        return $builder->execute()->fetchColumn();
+    }
+
+    /**
+     * Returns last deleted position of product for selected category
+     *
+     * @param $categoryId
+     *
+     * @return mixed
+     */
+    public function getPositionOfDeletedProduct($categoryId)
+    {
+        $builder = $this->getQueryBuilder();
+
+        $builder->select(['swag_deleted_position'])
+            ->from('s_categories_attributes', 'categories_attributes')
+            ->where('categoryID = :categoryId')
+            ->setParameter('categoryId', $categoryId);
+
+        return $builder->execute()->fetchColumn();
+    }
+
+    /**
+     * Delete custom sort flag for selected category
+     *
+     * @param $categoryId
+     */
+    public function resetDeletedPosition($categoryId)
+    {
+        $builder = $this->getQueryBuilder();
+
+        $builder->update('s_categories_attributes')
+            ->set('swag_deleted_position', 'null')
+            ->where('categoryID = :categoryId')
+            ->setParameter('categoryId', $categoryId);
+
+        $builder->execute();
+    }
+
+    /**
+     * Update category attributes for selected category
+     *
+     * @param int  $categoryId
+     * @param int  $baseSort
+     * @param null $categoryLink
+     * @param null $defaultSort
+     */
+    public function updateCategoryAttributes($categoryId, $baseSort, $categoryLink = null, $defaultSort = null)
+    {
+        $builder = $this->getQueryBuilder();
+
+        $builder->update('s_categories_attributes')
+            ->where('categoryID = :categoryId')
+            ->setParameter('categoryId', $categoryId);
+
+        if ($baseSort !== 0) {
+            $builder->set('swag_base_sort', $baseSort);
+        }
+
+        if ($categoryLink !== null) {
+            $builder->set('swag_link', $categoryLink);
+        }
+
+        if ($defaultSort !== null) {
+            $builder->set('swag_show_by_default', $defaultSort);
+        }
+
+        $builder->execute();
+    }
+
+    /**
      * Sort products for current category by passed sort type
      *
      * @param QueryBuilder $builder
-     * @param integer $orderBy
+     * @param int          $orderBy
      */
     private function sortUnsortedByDefault($builder, $orderBy)
     {
@@ -224,159 +370,7 @@ class CustomSortRepository extends ModelRepository
                     ->addOrderBy('variant.instock', 'DESC')
                     ->addOrderBy('product.id', 'DESC');
                 break;
-
         }
-    }
-
-    /**
-     * Sets pin value to 0
-     *
-     * @param $id - the id of the s_articles_sort record
-     */
-    public function unpinById($id)
-    {
-        $builder = $this->getQueryBuilder();
-
-        $builder->update('s_articles_sort')
-            ->set('pin', 0)
-            ->where('id = :id')
-            ->setParameter('id', $id);
-
-        $builder->execute();
-    }
-
-    /**
-     * Deletes all records, which are unpinned, until the pinned record with max position
-     *
-     * @param $categoryId
-     */
-    public function deleteUnpinnedRecords($categoryId)
-    {
-        $maxPinPosition = $this->getMaxPinPosition($categoryId);
-        if ($maxPinPosition === null) {
-            $maxPinPosition = 0;
-        }
-
-        $builder = $this->getQueryBuilder();
-
-        $builder->delete('s_articles_sort')
-            ->where('categoryId = :categoryId')
-            ->andWhere('position >= :maxPinPosition')
-            ->andWhere('pin = 0')
-            ->setParameter('categoryId', $categoryId)
-            ->setParameter(':maxPinPosition', $maxPinPosition);
-
-        $builder->execute();
-    }
-
-    /**
-     * Returns the position of the pinned record with max position
-     *
-     * @param $categoryId
-     * @return mixed
-     */
-    public function getMaxPinPosition($categoryId)
-    {
-        $builder = $this->getQueryBuilder();
-
-        $builder->select(['MAX(position) AS maxPinPosition'])
-            ->from('s_articles_sort', 'sort')
-            ->where('categoryId = :categoryId')
-            ->andWhere('pin = 1')
-            ->orderBy('position', 'DESC')
-            ->setParameter('categoryId', $categoryId);
-
-        $maxPinPosition = $builder->execute()->fetchColumn();
-
-        return $maxPinPosition;
-    }
-
-    /**
-     * Returns product position for selected product
-     *
-     * @param $articleId
-     * @return mixed
-     */
-    public function getPositionByArticleId($articleId)
-    {
-        $builder = $this->getQueryBuilder();
-
-        $builder->select(['position'])
-            ->from('s_articles_sort', 'sort')
-            ->where('articleId = :articleId')
-            ->setParameter('articleId', $articleId);
-
-        $position = $builder->execute()->fetchColumn();
-
-        return $position;
-    }
-
-    /**
-     * Returns last deleted position of product for selected category
-     *
-     * @param $categoryId
-     * @return mixed
-     */
-    public function getPositionOfDeletedProduct($categoryId)
-    {
-        $builder = $this->getQueryBuilder();
-
-        $builder->select(['swag_deleted_position'])
-            ->from('s_categories_attributes', 'categories_attributes')
-            ->where('categoryID = :categoryId')
-            ->setParameter('categoryId', $categoryId);
-
-        $deletedPosition = $builder->execute()->fetchColumn();
-
-        return $deletedPosition;
-    }
-
-    /**
-     * Delete custom sort flag for selected category
-     *
-     * @param $categoryId
-     */
-    public function resetDeletedPosition($categoryId)
-    {
-        $builder = $this->getQueryBuilder();
-
-        $builder->update('s_categories_attributes')
-            ->set('swag_deleted_position', 'null')
-            ->where('categoryID = :categoryId')
-            ->setParameter('categoryId', $categoryId);
-
-        $builder->execute();
-    }
-
-    /**
-     * Update category attributes for selected category
-     *
-     * @param $categoryId
-     * @param $baseSort
-     * @param null $categoryLink
-     * @param null $defaultSort
-     */
-    public function updateCategoryAttributes($categoryId, $baseSort, $categoryLink = null, $defaultSort = null)
-    {
-        $builder = $this->getQueryBuilder();
-
-        $builder->update('s_categories_attributes')
-            ->where('categoryID = :categoryId')
-            ->setParameter('categoryId', $categoryId);
-
-        if ($baseSort != 0) {
-            $builder->set('swag_base_sort', $baseSort);
-        }
-
-        if ($categoryLink !== null) {
-            $builder->set('swag_link', $categoryLink);
-        }
-
-        if ($defaultSort !== null) {
-            $builder->set('swag_show_by_default', $defaultSort);
-        }
-
-        $builder->execute();
     }
 
     /**
@@ -386,9 +380,7 @@ class CustomSortRepository extends ModelRepository
     {
         /** @var ModelManager $em */
         $em = $this->getEntityManager();
-        /** @var QueryBuilder $builder */
-        $builder = $em->getDBALQueryBuilder();
 
-        return $builder;
+        return $em->getDBALQueryBuilder();
     }
 }

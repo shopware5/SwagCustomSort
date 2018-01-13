@@ -1,27 +1,30 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Sorter;
 
 use Enlight_Controller_Request_Request as Request;
 use Shopware\Bundle\SearchBundle\Criteria;
-use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 use Shopware\Bundle\SearchBundle\SortingInterface;
+use Shopware\SwagCustomSort\Sorter\Sort\DragDropSorting;
 
 class SortFactory
 {
     const DRAG_DROP_SORTING = 8;
 
-    private $request = null;
+    private $request;
 
-    private $criteria = null;
+    private $criteria;
 
+    /**
+     * @param Request  $request
+     * @param Criteria $criteria
+     */
     public function __construct(Request $request, Criteria $criteria)
     {
         $this->request = $request;
@@ -29,7 +32,7 @@ class SortFactory
     }
 
     /**
-     * @return Request|null
+     * @return Request
      */
     public function getRequest()
     {
@@ -37,7 +40,7 @@ class SortFactory
     }
 
     /**
-     * @return Criteria|null
+     * @return Criteria
      */
     public function getCriteria()
     {

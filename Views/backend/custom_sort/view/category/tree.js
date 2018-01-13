@@ -1,5 +1,5 @@
-//{namespace name="backend/custom_sort/view/main"}
-//{block name="backend/custom_sort/view/category/tree"}
+// {namespace name="backend/custom_sort/view/main"}
+// {block name="backend/custom_sort/view/category/tree"}
 Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
 
     /**
@@ -47,16 +47,12 @@ Ext.define('Shopware.apps.CustomSort.view.category.Tree', {
      * @return [array] columns - generated columns
      */
     createColumns: function () {
-        var columns = [
-            {
-                xtype: 'treecolumn',
-                sortable: false,
-                flex: 1,
-                dataIndex: 'text'
-            }
-        ];
-
-        return columns;
+        return [{
+            xtype: 'treecolumn',
+            sortable: false,
+            flex: 1,
+            dataIndex: 'text'
+        }];
     }
 });
-//{/block}
+// {/block}

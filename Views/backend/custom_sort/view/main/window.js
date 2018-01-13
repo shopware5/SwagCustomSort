@@ -1,5 +1,5 @@
-//{namespace name="backend/custom_sort/view/main"}
-//{block name="backend/custom_sort/view/main/main"}
+// {namespace name="backend/custom_sort/view/main"}
+// {block name="backend/custom_sort/view/main/main"}
 Ext.define('Shopware.apps.CustomSort.view.main.Window', {
 
     extend: 'Enlight.app.Window',
@@ -46,14 +46,14 @@ Ext.define('Shopware.apps.CustomSort.view.main.Window', {
                 flex: 0.25,
                 store: me.treeStore
             }, {
-                xtype: 'sort-articles-view',
+                xtype: 'sort-products-view',
                 region: 'center',
                 store: me.categorySettings,
                 treeStore: me.treeStore,
-                articleStore: me.articleStore
+                productStore: me.productStore
             }
         ];
     }
 
 });
-//{/block}
+// {/block}

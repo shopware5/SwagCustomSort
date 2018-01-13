@@ -1,11 +1,11 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
+
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
@@ -13,22 +13,21 @@ use Enlight_Template_Manager as TemplateManager;
 
 /**
  * Class ControllerPath
- * @package Shopware\SwagCustomSort\Subscriber
  */
 class ControllerPath implements SubscriberInterface
 {
     /**
-     * @var string $bootstrapPath
+     * @var string
      */
     private $bootstrapPath;
 
     /**
-     * @var TemplateManager $templateManager
+     * @var TemplateManager
      */
     private $templateManager;
 
     /**
-     * @param string $bootstrapPath
+     * @param string          $bootstrapPath
      * @param TemplateManager $templateManager
      */
     public function __construct($bootstrapPath, TemplateManager $templateManager)
@@ -37,20 +36,24 @@ class ControllerPath implements SubscriberInterface
         $this->templateManager = $templateManager;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return [
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_CustomSort' => 'onGetCustomSortControllerPath',
-            'Enlight_Controller_Dispatcher_ControllerPath_Widgets_CustomSort' => 'onGetCustomSortControllerPath'
+            'Enlight_Controller_Dispatcher_ControllerPath_Widgets_CustomSort' => 'onGetCustomSortControllerPath',
         ];
     }
 
     /**
-    * This function is responsible to resolve the backend / frontend controller path.
-    *
-    * @param  \Enlight_Event_EventArgs $args
-    * @return string
-    */
+     * This function is responsible to resolve the backend / frontend controller path.
+     *
+     * @param \Enlight_Event_EventArgs $args
+     *
+     * @return string
+     */
     public function onGetCustomSortControllerPath(\Enlight_Event_EventArgs $args)
     {
         $this->templateManager->addTemplateDir($this->bootstrapPath . 'Views/');

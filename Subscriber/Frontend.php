@@ -1,11 +1,11 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
+
 namespace Shopware\SwagCustomSort\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
@@ -15,12 +15,12 @@ use Shopware_Plugins_Frontend_SwagCustomSort_Bootstrap as PluginBootstrap;
 class Frontend implements SubscriberInterface
 {
     /**
-     * @var PluginBootstrap $bootstrap
+     * @var PluginBootstrap
      */
     private $bootstrap;
 
     /**
-     * @var string $bootstrapPath
+     * @var string
      */
     private $bootstrapPath;
 
@@ -33,6 +33,9 @@ class Frontend implements SubscriberInterface
         $this->bootstrap = $bootstrap;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return [
@@ -73,7 +76,7 @@ class Frontend implements SubscriberInterface
 
     /**
      * @param \Enlight_View_Default $view
-     * @param string $templatePath
+     * @param string                $templatePath
      */
     protected function extendsTemplate($view, $templatePath)
     {

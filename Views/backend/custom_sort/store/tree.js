@@ -1,4 +1,4 @@
-//{block name="backend/custom_sort/store/tree"}
+// {block name="backend/custom_sort/store/tree"}
 Ext.define('Shopware.apps.CustomSort.store.Tree', {
 
     /**
@@ -51,4 +51,4 @@ Ext.define('Shopware.apps.CustomSort.store.Tree', {
         }
     }
 });
-//{/block}
+// {/block}

@@ -1,10 +1,9 @@
 <?php
-/*
+/**
  * (c) shopware AG <info@shopware.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
  */
 
 namespace Shopware\SwagCustomSort\Subscriber;
@@ -14,32 +13,33 @@ use Enlight_Controller_Request_Request as Request;
 use Enlight_Event_EventArgs;
 use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\Components\Model\ModelManager;
+use Shopware\CustomModels\CustomSort\ProductSort;
 use Shopware\SwagCustomSort\Components\Listing;
 use Shopware\SwagCustomSort\Components\Sorting;
-use Shopware\SwagCustomSort\Sorter\SortFactory;
 use Shopware\SwagCustomSort\Sorter\SortDBAL\Handler\DragDropHandler;
+use Shopware\SwagCustomSort\Sorter\SortFactory;
 
 class Sort implements SubscriberInterface
 {
     /**
-     * @var ModelManager $em
+     * @var ModelManager
      */
     protected $em;
 
     /**
-     * @var Sorting $sortingComponent
+     * @var Sorting
      */
     private $sortingComponent;
 
     /**
-     * @var Listing $listingComponent
+     * @var Listing
      */
     private $listingComponent;
 
     /**
      * @param ModelManager $em
-     * @param Sorting $sortingComponent
-     * @param Listing $listingComponent
+     * @param Sorting      $sortingComponent
+     * @param Listing      $listingComponent
      */
     public function __construct(ModelManager $em, Sorting $sortingComponent, Listing $listingComponent)
     {
@@ -49,9 +49,7 @@ class Sort implements SubscriberInterface
     }
 
     /**
-     * Returns an array of event names this subscriber wants to listen to.
-     *
-     * @return array The event names to listen to
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
@@ -59,7 +57,7 @@ class Sort implements SubscriberInterface
             'Shopware_SearchBundle_Create_Listing_Criteria' => 'onCreateListingCriteria',
             'Shopware_SearchBundle_Create_Ajax_Listing_Criteria' => 'onCreateListingCriteria',
             'Shopware_SearchBundle_Create_Product_Navigation_Criteria' => 'onCreateListingCriteria',
-            'Shopware_SearchBundleDBAL_Collect_Sorting_Handlers' => 'onCollectSortingHandlers'
+            'Shopware_SearchBundleDBAL_Collect_Sorting_Handlers' => 'onCollectSortingHandlers',
         ];
     }
 
@@ -78,7 +76,7 @@ class Sort implements SubscriberInterface
         $allowedActions = ['index', 'ajaxListing', 'productNavigation'];
 
         //Don't apply custom sort if we are not in category listing
-        if (!in_array($request->getActionName(), $allowedActions)) {
+        if (!in_array($request->getActionName(), $allowedActions, true)) {
             return;
         }
 
@@ -92,12 +90,12 @@ class Sort implements SubscriberInterface
         $baseSort = $this->listingComponent->getCategoryBaseSort($categoryId);
         $sortId = $request->getParam('sSort');
 
-        if ($request->getParam('sSort') == SortFactory::DRAG_DROP_SORTING) {
+        if ((int) $sortId === SortFactory::DRAG_DROP_SORTING) {
             $useDefaultSort = true;
         }
 
         if ((!$useDefaultSort && $baseSort) || empty($sortName)
-            || ($sortId !== null && $sortId != SortFactory::DRAG_DROP_SORTING)
+            || ($sortId !== null && (int) $sortId !== SortFactory::DRAG_DROP_SORTING)
         ) {
             return;
         }
@@ -111,7 +109,7 @@ class Sort implements SubscriberInterface
 
         //Get all sorted products for current category and set them in components for further sorting
         $linkedCategoryId = $this->listingComponent->getLinkedCategoryId($categoryId);
-        $sortedProducts = $this->em->getRepository('\Shopware\CustomModels\CustomSort\ArticleSort')
+        $sortedProducts = $this->em->getRepository(ProductSort::class)
             ->getSortedProducts($categoryId, $linkedCategoryId);
         $this->sortingComponent->setSortedProducts($sortedProducts);
 

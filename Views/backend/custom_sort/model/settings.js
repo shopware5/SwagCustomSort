@@ -1,4 +1,4 @@
-//{block name="backend/custom_sort/model/settings"}
+// {block name="backend/custom_sort/model/settings"}
 Ext.define('Shopware.apps.CustomSort.model.Settings', {
 
     /**
@@ -12,7 +12,7 @@ Ext.define('Shopware.apps.CustomSort.model.Settings', {
      * @array
      */
     fields: [
-        //{block name="backend/custom_sort/model/settings/fields"}{/block}
+        // {block name="backend/custom_sort/model/settings/fields"}{/block}
         { name: 'id', type: 'int', useNull: true },
         { name: 'defaultSort', type: 'int' },
         { name: 'categoryLink', type: 'int' },
@@ -51,4 +51,4 @@ Ext.define('Shopware.apps.CustomSort.model.Settings', {
         }
     }
 });
-//{/block}
+// {/block}
